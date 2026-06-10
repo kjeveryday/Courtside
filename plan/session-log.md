@@ -19,3 +19,5 @@ Format: `ts · TASK/PHASE · why → next`
 - 2026-06-10 · TASK-14 done · decisions API w/ server-enforced F6/F7/F19 (T24; 42/42) → TASK-15 Gate card UI.
 - 2026-06-10 · TASK-15 done · Gate card UI live (per-item provenance meta row, checklist gating, async copy); smoke approve seq 1 → TASK-16 simulator (T25 first).
 - 2026-06-10 · TASK-16 done, S5 SHIPPED · browser-only async cycle proven (decision seq1 → consumed → TASK-13 working) → S6 doctor.
+- 2026-06-10 · S6 spec+cards → TASK-17 doctor core + CLI (T26/T27 first).
+- 2026-06-10 · TASK-17 done · npx courtside doctor/lint/dev live, T26/T27 → TASK-18 badge+panel.

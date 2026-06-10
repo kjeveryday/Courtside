@@ -283,3 +283,19 @@ bullets (card-shaped there; sources PRD F6/F7/F19, §5, R7, Q-6/Q-7 via DEC-24).
   acted-on state (task done / revise, agent working, new narration).
 - Test approach: unit T25 + manual-in-harness · Dependencies: [TASK-15] · Risk: med
 - Status: done (auto-approved 2026-06-10 · report: [gates/G5-TASK-16.md](gates/G5-TASK-16.md)) — **S5 complete**
+
+---
+
+## Slice S6 — pre-game (spec: [specs/pre-game.md](specs/pre-game.md)) · gates auto-approved (DEC-20)
+
+### [TASK-17] Doctor core + courtside CLI (doctor/lint/dev)
+
+- VISUAL CRITERION: terminal table from `npx courtside doctor` (badge lands TASK-18).
+- Test approach: unit T26/T27 · Dependencies: [TASK-16] · Risk: low
+- Status: done (auto-approved 2026-06-10 · report: [gates/G5-TASK-17.md](gates/G5-TASK-17.md))
+
+### [TASK-18] /api/doctor + preflight panel + header health badge
+
+- VISUAL CRITERION: green badge → click → preflight panel; break state → badge flips red live.
+- Test approach: manual-in-harness + T26 reuse · Dependencies: [TASK-17] · Risk: low
+- Status: in-progress
