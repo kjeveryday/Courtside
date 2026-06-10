@@ -2,42 +2,55 @@
 
 A local-first dashboard for human + agent development: see everything your coding
 agent does, approve what matters, and feel the progress — without leaving your seat.
-Building the **v0.1 "Courtside Lite"** cut ([PRD §12](docs/prd.md)).
+This branch contains the **v0.1 "Courtside Lite"** cut ([PRD §12](docs/prd.md)), built
+end-to-end under [framework-v2](docs/framework-v2.md) in autonomous mode (DEC-20 —
+every gate artifact preserved in [/plan](plan/)).
 
-> **Status:** ✅ S1 walking-skeleton shipped (2026-06-10) · Phase 2: S2 "scorebug" spec awaiting GATE 2.
+> **Status:** v0.1 feature-complete on branch `courtside-lite-v0` · awaiting Kyle's
+> end review (final report + [plan/backlog.md](plan/backlog.md)).
 
-## Run it
+## Run it (60 seconds)
 
 ```
-npm install
-npm run dev        # builds UI + starts the real server → printed token URL on 4310
-npm test           # vitest
-npm run check      # typecheck + lint + format + tests — must stay green
+npm install            # Node >= 24 required (node:sqlite + native TS)
+npm run dev            # builds UI, resets the demo fixture, starts the real server
+                       #   → open the printed http://127.0.0.1:4310/?token=… link
+npx courtside doctor   # the same checks the header badge runs (all green)
+npm run check          # codegen-drift + typecheck + lint + format + 52 tests
 ```
 
-Note: `npm run dev` boots the real Courtside server (token printed at
-start, WebSocket push, SQLite event log) against the sample fixture project, per the
-[system map](plan/01-system-map.md).
+The harness serves the **sample fixture project** (a Godot game mid-Phase-5,
+[spec/fixtures/](spec/fixtures/)) through the real server: token auth on 127.0.0.1
+only, live WebSocket updates, SQLite event log, HMAC-signed decisions. Every
+`npm run dev` resets the demo to "gate pending — your call, coach."
+
+### The 2-minute demo (the v0.1 ship-criterion loop)
+
+1. Open the token URL → dark mission-control: scorebug, gate card, backlog,
+   progress, ticker, ledgers, health badge, Huddle.
+2. On the **GATE 5** card: check the 4 verify steps (or skip-with-reason) → Approve.
+   The card settles: _decision logged · agent acts next session_; Next-up un-dims.
+3. Click **simulate next agent session ▸** (harness footer) → without reloading:
+   agent flips to _working_ on TASK-13, TASK-12 lands as done, ticker grows.
+4. Click **The Huddle ▸** → the deterministic since-you-last-looked briefing.
+5. Edit `spec/fixtures/sample-project/plan/state.json` → page live-updates; break
+   the JSON → red refusal; fix → recovers.
 
 ## The documentation spine
 
-| Doc                                                                | Role                                                          |
-| ------------------------------------------------------------------ | ------------------------------------------------------------- |
-| [docs/prd.md](docs/prd.md)                                         | **The design doc** (v1.1). Wins on all features & behavior.   |
-| [docs/framework-v2.md](docs/framework-v2.md)                       | The process: phases, gates, task cards, completion reports.   |
-| [CLAUDE.md](CLAUDE.md)                                             | Always-on rules; maps the framework onto this web app.        |
-| [docs/mock.html](docs/mock.html)                                   | Design language only — tokens, type, layout, Gate pattern.    |
-| [spec/state.schema.json](spec/state.schema.json)                   | **The data contract** (courtside/v0). Law for shapes & names. |
-| [spec/fixtures/state.sample.json](spec/fixtures/state.sample.json) | Sample project state the harness renders.                     |
+| Doc                                              | Role                                            |
+| ------------------------------------------------ | ----------------------------------------------- |
+| [docs/prd.md](docs/prd.md)                       | **The design doc** (v1.1). Wins on behavior.    |
+| [docs/framework-v2.md](docs/framework-v2.md)     | The process: phases, gates, cards, reports.     |
+| [CLAUDE.md](CLAUDE.md)                           | Always-on rules (amended by DEC-20).            |
+| [docs/mock.html](docs/mock.html)                 | Design language only — tokens, type, Gate.      |
+| [spec/state.schema.json](spec/state.schema.json) | **The data contract** (courtside/v0).           |
+| [spec/fixtures/](spec/fixtures/)                 | Seed state + sample project the harness serves. |
 
-## Plan state (live)
+## Plan state (the paper trail)
 
-| Artifact                                                         | What it holds                                 |
-| ---------------------------------------------------------------- | --------------------------------------------- |
-| [plan/00-inventory.md](plan/00-inventory.md)                     | Phase 0: corpus, precedence, scope. GATE 0 ✅ |
-| [plan/01-system-map.md](plan/01-system-map.md)                   | Phase 1: components + slices S1–S7. GATE 1 ✅ |
-| [plan/specs/walking-skeleton.md](plan/specs/walking-skeleton.md) | Phase 2: S1 spec. GATE 2 ✅                   |
-| [plan/backlog.md](plan/backlog.md)                               | Phase 3/4: task cards + order. GATES 3+4 ✅   |
-| [plan/open-questions.md](plan/open-questions.md)                 | Ambiguities with options + recommendations.   |
-| [plan/decisions.md](plan/decisions.md)                           | Append-only log of human/agent decisions.     |
-| [plan/tech-debt.md](plan/tech-debt.md)                           | Debt ledger.                                  |
+[plan/00-inventory.md](plan/00-inventory.md) · [plan/01-system-map.md](plan/01-system-map.md) ·
+[plan/specs/](plan/specs/) (7 slice specs) · [plan/backlog.md](plan/backlog.md) (21 task cards) ·
+[plan/gates/](plan/gates/) (a completion report per task) · [plan/decisions.md](plan/decisions.md)
+(DEC-1…27) · [plan/open-questions.md](plan/open-questions.md) · [plan/tech-debt.md](plan/tech-debt.md) ·
+[plan/session-log.md](plan/session-log.md) (narration trail)

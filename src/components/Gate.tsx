@@ -6,8 +6,7 @@ import { useState } from 'react';
 import type { CourtsideState } from '../contract/state.generated';
 import { postDecision, type DecisionPost, type GateView } from '../lib/api';
 import { EventText, ProvenanceBadge } from './Provenance';
-
-type StepState = { text: string; checked: boolean; skippedReason: string; skipping: boolean };
+import { stepsComplete, VerifySteps, type StepState } from './VerifySteps';
 
 export function GateCard({
   view,
@@ -33,7 +32,7 @@ export function GateCard({
   const [comment, setComment] = useState('');
   const [busy, setBusy] = useState(false);
 
-  const complete = steps.every((s) => s.checked || s.skippedReason.trim() !== '');
+  const complete = stepsComplete(steps);
   const rejections = (task?.rejections ?? 0) + (decided?.decision === 'reject' ? 1 : 0);
   const blocked = rejections >= 3;
 
@@ -141,48 +140,7 @@ export function GateCard({
         </p>
       ) : (
         <>
-          <h3 className="mt-4 mb-2 font-mono text-[10px] tracking-[0.12em] text-muted uppercase">
-            Verify in 60 seconds — every step checked or skipped-with-reason to approve
-          </h3>
-          {steps.map((s, i) => (
-            <div key={s.text} className="mb-2 rounded-lg border border-line bg-bg px-3 py-2.5">
-              <label className="flex items-start gap-2.5 text-sm">
-                <input
-                  type="checkbox"
-                  checked={s.checked}
-                  onChange={(e) =>
-                    setSteps(
-                      steps.map((x, j) => (j === i ? { ...x, checked: e.target.checked } : x)),
-                    )
-                  }
-                  className="mt-0.5 h-4 w-4 accent-(--color-accent)"
-                />
-                <span className={s.checked ? 'text-muted line-through' : ''}>{s.text}</span>
-                {!s.checked && (
-                  <button
-                    className="ml-auto font-mono text-[10px] text-muted underline"
-                    onClick={() =>
-                      setSteps(steps.map((x, j) => (j === i ? { ...x, skipping: !x.skipping } : x)))
-                    }
-                  >
-                    skip…
-                  </button>
-                )}
-              </label>
-              {s.skipping && !s.checked && (
-                <input
-                  value={s.skippedReason}
-                  onChange={(e) =>
-                    setSteps(
-                      steps.map((x, j) => (j === i ? { ...x, skippedReason: e.target.value } : x)),
-                    )
-                  }
-                  placeholder="why is it safe to skip this step?"
-                  className="mt-2 w-full rounded border border-line bg-surface2 px-2 py-1 text-xs"
-                />
-              )}
-            </div>
-          ))}
+          <VerifySteps steps={steps} onChange={setSteps} />
           <textarea
             value={comment}
             onChange={(e) => setComment(e.target.value)}

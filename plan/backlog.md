@@ -318,3 +318,21 @@ bullets (card-shaped there; sources PRD F6/F7/F19, §5, R7, Q-6/Q-7 via DEC-24).
   from state + decision log + SQLite last-seen; all facts verified-provenance.
 - Test approach: unit T29 (briefing builder) + manual · Dependencies: [TASK-19] · Risk: low
 - Status: done (auto-approved 2026-06-10 · report: [gates/G5-TASK-20.md](gates/G5-TASK-20.md)) — **S7 complete**
+
+---
+
+## Ship check (TASK-21) · v0.1 cut-line
+
+### [TASK-21] Ship-check vs PRD §12 criteria + final wrap
+
+- Source: PRD §12 ship criteria; DEC-20 (final report mandate)
+- Description: prove both ship criteria, sweep rules compliance, finalize docs.
+- Acceptance criteria: (1) full async gate cycle browser-only — proven at TASK-16
+  and scripted in README's 2-minute demo; (2) fresh clone → `npx courtside` all
+  green — proven: clone + npm install + doctor (auto-scaffolds fixture) + 52/52
+  check in **14 seconds** (criterion: <15 min); rule-12 line counts brought under
+  200 (App 195, Gate 183 after splits); README final; all plan artifacts current.
+- VISUAL CRITERION: README's "2-minute demo" runs end-to-end in the browser.
+- Test approach: timed clone simulation + full check + manual demo
+- Dependencies: [TASK-20] · Risk: low
+- Status: done (auto-approved 2026-06-10 · report: [gates/G5-TASK-21.md](gates/G5-TASK-21.md)) — **v0.1 LITE COMPLETE, awaiting human end review**

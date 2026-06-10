@@ -55,7 +55,9 @@ export async function cli(argv: string[]): Promise<number> {
         console.log(`\n${category.toUpperCase()}`);
       }
       console.log(
-        `  ${ICONS[f.status]} ${f.id} — ${f.detail}${f.fixit ? `\n      fix: ${f.fixit}` : ''}`,
+        `  ${ICONS[f.status]} ${f.id} — ${f.detail}${
+          f.fixit && f.status !== 'pass' ? `\n      fix: ${f.fixit}` : ''
+        }`,
       );
     }
     const fails = findings.filter((f) => f.status === 'fail').length;
