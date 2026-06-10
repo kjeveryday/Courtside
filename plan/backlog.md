@@ -250,4 +250,4 @@ sources PRD §5/R7, AD-1..8).
 - VISUAL CRITERION: edit fixture state.json → page updates live, no reload; broken
   JSON → live refusal; header live-dot.
 - Test approach: unit T18/T19 + integration T20 · Dependencies: [TASK-11] · Risk: med
-- Status: done (auto-approved 2026-06-10 · report: [gates/G5-TASK-11.md](gates/G5-TASK-11.md))
+- Status: in-progress
