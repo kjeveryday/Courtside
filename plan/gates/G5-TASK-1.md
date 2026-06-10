@@ -1,4 +1,10 @@
-# GATE 5 · G5-TASK-1 — pending
+# GATE 5 · G5-TASK-1 — ✅ approved 2026-06-10 (DEC-14)
+
+Human verified in browser after an environment fix (DEC-13: npm wasn't on his
+terminal's PATH). Per-feature audit (framework §8) re-checked every report claim
+against the diff: all claims trace to shown output; deviations were disclosed
+pre-approval; 0 findings. _(Audit is agent-performed — the browser verify above is
+the human-verified half.)_
 
 Posted 2026-06-10 · task: [TASK-1](../backlog.md) · commit `cd8c233` ·
 [diff on GitHub](https://github.com/kjeveryday/Courtside/commit/cd8c233)

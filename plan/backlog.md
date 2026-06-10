@@ -38,7 +38,7 @@ no parallelism available or needed.
 - Dependencies: none
 - Risk: low — boring, well-trodden scaffolding; only sharp edge is pinning
   host/port/strictPort correctly.
-- Status: in-review (GATE 5 posted 2026-06-10 · report: [gates/G5-TASK-1.md](gates/G5-TASK-1.md))
+- Status: done (GATE 5 approved 2026-06-10 · report: [gates/G5-TASK-1.md](gates/G5-TASK-1.md))
 
 ### [TASK-2] Contract pipeline: codegen, validator, tests
 
@@ -62,7 +62,7 @@ no parallelism available or needed.
 - Dependencies: [TASK-1]
 - Risk: low — schema is plain draft-07; watch-item: json-schema-to-typescript output
   occasionally needs tsconfig accommodation, caught immediately by `npm run check`.
-- Status: todo
+- Status: in-progress
 
 ### [TASK-3] Fixture status page with refusal state
 
