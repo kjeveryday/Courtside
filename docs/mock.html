@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<!--
+  COURTSIDE MOCK — design-language spec only (tokens, type, layout, themes, Gate
+  interaction). Built against PRD v1.0; the PRD (docs/prd.md, v1.1+) ALWAYS wins on
+  features/behavior. Known stale vs v1.1: gate meta row lacks verified/claimed
+  badges (F18); approval implies a synchronous agent resume (gates are async in
+  v1.1); Huddle, Game Tape, and rejection states are not mocked. Do not "fix" code
+  to match this file where it conflicts with the PRD.
+-->
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Courtside — Mission Control</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#14171C; --surface:#1C2128; --surface2:#222933; --line:#2A313B;
+    --text:#E8EAED; --muted:#8B94A1; --accent:#E8A33D; --accent-ink:#1A1206;
+    --ok:#4CAF7D; --risk:#D06262; --info:#6B93C4;
+    --radius:10px;
+    --display:'Barlow Condensed',system-ui,sans-serif;
+    --body:'IBM Plex Sans',system-ui,sans-serif;
+    --mono:'IBM Plex Mono',ui-monospace,monospace;
+  }
+  [data-theme="ballhalla"]{
+    --bg:#1C1410; --surface:#271D15; --surface2:#31251A; --line:#41311F;
+    --text:#F3E9DC; --muted:#A6927B; --accent:#F07F2D; --accent-ink:#241102;
+    --ok:#7FB069; --risk:#D06262; --info:#E5C26B;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:var(--bg);color:var(--text);font-family:var(--body);font-size:14px;line-height:1.5;transition:background .4s}
+  a{color:var(--info);text-decoration:none}
+  a:hover{text-decoration:underline}
+  button{font-family:inherit;cursor:pointer}
+  :focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+
+  .wrap{max-width:1180px;margin:0 auto;padding:0 20px 60px}
+
+  /* ── Header ─────────────────────────── */
+  header{display:flex;align-items:center;gap:16px;padding:16px 0;border-bottom:1px solid var(--line);flex-wrap:wrap}
+  .brand{font-family:var(--display);font-weight:700;font-size:26px;letter-spacing:.06em;text-transform:uppercase}
+  .brand span{color:var(--accent)}
+  .chip{font-family:var(--mono);font-size:11px;padding:3px 10px;border:1px solid var(--line);border-radius:999px;color:var(--muted)}
+  .health{display:flex;align-items:center;gap:6px;font-family:var(--mono);font-size:11px;color:var(--ok)}
+  .dot{width:8px;height:8px;border-radius:50%;background:var(--ok);box-shadow:0 0 6px var(--ok)}
+  .spacer{flex:1}
+  .theme-toggle{display:flex;border:1px solid var(--line);border-radius:999px;overflow:hidden}
+  .theme-toggle button{background:none;border:none;color:var(--muted);font-family:var(--mono);font-size:11px;padding:6px 14px}
+  .theme-toggle button.active{background:var(--accent);color:var(--accent-ink);font-weight:500}
+
+  /* ── Scorebug strip ─────────────────── */
+  .scorebug{display:grid;grid-template-columns:auto 1fr auto auto;gap:0;margin:20px 0;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);overflow:hidden}
+  .bug-cell{padding:14px 20px;border-right:1px solid var(--line)}
+  .bug-cell:last-child{border-right:none}
+  .bug-label{font-family:var(--mono);font-size:10px;text-transform:uppercase;letter-spacing:.12em;color:var(--muted);margin-bottom:3px}
+  .bug-value{font-family:var(--display);font-size:22px;font-weight:600;letter-spacing:.02em;line-height:1.1}
+  .bug-value.waiting{color:var(--accent)}
+  .bug-sub{font-size:12px;color:var(--muted);margin-top:2px}
+  .pulse{display:inline-block;width:9px;height:9px;border-radius:50%;background:var(--accent);margin-right:8px;animation:pulse 1.6s infinite}
+  @keyframes pulse{0%,100%{opacity:1}50%{opacity:.25}}
+  @media (prefers-reduced-motion: reduce){.pulse{animation:none}}
+
+  /* ── Layout ─────────────────────────── */
+  .grid{display:grid;grid-template-columns:1.6fr 1fr;gap:20px}
+  @media(max-width:860px){.grid{grid-template-columns:1fr}.scorebug{grid-template-columns:1fr 1fr}}
+
+  .card{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:18px 20px;margin-bottom:20px}
+  .card h2{font-family:var(--display);font-size:15px;font-weight:600;text-transform:uppercase;letter-spacing:.12em;color:var(--muted);margin-bottom:14px;display:flex;align-items:center;gap:8px}
+  .count{font-family:var(--mono);font-size:11px;background:var(--surface2);border:1px solid var(--line);border-radius:999px;padding:1px 8px;color:var(--text)}
+
+  /* ── THE GATE (signature) ───────────── */
+  .gate{border:1px solid var(--accent);position:relative;box-shadow:0 0 0 4px color-mix(in srgb, var(--accent) 10%, transparent)}
+  .gate-band{position:absolute;top:0;left:0;right:0;height:4px;background:repeating-linear-gradient(45deg,var(--accent),var(--accent) 10px,transparent 10px,transparent 20px);border-radius:var(--radius) var(--radius) 0 0}
+  .gate-head{display:flex;align-items:baseline;gap:12px;margin-bottom:6px;flex-wrap:wrap}
+  .gate-id{font-family:var(--mono);font-size:11px;color:var(--accent);border:1px solid var(--accent);border-radius:4px;padding:2px 8px}
+  .gate-title{font-family:var(--display);font-size:24px;font-weight:600}
+  .tldr{background:var(--surface2);border-left:3px solid var(--accent);border-radius:0 6px 6px 0;padding:10px 14px;margin:12px 0;font-size:13.5px}
+  .tldr b{font-family:var(--mono);font-size:10px;text-transform:uppercase;letter-spacing:.12em;color:var(--accent);display:block;margin-bottom:4px}
+  .meta-row{display:flex;gap:18px;flex-wrap:wrap;font-family:var(--mono);font-size:11px;color:var(--muted);margin:10px 0 14px}
+  .meta-row .ok{color:var(--ok)}
+
+  .verify h3{font-family:var(--mono);font-size:10px;text-transform:uppercase;letter-spacing:.12em;color:var(--muted);margin:14px 0 8px}
+  .step{display:flex;gap:12px;align-items:flex-start;padding:10px 12px;border:1px solid var(--line);border-radius:8px;margin-bottom:8px;background:var(--bg);transition:border-color .2s}
+  .step input{margin-top:3px;accent-color:var(--accent);width:16px;height:16px;flex:none}
+  .step.done{border-color:var(--ok)}
+  .step.done .step-text{color:var(--muted);text-decoration:line-through}
+  .step kbd{font-family:var(--mono);font-size:11px;background:var(--surface2);border:1px solid var(--line);border-bottom-width:2px;border-radius:4px;padding:1px 6px}
+
+  .gate-actions{display:flex;gap:10px;margin-top:16px;flex-wrap:wrap;align-items:center}
+  .btn{border-radius:8px;border:1px solid var(--line);background:var(--surface2);color:var(--text);padding:10px 18px;font-size:13px;font-weight:500}
+  .btn-approve{background:var(--accent);border-color:var(--accent);color:var(--accent-ink);font-weight:600}
+  .btn-approve:disabled{opacity:.35;cursor:not-allowed}
+  .gate-hint{font-size:12px;color:var(--muted)}
+
+  /* Below the gate: dimmed until cleared */
+  .next-up{transition:filter .6s,opacity .6s}
+  .next-up.locked{filter:grayscale(.9);opacity:.45;pointer-events:none}
+  .lock-note{font-family:var(--mono);font-size:11px;color:var(--accent);margin-bottom:10px}
+  .task{display:flex;align-items:center;gap:12px;padding:11px 12px;border:1px solid var(--line);border-radius:8px;margin-bottom:8px;background:var(--bg)}
+  .task-id{font-family:var(--mono);font-size:11px;color:var(--muted);flex:none}
+  .task-name{flex:1}
+  .badge{font-family:var(--mono);font-size:10px;border-radius:4px;padding:2px 7px;flex:none}
+  .badge.med{background:color-mix(in srgb,var(--accent) 16%,transparent);color:var(--accent)}
+  .badge.low{background:color-mix(in srgb,var(--ok) 16%,transparent);color:var(--ok)}
+  .badge.logic{background:var(--surface2);color:var(--muted);border:1px solid var(--line)}
+
+  /* ── Side column ────────────────────── */
+  .milestone-bar{height:10px;background:var(--bg);border:1px solid var(--line);border-radius:999px;overflow:hidden;margin:6px 0 4px}
+  .milestone-fill{height:100%;width:42%;background:var(--accent);border-radius:999px;transition:width .8s ease}
+  .bar-meta{display:flex;justify-content:space-between;font-family:var(--mono);font-size:11px;color:var(--muted)}
+
+  .court{display:none;margin-top:8px}
+  [data-theme="ballhalla"] .court{display:block}
+  [data-theme="ballhalla"] .milestone-bar{display:none}
+
+  .ticker{list-style:none}
+  .ticker li{display:flex;gap:10px;padding:9px 0;border-bottom:1px solid var(--line);font-size:12.5px}
+  .ticker li:last-child{border-bottom:none}
+  .ticker time{font-family:var(--mono);font-size:10.5px;color:var(--muted);flex:none;padding-top:2px}
+  .ticker .kind{flex:none;width:8px;height:8px;border-radius:50%;margin-top:5px}
+  .k-narr{background:var(--info)} .k-test{background:var(--ok)} .k-gate{background:var(--accent)}
+
+  .ledger{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid var(--line);font-size:13px}
+  .ledger:last-child{border-bottom:none}
+  .age{font-family:var(--mono);font-size:10.5px;color:var(--risk)}
+  .age.fresh{color:var(--muted)}
+
+  /* Achievements (Ballhalla only) */
+  .achievements{display:none;gap:10px;flex-wrap:wrap}
+  [data-theme="ballhalla"] .achievements{display:flex}
+  .ach{display:flex;align-items:center;gap:8px;border:1px solid var(--line);border-radius:8px;padding:8px 12px;background:var(--bg);font-size:12px}
+  .ach .ico{font-size:16px}
+  .ach.locked{opacity:.4}
+
+  /* Toast */
+  .toast{position:fixed;bottom:24px;left:50%;transform:translate(-50%,80px);background:var(--accent);color:var(--accent-ink);font-family:var(--display);font-size:18px;font-weight:700;letter-spacing:.04em;padding:14px 26px;border-radius:10px;opacity:0;transition:all .45s cubic-bezier(.2,.9,.3,1.4);pointer-events:none;text-transform:uppercase;box-shadow:0 10px 30px rgba(0,0,0,.4)}
+  .toast.show{transform:translate(-50%,0);opacity:1}
+
+  footer{margin-top:30px;font-family:var(--mono);font-size:10.5px;color:var(--muted);text-align:center}
+</style>
+</head>
+<body data-theme="frontoffice">
+<div class="wrap">
+
+  <header>
+    <div class="brand">Court<span>side</span></div>
+    <span class="chip" id="phaseChip">Phase 5 · Slice: battle-core</span>
+    <span class="health"><span class="dot"></span><span id="healthLabel">doctor: all green · mcp 41ms</span></span>
+    <div class="spacer"></div>
+    <div class="theme-toggle" role="group" aria-label="Theme">
+      <button id="btnFO" class="active" onclick="setTheme('frontoffice')">Front Office</button>
+      <button id="btnBH" onclick="setTheme('ballhalla')">Ballhalla</button>
+    </div>
+  </header>
+
+  <!-- Scorebug -->
+  <div class="scorebug" role="status">
+    <div class="bug-cell">
+      <div class="bug-label">Agent</div>
+      <div class="bug-value waiting" id="agentState"><span class="pulse"></span>Waiting at gate</div>
+      <div class="bug-sub" id="agentSub">since 7:42 PM · 3 min ago</div>
+    </div>
+    <div class="bug-cell">
+      <div class="bug-label">Last narration</div>
+      <div class="bug-value" style="font-size:16px;font-family:var(--body);font-weight:500">Wired range overlay into DebugBattle; all 14 GUT tests green. Next: your review.</div>
+      <div class="bug-sub">TASK-12 · render movement range overlay</div>
+    </div>
+    <div class="bug-cell">
+      <div class="bug-label">Session</div>
+      <div class="bug-value">01:38</div>
+      <div class="bug-sub" id="sessionSub">2 tasks shipped</div>
+    </div>
+    <div class="bug-cell">
+      <div class="bug-label" id="xpLabel">Tests</div>
+      <div class="bug-value" id="xpValue">96 ✓</div>
+      <div class="bug-sub" id="xpSub">0 failing</div>
+    </div>
+  </div>
+
+  <div class="grid">
+    <!-- ── MAIN: the Gate ── -->
+    <main>
+      <section class="card gate" aria-label="Pending gate">
+        <div class="gate-band"></div>
+        <div class="gate-head">
+          <span class="gate-id">GATE 5</span>
+          <span class="gate-title" id="gateTitle">Task review · TASK-12</span>
+        </div>
+        <div style="font-size:13px;color:var(--muted)">Render movement range overlay &nbsp;·&nbsp; source: <a href="#">gdd.md#movement-ranges</a></div>
+
+        <div class="tldr"><b>TL;DR</b>
+          Clicking a unit now highlights every tile it can reach this turn. Range comes from the unit's SPD stat via the pure <span style="font-family:var(--mono);font-size:12px">GridRange</span> class, so it's unit-tested and engine-free.
+        </div>
+
+        <div class="meta-row">
+          <span class="ok">✓ 14/14 GUT tests</span>
+          <span class="ok">✓ lint clean</span>
+          <span class="ok">✓ self-audit: 0 findings</span>
+          <span><a href="#" id="commitLink">commit 3f8a21c ↗</a></span>
+        </div>
+
+        <div class="verify">
+          <h3>Verify in 60 seconds — all steps required to approve</h3>
+          <label class="step"><input type="checkbox" class="vstep"><span class="step-text">Open <b>DebugBattle</b>, press <kbd>F5</kbd></span></label>
+          <label class="step"><input type="checkbox" class="vstep"><span class="step-text">Click unit <b>Guard #4</b> (SPD 3)</span></label>
+          <label class="step"><input type="checkbox" class="vstep"><span class="step-text">Press <kbd>M</kbd> — blue tiles appear within range 3, blocked tiles excluded</span></label>
+          <label class="step"><input type="checkbox" class="vstep"><span class="step-text">Debug panel reads <kbd>MOVE range=3 src=SPD</kbd></span></label>
+        </div>
+
+        <div class="gate-actions">
+          <button class="btn btn-approve" id="approveBtn" disabled onclick="approveGate()">Approve gate</button>
+          <button class="btn">Reject with comment</button>
+          <button class="btn">Ask the agent…</button>
+          <span class="gate-hint" id="gateHint">Complete all 4 verify steps to unlock approval.</span>
+        </div>
+      </section>
+
+      <section class="card next-up locked" id="nextUp" aria-label="Next up">
+        <h2 id="nextUpTitle">Next up · battle-core <span class="count">3</span></h2>
+        <div class="lock-note" id="lockNote">▮ Locked behind GATE 5 — clears when you approve above</div>
+        <div class="task"><span class="task-id">TASK-13</span><span class="task-name">Move unit along selected path</span><span class="badge med">risk: med</span></div>
+        <div class="task"><span class="task-id">TASK-14</span><span class="task-name">Action menu: pass / shoot / end</span><span class="badge low">risk: low</span></div>
+        <div class="task"><span class="task-id">TASK-15</span><span class="task-name">Shot resolution math (pure C#)</span><span class="badge logic">logic-only → surfaces at T-16</span></div>
+      </section>
+
+      <section class="card">
+        <h2 id="achTitle">Achievements</h2>
+        <div class="achievements">
+          <div class="ach"><span class="ico">🏀</span> First Bucket — first task shipped</div>
+          <div class="ach"><span class="ico">🛡️</span> Lockdown Defense — clean audit</div>
+          <div class="ach" id="andOne" style="display:none"><span class="ico">🔥</span> And-One — approved, zero rejections</div>
+          <div class="ach locked"><span class="ico">⛹️</span> Heat Check — 5 approvals in a session</div>
+          <div class="ach locked"><span class="ico">✋</span> Charge Taken — rejection that caught a spec violation</div>
+        </div>
+        <p id="achAlt" style="font-size:12.5px;color:var(--muted)">Switch to the <b>Ballhalla</b> theme to see the achievement pack — the base theme keeps it quiet on purpose.</p>
+      </section>
+    </main>
+
+    <!-- ── SIDE ── -->
+    <aside>
+      <section class="card">
+        <h2 id="progTitle">Milestone · Walking skeleton</h2>
+        <div class="milestone-bar"><div class="milestone-fill" id="fill"></div></div>
+        <svg class="court" viewBox="0 0 300 130" aria-label="Court progress">
+          <rect x="2" y="2" width="296" height="126" rx="8" fill="none" stroke="var(--line)" stroke-width="2"/>
+          <line x1="150" y1="2" x2="150" y2="128" stroke="var(--line)" stroke-width="2"/>
+          <circle cx="150" cy="65" r="24" fill="none" stroke="var(--line)" stroke-width="2"/>
+          <path d="M2,25 A55,55 0 0 1 2,105" fill="none" stroke="var(--line)" stroke-width="2" transform="translate(8,0)"/>
+          <path d="M298,25 A55,55 0 0 0 298,105" fill="none" stroke="var(--line)" stroke-width="2" transform="translate(-8,0)"/>
+          <circle id="ball" cx="126" cy="65" r="9" fill="var(--accent)"/>
+          <text x="290" y="120" text-anchor="end" font-family="var(--mono)" font-size="9" fill="var(--muted)">SHIP = BUCKET →</text>
+        </svg>
+        <div class="bar-meta"><span id="pct">42%</span><span>5 of 12 tasks · est. 2 sessions left</span></div>
+      </section>
+
+      <section class="card">
+        <h2>Ticker</h2>
+        <ul class="ticker" id="ticker">
+          <li><span class="kind k-test"></span><time>7:41p</time><span>GUT: 14/14 pass on GridRangeTests — proving range math before the overlay renders.</span></li>
+          <li><span class="kind k-narr"></span><time>7:36p</time><span>Why: wiring overlay into DebugBattle so you can verify visually. Next: run tests, post report.</span></li>
+          <li><span class="kind k-narr"></span><time>7:28p</time><span>Why: implementing GridRange as pure C# so it tests headlessly. Next: harness wiring.</span></li>
+          <li><span class="kind k-gate"></span><time>7:04p</time><span>GATE 5 · TASK-11 approved by you — debug panel readouts.</span></li>
+        </ul>
+      </section>
+
+      <section class="card">
+        <h2>Ledgers</h2>
+        <div class="ledger"><span>Open questions <span class="count">2</span></span><span class="age">oldest 6d — itching</span></div>
+        <div class="ledger"><span>Tech debt <span class="count">3</span></span><span class="age fresh">newest 1d</span></div>
+        <div class="ledger"><span>Decisions logged <span class="count">11</span></span><span class="age fresh">last: today</span></div>
+        <div class="ledger"><span>State freshness</span><span class="age fresh" style="color:var(--ok)">synced 3 min ago</span></div>
+      </section>
+    </aside>
+  </div>
+
+  <footer>courtside v0.1 mock · local-first · /plan/state.json · MIT</footer>
+</div>
+
+<div class="toast" id="toast">Gate cleared</div>
+
+<script>
+const strings = {
+  frontoffice: {
+    approve:"Approve gate", toast:"GATE 5 CLEARED · TASK-12 SHIPPED",
+    agentDone:"Running floor", xpLabel:"Tests", xpValue:"110 ✓", xpSub:"0 failing",
+    nextTitle:"Next up · battle-core", health:"doctor: all green · mcp 41ms"
+  },
+  ballhalla: {
+    approve:"Approve · And-One", toast:"🏀 BUCKET! TASK-12 · +120 XP",
+    agentDone:"Running the floor", xpLabel:"XP", xpValue:"1,240", xpSub:"+120 on approval",
+    nextTitle:"Next possession · battle-core", health:"warmups complete · mcp 41ms"
+  }
+};
+let theme = "frontoffice";
+
+function setTheme(t){
+  theme = t;
+  document.body.dataset.theme = t;
+  document.getElementById('btnFO').classList.toggle('active', t==='frontoffice');
+  document.getElementById('btnBH').classList.toggle('active', t==='ballhalla');
+  const s = strings[t];
+  document.getElementById('xpLabel').textContent = s.xpLabel;
+  document.getElementById('xpValue').textContent = t==='ballhalla' ? (approved? s.xpValue : "1,120") : (approved? s.xpValue : "96 ✓");
+  document.getElementById('xpSub').textContent = s.xpSub;
+  document.getElementById('healthLabel').textContent = s.health;
+  document.getElementById('nextUpTitle').innerHTML = s.nextTitle + ' <span class="count">3</span>';
+  if(!approved) document.getElementById('approveBtn').textContent = s.approve;
+  document.getElementById('achAlt').style.display = t==='ballhalla' ? 'none':'block';
+}
+
+const steps = [...document.querySelectorAll('.vstep')];
+steps.forEach(cb => cb.addEventListener('change', () => {
+  cb.closest('.step').classList.toggle('done', cb.checked);
+  const all = steps.every(s=>s.checked);
+  document.getElementById('approveBtn').disabled = !all;
+  document.getElementById('gateHint').textContent = all ? "All steps verified — your call, coach." : `Complete all 4 verify steps to unlock approval. (${steps.filter(s=>s.checked).length}/4)`;
+}));
+
+let approved = false;
+function approveGate(){
+  if(approved) return;
+  approved = true;
+  const s = strings[theme];
+  // unlock below the gate
+  const nu = document.getElementById('nextUp');
+  nu.classList.remove('locked');
+  document.getElementById('lockNote').textContent = "▮ Gate cleared — TASK-13 is on the floor";
+  document.getElementById('lockNote').style.color = "var(--ok)";
+  // gate card settles
+  document.getElementById('approveBtn').textContent = "Approved ✓";
+  document.getElementById('approveBtn').disabled = true;
+  document.getElementById('gateHint').textContent = "Logged: you @ now · commit 3f8a21c · appended to /plan/decisions.md";
+  // scorebug
+  document.getElementById('agentState').innerHTML = s.agentDone;
+  document.getElementById('agentState').classList.remove('waiting');
+  document.getElementById('agentSub').textContent = "TASK-13 in progress";
+  document.getElementById('sessionSub').textContent = "3 tasks shipped";
+  document.getElementById('xpValue').textContent = s.xpValue;
+  // progress
+  document.getElementById('fill').style.width = "50%";
+  document.getElementById('pct').textContent = "50%";
+  document.getElementById('ball').setAttribute('cx', 150);
+  // ticker
+  const li = document.createElement('li');
+  li.innerHTML = '<span class="kind k-gate"></span><time>now</time><span>GATE 5 · TASK-12 approved by you — movement range overlay. Agent resumed on TASK-13.</span>';
+  document.getElementById('ticker').prepend(li);
+  // achievement + toast
+  if(theme==='ballhalla') document.getElementById('andOne').style.display='flex';
+  const toast = document.getElementById('toast');
+  toast.textContent = s.toast;
+  toast.classList.add('show');
+  setTimeout(()=>toast.classList.remove('show'), 2600);
+}
+setTheme('frontoffice');
+document.getElementById('fill').style.width='42%';
+</script>
+</body>
+</html>

@@ -1,0 +1,60 @@
+{
+  "schema": "courtside/v0",
+  "phase": "5",
+  "slice": "battle-core",
+  "generatedAt": "2026-06-10T19:45:00-05:00",
+  "agent": {
+    "state": "parked_at_gate",
+    "since": "2026-06-10T19:42:00-05:00",
+    "narration": "Wired range overlay into DebugBattle; all 14 GUT tests green. Next: your review.",
+    "currentTask": "TASK-12"
+  },
+  "gates": [
+    {
+      "id": "G5-TASK-12",
+      "type": "task_review",
+      "status": "pending",
+      "postedAt": "2026-06-10T19:42:00-05:00",
+      "taskId": "TASK-12",
+      "payloadRef": "plan/gates/G5-TASK-12.json",
+      "commit": "3f8a21c",
+      "tape": ["plan/tape/TASK-12/frame-001.png", "plan/tape/TASK-12/frame-002.png"],
+      "verifySteps": [
+        { "text": "Open DebugBattle, press F5", "criterionRef": "AC-12.1" },
+        { "text": "Click unit Guard #4 (SPD 3)", "criterionRef": "AC-12.1" },
+        { "text": "Press M — blue tiles within range 3, blocked tiles excluded", "criterionRef": "AC-12.2" },
+        { "text": "Debug panel reads MOVE range=3 src=SPD", "criterionRef": "AC-12.3" }
+      ]
+    }
+  ],
+  "tasks": [
+    { "id": "TASK-11", "title": "Debug panel readouts", "status": "done", "risk": "low", "deps": ["TASK-10"], "slice": "battle-core", "visualCriterion": "Panel shows turn, active unit, last action", "sourceRef": "framework-v2.md#harness", "rejections": 0, "commit": "9d12e0a" },
+    { "id": "TASK-12", "title": "Render movement range overlay", "status": "in-review", "risk": "med", "deps": ["TASK-11"], "slice": "battle-core", "visualCriterion": "Blue tiles within SPD range on unit select + M", "sourceRef": "gdd.md#movement-ranges", "rejections": 0, "commit": "3f8a21c" },
+    { "id": "TASK-13", "title": "Move unit along selected path", "status": "todo", "risk": "med", "deps": ["TASK-12"], "slice": "battle-core", "visualCriterion": "Unit token animates tile-to-tile to clicked destination", "sourceRef": "gdd.md#movement", "rejections": 0 },
+    { "id": "TASK-14", "title": "Action menu: pass / shoot / end", "status": "todo", "risk": "low", "deps": ["TASK-13"], "slice": "battle-core", "visualCriterion": "Menu opens after move; selection logged to panel", "sourceRef": "gdd.md#actions", "rejections": 0 },
+    { "id": "TASK-15", "title": "Shot resolution math (pure C#)", "status": "todo", "risk": "med", "deps": ["TASK-14"], "slice": "battle-core", "logicOnly": true, "surfacesAt": "TASK-16", "sourceRef": "gdd.md#shot-resolution", "rejections": 0 }
+  ],
+  "questions": [
+    {
+      "id": "Q-7",
+      "text": "Crit formula when shooter is airborne — doc gives ground formula only.",
+      "options": ["Same formula, +10% flat", "Separate airborne table", "No crits while airborne"],
+      "recommendation": "Same formula, +10% flat — simplest, tunable later",
+      "blocking": ["TASK-15"],
+      "openedAt": "2026-06-04T21:10:00-05:00",
+      "status": "open"
+    }
+  ],
+  "debt": [
+    { "id": "D-3", "text": "Overlay redraws whole grid each frame; fine at 12x9, revisit at full court", "incurredAt": "2026-06-10T19:30:00-05:00", "taskId": "TASK-12" }
+  ],
+  "decisions": [
+    { "id": "DEC-11", "text": "GATE 5 TASK-11 approved", "decidedAt": "2026-06-10T19:04:00-05:00", "by": "human", "gateId": "G5-TASK-11", "commit": "9d12e0a" }
+  ],
+  "events": [
+    { "ts": "2026-06-10T19:41:00-05:00", "kind": "test_run", "provenance": "verified", "text": "GUT: 14/14 pass on GridRangeTests", "artifactRef": "plan/artifacts/gut-run-0610-1941.log" },
+    { "ts": "2026-06-10T19:36:00-05:00", "kind": "narration", "provenance": "claimed", "text": "Why: wiring overlay into DebugBattle so you can verify visually. Next: run tests, post report." },
+    { "ts": "2026-06-10T19:28:00-05:00", "kind": "narration", "provenance": "claimed", "text": "Why: implementing GridRange as pure C# so it tests headlessly. Next: harness wiring." },
+    { "ts": "2026-06-10T19:04:00-05:00", "kind": "gate", "provenance": "verified", "text": "GATE 5 TASK-11 approved by human", "artifactRef": "plan/decisions-inbox/G5-TASK-11.json" }
+  ]
+}

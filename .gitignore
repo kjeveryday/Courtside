@@ -1,0 +1,12 @@
+# dependencies / build
+node_modules/
+dist/
+coverage/
+*.tsbuildinfo
+
+# environment & local secrets (decision-log HMAC key lives outside git)
+.env
+.env.*
+
+# OS noise
+.DS_Store
