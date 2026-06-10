@@ -2,40 +2,51 @@
 // Data arrives from the Courtside server (S4); live WS updates land in TASK-12.
 import { useEffect, useState } from 'react';
 import { Backlog } from './components/Backlog';
+import { GateCard } from './components/Gate';
 import { Header } from './components/Header';
 import { Ledgers } from './components/Ledgers';
+import { NextUp } from './components/NextUp';
 import { Progress } from './components/Progress';
 import { Scorebug } from './components/Scorebug';
 import { StatusCard } from './components/StatusCard';
 import { Ticker } from './components/Ticker';
 import type { CourtsideState } from './contract/state.generated';
 import { validateState } from './contract/validate';
-import { connectWs, ensureToken, fetchState, type StatePayload, type WsStatus } from './lib/api';
+import {
+  connectWs,
+  ensureToken,
+  fetchState,
+  type GateView,
+  type StatePayload,
+  type WsStatus,
+} from './lib/api';
 
 type LoadState =
   | { phase: 'loading' }
   | { phase: 'locked'; detail: string }
-  | { phase: 'ok'; state: CourtsideState }
+  | { phase: 'ok'; state: CourtsideState; gates: GateView[]; token: string }
   | { phase: 'refused'; errors: string[] };
 
 export default function App() {
   const [load, setLoad] = useState<LoadState>({ phase: 'loading' });
   const [ws, setWs] = useState<WsStatus>('connecting');
+  const [decisionError, setDecisionError] = useState('');
 
   useEffect(() => {
     let cancelled = false;
     const apply = (next: LoadState) => {
       if (!cancelled) setLoad(next);
     };
+    const token = ensureToken();
     // One trust path for first fetch and every live push: validate locally,
     // render fully or refuse (PRD §5).
-    const applyPayload = ({ result }: StatePayload) => {
+    const applyPayload = ({ result, gates }: StatePayload) => {
       if (!result.ok) return apply({ phase: 'refused', errors: result.errors });
       const checked = validateState(result.state);
-      if (checked.ok) apply({ phase: 'ok', state: checked.state });
+      if (checked.ok)
+        apply({ phase: 'ok', state: checked.state, gates: gates ?? [], token: token ?? '' });
       else apply({ phase: 'refused', errors: checked.errors });
     };
-    const token = ensureToken();
     if (!token) {
       apply({ phase: 'locked', detail: 'no token stored in this browser yet' });
       return;
@@ -69,19 +80,56 @@ export default function App() {
       <div className="mt-5">
         {load.phase === 'loading' && <p className="text-sm text-muted">loading state…</p>}
         {load.phase === 'locked' && <LockedOut detail={load.detail} />}
-        {load.phase === 'ok' && <ValidState state={load.state} />}
+        {load.phase === 'ok' && (
+          <ValidState
+            state={load.state}
+            gates={load.gates}
+            token={load.token}
+            decisionError={decisionError}
+            onDecisionError={setDecisionError}
+          />
+        )}
         {load.phase === 'refused' && <RefusalState errors={load.errors} />}
       </div>
     </main>
   );
 }
 
-function ValidState({ state }: { state: CourtsideState }) {
+function ValidState({
+  state,
+  gates,
+  token,
+  decisionError,
+  onDecisionError,
+}: {
+  state: CourtsideState;
+  gates: GateView[];
+  token: string;
+  decisionError: string;
+  onDecisionError: (msg: string) => void;
+}) {
+  const pendingOrDecided = gates.filter((g) => g.gate.status === 'pending');
+  const anyApproved = pendingOrDecided.some((g) => g.decided?.decision === 'approve');
   return (
     <section>
       <Scorebug state={state} />
       <div className="grid grid-cols-[1.6fr_1fr] gap-5 max-[860px]:grid-cols-1">
         <div>
+          {decisionError && (
+            <p className="mb-3 rounded border border-risk/40 bg-risk/10 px-3 py-2 text-xs text-risk">
+              decision failed: {decisionError}
+            </p>
+          )}
+          {pendingOrDecided.map((g) => (
+            <GateCard
+              key={g.gate.id}
+              view={g}
+              state={state}
+              token={token}
+              onDecisionError={onDecisionError}
+            />
+          ))}
+          {pendingOrDecided.length > 0 && <NextUp state={state} gateApproved={anyApproved} />}
           <StatusCard state={state} />
           <Backlog tasks={state.tasks} />
         </div>

@@ -275,11 +275,11 @@ bullets (card-shaped there; sources PRD F6/F7/F19, §5, R7, Q-6/Q-7 via DEC-24).
 
 - VISUAL CRITERION: spec §Visual — the full gate interaction in the browser.
 - Test approach: manual-in-harness (logic covered by T21–T24) · Dependencies: [TASK-14] · Risk: med
-- Status: in-progress
+- Status: done (auto-approved 2026-06-10 · report: [gates/G5-TASK-15.md](gates/G5-TASK-15.md))
 
 ### [TASK-16] Harness agent-session simulator + browser-only cycle demo
 
 - VISUAL CRITERION: click "simulate next agent session" → page live-updates to the
   acted-on state (task done / revise, agent working, new narration).
 - Test approach: unit T25 + manual-in-harness · Dependencies: [TASK-15] · Risk: med
-- Status: todo
+- Status: in-progress

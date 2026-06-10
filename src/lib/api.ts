@@ -14,10 +14,74 @@ export function ensureToken(): string | null {
   return localStorage.getItem(KEY);
 }
 
+export type GateMetaItem = {
+  label: string;
+  provenance: 'verified' | 'claimed';
+  artifactRef?: string;
+};
+
+export type GatePayloadFile = {
+  title?: string;
+  sourceRef?: string;
+  tldr?: string;
+  meta?: GateMetaItem[];
+  reportMd?: string;
+};
+
+export type DecidedInfo = {
+  decision: 'approve' | 'reject' | 'request_changes';
+  comment?: string;
+  decidedAt?: string;
+  seq?: number;
+};
+
+export type GateView = {
+  gate: {
+    id: string;
+    type: string;
+    status: string;
+    postedAt: string;
+    taskId?: string;
+    commit?: string;
+    tape?: string[];
+    verifySteps?: { text: string; criterionRef?: string }[];
+  };
+  payload?: GatePayloadFile;
+  payloadMissing?: boolean;
+  decided?: DecidedInfo;
+};
+
 export type StatePayload = {
   receivedAt: string;
+  harness?: boolean;
   result: { ok: true; state: unknown } | { ok: false; errors: string[] };
+  gates?: GateView[];
 };
+
+export type DecisionPost = {
+  gateId: string;
+  decision: 'approve' | 'reject' | 'request_changes';
+  comment: string;
+  steps: { text: string; checked?: boolean; skippedReason?: string }[];
+};
+
+export async function postDecision(
+  token: string,
+  body: DecisionPost,
+): Promise<{ ok: true } | { ok: false; error: string }> {
+  try {
+    const res = await fetch('/api/decisions', {
+      method: 'POST',
+      headers: { authorization: `Bearer ${token}`, 'content-type': 'application/json' },
+      body: JSON.stringify(body),
+    });
+    if (res.ok) return { ok: true };
+    const data = (await res.json().catch(() => ({}))) as { error?: string };
+    return { ok: false, error: data.error ?? `HTTP ${res.status}` };
+  } catch (err) {
+    return { ok: false, error: err instanceof Error ? err.message : String(err) };
+  }
+}
 
 export type FetchStateOutcome =
   | { kind: 'unauthorized' }
