@@ -47,6 +47,7 @@ export async function startServer(opts: StartOptions): Promise<RunningServer> {
     repoRoot,
     token,
     harness,
+    db,
   };
   if (harness) {
     // Demo-only route (spec B4): lets the human drive the full async cycle from

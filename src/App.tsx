@@ -6,6 +6,7 @@ import { GateCard } from './components/Gate';
 import { HarnessBar } from './components/HarnessBar';
 import { Header } from './components/Header';
 import { HealthBadge, PreflightPanel, type DoctorReport } from './components/Health';
+import { HuddleButton, HuddlePanel, type HuddleData } from './components/Huddle';
 import { Ledgers } from './components/Ledgers';
 import { NextUp } from './components/NextUp';
 import { Progress } from './components/Progress';
@@ -18,6 +19,7 @@ import {
   connectWs,
   ensureToken,
   fetchDoctor,
+  fetchHuddle,
   fetchState,
   type GateView,
   type StatePayload,
@@ -36,9 +38,14 @@ export default function App() {
   const [decisionError, setDecisionError] = useState('');
   const [doctor, setDoctor] = useState<DoctorReport | null>(null);
   const [showPreflight, setShowPreflight] = useState(false);
+  const [huddle, setHuddle] = useState<HuddleData | null>(null);
 
   const refreshDoctor = (token: string) => {
     void fetchDoctor(token).then((r) => setDoctor(r as DoctorReport | null));
+  };
+  const openHuddle = () => {
+    const token = ensureToken();
+    if (token) void fetchHuddle(token).then((r) => setHuddle(r as HuddleData | null));
   };
 
   useEffect(() => {
@@ -93,13 +100,21 @@ export default function App() {
         slice={load.phase === 'ok' ? load.state.slice : undefined}
         live={load.phase === 'ok' || load.phase === 'refused' ? ws : undefined}
         health={
-          <HealthBadge
-            report={doctor}
-            open={showPreflight}
-            onToggle={() => setShowPreflight((v) => !v)}
-          />
+          <span className="flex items-center gap-3">
+            <HealthBadge
+              report={doctor}
+              open={showPreflight}
+              onToggle={() => setShowPreflight((v) => !v)}
+            />
+            {load.phase === 'ok' && <HuddleButton onOpen={openHuddle} />}
+          </span>
         }
       />
+      {huddle && (
+        <div className="mt-5">
+          <HuddlePanel data={huddle} onClose={() => setHuddle(null)} />
+        </div>
+      )}
       {showPreflight && doctor && (
         <div className="mt-5">
           <PreflightPanel

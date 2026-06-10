@@ -4,10 +4,24 @@ import { existsSync, readFileSync } from 'node:fs';
 import type { IncomingMessage, ServerResponse } from 'node:http';
 import { extname, join, normalize } from 'node:path';
 import { safeTapePath } from './tape.ts';
+import { readDecisionLog } from '../core/decisions.ts';
 import { runDoctor } from '../core/doctor.ts';
+import { buildHuddle } from '../core/huddle.ts';
 import { extractToken, tokenEquals } from './auth.ts';
+import type { Db } from './db.ts';
 import { decideGate, gateViews, type DecisionRequest } from './gates.ts';
 import { readState } from './state.ts';
+
+// Last-seen tracking for the Huddle (DEC-26): prev_seen rotates only after a
+// 30-minute gap, so reloads inside a sitting don't wipe the diff window.
+function touchLastSeen(ctx: HttpContext) {
+  const now = new Date().toISOString();
+  const last = ctx.db.getKv('last_seen');
+  if (!last || Date.now() - new Date(last).getTime() > 30 * 60_000) {
+    ctx.db.setKv('prev_seen', last ?? now);
+  }
+  ctx.db.setKv('last_seen', now);
+}
 
 const MIME: Record<string, string> = {
   '.html': 'text/html; charset=utf-8',
@@ -27,6 +41,7 @@ export type HttpContext = {
   repoRoot: string;
   token: string;
   harness: boolean;
+  db: Db;
   // extension point: TASK-16 mounts the harness-only agent-session route here
   extraRoutes?: (path: string, req: IncomingMessage, res: ServerResponse) => boolean;
 };
@@ -64,7 +79,18 @@ async function readBody(req: IncomingMessage): Promise<unknown> {
 export async function handleApi(ctx: HttpContext, req: IncomingMessage, res: ServerResponse) {
   if (!authorized(ctx, req)) return json(res, 401, { error: 'missing or invalid token' });
   const path = (req.url ?? '').split('?')[0] ?? '';
-  if (req.method === 'GET' && path === '/api/state') return json(res, 200, statePayload(ctx));
+  if (req.method === 'GET' && path === '/api/state') {
+    touchLastSeen(ctx);
+    return json(res, 200, statePayload(ctx));
+  }
+  if (req.method === 'GET' && path === '/api/huddle') {
+    const result = readState(ctx.planDir);
+    if (!result.ok) return json(res, 200, { sinceLabel: '', facts: [], invalid: true });
+    const lastSeen =
+      ctx.db.getKv('prev_seen') ?? ctx.db.getKv('last_seen') ?? new Date(0).toISOString();
+    const log = readDecisionLog(ctx.runtimeDir);
+    return json(res, 200, buildHuddle(result.state, log, lastSeen));
+  }
   if (req.method === 'GET' && path === '/api/doctor') {
     // Server-run checks = verified provenance (F18); the UI renders, never invents.
     return json(res, 200, {

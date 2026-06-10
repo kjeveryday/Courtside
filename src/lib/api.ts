@@ -117,6 +117,15 @@ export async function fetchDoctor(token: string): Promise<unknown | null> {
   }
 }
 
+export async function fetchHuddle(token: string): Promise<unknown | null> {
+  try {
+    const res = await fetch('/api/huddle', { headers: { authorization: `Bearer ${token}` } });
+    return res.ok ? await res.json() : null;
+  } catch {
+    return null;
+  }
+}
+
 export type WsStatus = 'connecting' | 'live' | 'lost';
 
 // Broadcast-only live channel with quiet exponential reconnect.
