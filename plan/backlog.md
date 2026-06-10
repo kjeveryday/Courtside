@@ -115,7 +115,7 @@ components that use them; helpers/badges before the ticker that renders them).
 - Dependencies: [TASK-3]
 - Risk: med — Tailwind v4 `@theme` mapping and font-subset wiring have fiddly edges;
   all caught by `npm run check` + eyes.
-- Status: in-progress
+- Status: done (auto-approved 2026-06-10 · report: [gates/G5-TASK-4.md](gates/G5-TASK-4.md))
 
 ### [TASK-5] Scorebug strip + provenance badges + helpers
 

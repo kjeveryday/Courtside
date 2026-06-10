@@ -1,7 +1,8 @@
-// TASK-3: fixture status page. Fetch → validate → render the typed state, or the
-// refusal state (PRD §5: invalid state never renders as truth — no partial data).
-// Design tokens/fonts are S2; this page is deliberately plain.
+// Fetch → validate → render the typed state, or the refusal state (PRD §5:
+// invalid state never renders as truth — no partial data). Token-styled per
+// docs/mock.html design language (TASK-4); scorebug/ticker arrive TASK-5/6.
 import { useEffect, useState } from 'react';
+import { Header } from './components/Header';
 import type { CourtsideState } from './contract/state.generated';
 import { validateState } from './contract/validate';
 
@@ -51,12 +52,13 @@ export default function App() {
   }, []);
 
   return (
-    <main className="mx-auto max-w-2xl px-6 py-16">
-      <h1 className="border-l-4 border-amber-500 pl-4 text-3xl font-bold tracking-tight">
-        Courtside
-      </h1>
-      <div className="mt-6">
-        {load.phase === 'loading' && <p className="text-sm text-neutral-500">loading fixture…</p>}
+    <main className="mx-auto max-w-[1180px] px-5 pb-16">
+      <Header
+        phase={load.phase === 'ok' ? load.state.phase : undefined}
+        slice={load.phase === 'ok' ? load.state.slice : undefined}
+      />
+      <div className="mt-5">
+        {load.phase === 'loading' && <p className="text-sm text-muted">loading fixture…</p>}
         {load.phase === 'ok' && <ValidState state={load.state} />}
         {load.phase === 'refused' && <RefusalState errors={load.errors} />}
       </div>
@@ -72,22 +74,16 @@ function ValidState({ state }: { state: CourtsideState }) {
   });
   return (
     <section>
-      <p className="font-medium text-green-700">fixture validates ✓ {state.schema}</p>
-      <p className="mt-3 inline-block rounded-full border border-neutral-300 px-3 py-0.5 text-xs text-neutral-600">
-        phase {state.phase}
-        {state.slice ? ` · ${state.slice}` : ''}
-      </p>
-      <div className="mt-4 rounded-md border border-neutral-200 p-4">
-        <p className="text-xs tracking-wide text-neutral-500 uppercase">Agent</p>
-        <p className="mt-1 text-lg font-semibold">
+      <p className="font-mono text-xs text-ok">fixture validates ✓ {state.schema}</p>
+      <div className="mt-4 rounded-card border border-line bg-surface p-5">
+        <p className="font-mono text-[10px] tracking-[0.12em] text-muted uppercase">Agent</p>
+        <p className="mt-1 font-display text-[22px] font-semibold">
           {agent.state.replace(/_/g, ' ')}
-          <span className="ml-2 text-sm font-normal text-neutral-500">since {since}</span>
+          <span className="ml-2 font-body text-sm font-normal text-muted">since {since}</span>
         </p>
-        {agent.narration && (
-          <p className="mt-2 text-sm text-neutral-700 italic">{agent.narration}</p>
-        )}
+        {agent.narration && <p className="mt-2 text-sm italic">{agent.narration}</p>}
         {agent.currentTask && (
-          <p className="mt-2 font-mono text-xs text-neutral-500">{agent.currentTask}</p>
+          <p className="mt-2 font-mono text-xs text-muted">{agent.currentTask}</p>
         )}
       </div>
     </section>
@@ -97,13 +93,13 @@ function ValidState({ state }: { state: CourtsideState }) {
 function RefusalState({ errors }: { errors: string[] }) {
   return (
     <section>
-      <p className="font-medium text-red-700">fixture invalid ✗ — refusing to render state</p>
-      <ul className="mt-3 space-y-1 rounded-md border border-red-200 bg-red-50 p-4 font-mono text-xs text-red-800">
+      <p className="font-medium text-risk">fixture invalid ✗ — refusing to render state</p>
+      <ul className="mt-3 space-y-1 rounded-card border border-risk/40 bg-risk/10 p-4 font-mono text-xs text-risk">
         {errors.map((e) => (
           <li key={e}>{e}</li>
         ))}
       </ul>
-      <p className="mt-3 text-xs text-neutral-500">
+      <p className="mt-3 text-xs text-muted">
         Invalid state never renders as truth (PRD §5). Fix the file; this page re-checks on reload.
       </p>
     </section>
