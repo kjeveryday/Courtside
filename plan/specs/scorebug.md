@@ -1,6 +1,6 @@
 # Slice spec — S2 "scorebug"
 
-- **Status:** awaiting GATE 2
+- **Status:** ✅ **GATE 2 approved 2026-06-10** (DEC-17, fonts included)
 - **Date:** 2026-06-10 · **Source:** [01-system-map.md §3](../01-system-map.md) (S2, approved DEC-8)
 - **Features:** F1 status board · F4 narration ticker · F18 provenance badges (badge half) · design language lands
 - **Gate question:** _Spec confirmed, questions answered?_

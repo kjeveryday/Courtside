@@ -89,7 +89,84 @@ no parallelism available or needed.
 
 ---
 
-## ⛩ GATE 3 — right tasks, right size? · ⛩ GATE 4 — approve build order + TASK-1?
+## Slice S2 — scorebug (spec: [specs/scorebug.md](specs/scorebug.md))
 
-Three cards, strict chain, one logic-only with a named checkpoint. On GATE 4
-approval, Phase 5 begins with TASK-1 and stops at its GATE 5 browser review.
+Build order (Phase 4): **TASK-4 → TASK-5 → TASK-6** — strict chain (tokens before
+components that use them; helpers/badges before the ticker that renders them).
+
+### [TASK-4] Design language: tokens, vendored type, header
+
+- Source: specs/scorebug.md §B1 §B2; mock `:root` tokens; CLAUDE.md rules 2, 15
+- Slice / Milestone: S2 scorebug / v0.1 Lite
+- Description: land the mock's tokens as Tailwind v4 `@theme` variables, vendor the
+  three typefaces via @fontsource (GATE-2-approved), build the header (brand wordmark
+  - mono phase chip from state), restyle the existing loading/refusal/status views
+    onto tokens.
+- Acceptance criteria:
+  - Given `npm run dev`, When the page loads, Then the background is the mock's dark
+    `#14171C`, the brand reads COURT**SIDE** in condensed display type with the
+    accent on "side", and a mono chip shows `Phase 5 · battle-core` from the fixture.
+  - Given the browser network panel, When the page loads, Then no font requests leave
+    localhost (fonts are bundled files — rule 15).
+  - Given any component file, Then no raw hex colors remain — token utilities only.
+  - Given a broken fixture, Then the refusal state still renders, token-styled.
+- VISUAL CRITERION: the page goes dark + branded; type is visibly Barlow Condensed /
+  IBM Plex, not system fonts.
+- Test approach: manual-in-harness + `npm run check`
+- Dependencies: [TASK-3]
+- Risk: med — Tailwind v4 `@theme` mapping and font-subset wiring have fiddly edges;
+  all caught by `npm run check` + eyes.
+- Status: todo
+
+### [TASK-5] Scorebug strip + provenance badges + helpers
+
+- Source: specs/scorebug.md §B3 §B5.1–2 §B6; PRD §5/F18/R6; CLAUDE.md rule 14
+- Slice / Milestone: S2 scorebug / v0.1 Lite
+- Description: pure helpers (`formatAgo`, `humanizeAgentState`, `kindColor`,
+  `latestEventOfKind`) with tests T7–T10; `ProvenanceBadge` + `EventText` as the
+  _only_ place claim/verified styling exists; the four-cell scorebug strip; status
+  card restyle.
+- Acceptance criteria:
+  - Given the fixture, When the page loads, Then the strip shows: **parked at gate**
+    in accent with pulsing dot ("since {time} · {ago}"), narration with the outlined
+    ◇ agent-reported badge (+ TASK-12 title sub-line), active task `TASK-12 ·
+in-review · med`, and the GUT test_run line with a solid ✓ verified badge.
+  - Given `prefers-reduced-motion`, Then the pulse is static.
+  - Given no `test_run` events / no narration / unknown currentTask, Then cells show
+    their declared empty states ("no runs recorded" / "—") — T8 covers the selector.
+  - Given `npm test`, Then T7–T10 pass (10 total with T1–T6).
+  - Given a grep for verified-badge styling, Then it appears only in Provenance.tsx.
+- VISUAL CRITERION: the scorebug strip live on the dark page, badges visibly
+  distinct (solid ✓ vs outlined ◇).
+- Test approach: unit (vitest T7–T10) + manual-in-harness
+- Dependencies: [TASK-4]
+- Risk: low
+- Status: todo
+
+### [TASK-6] Ticker + layout grid
+
+- Source: specs/scorebug.md §B4 §B5.3; mock layout grammar
+- Slice / Milestone: S2 scorebug / v0.1 Lite
+- Description: side-column ticker (all events newest-first: mono time, kind-colored
+  dot, text, provenance badge) and the mock's main/side grid (1.6fr/1fr, collapsing
+  on narrow viewports); App slims to fetch shell + layout.
+- Acceptance criteria:
+  - Given the fixture, When the page loads, Then the ticker lists 4 events newest
+    first; dots colored by kind (gate=accent, test_run=ok, narration=info); each
+    line carries its provenance badge and a local HH:MM timestamp.
+  - Given an events-empty (valid) state, Then the ticker shows the quiet
+    "no events yet" line.
+  - Given a viewport ≤860px, Then the grid collapses to one column (mock behavior).
+- VISUAL CRITERION: full §4 slice criterion of the spec — dark branded page,
+  scorebug, ticker with colored dots and badges; this is S2's finale.
+- Test approach: manual-in-harness (helpers already unit-tested)
+- Dependencies: [TASK-5]
+- Risk: low
+- Status: todo
+
+---
+
+## Gate history
+
+- S1 GATES 3+4 approved 2026-06-10 (DEC-11/12); TASK-1..3 done, S1 shipped (DEC-16).
+- S2 GATES 3+4: **pending** — right tasks/size? approve order + TASK-4?
