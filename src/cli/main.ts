@@ -1,5 +1,6 @@
 // `courtside` CLI (DEC-5: repo-local bin): doctor (default) · lint · dev.
 // Same check engine as the UI — one implementation, two surfaces (F0).
+import { existsSync } from 'node:fs';
 import { resolvePlanDir } from '../server/config.ts';
 import { lintPlan } from '../core/lint.ts';
 import { runDoctor } from '../core/doctor.ts';
@@ -14,8 +15,21 @@ export async function cli(argv: string[]): Promise<number> {
   try {
     planDir = resolvePlanDir(argv, process.env, repoRoot);
   } catch (err) {
-    console.error((err as Error).message);
-    return 1;
+    // Safe auto-fix per PRD F0 (scaffolding is reversible): a fresh clone has the
+    // fixture seed but not the generated sample-project plan — build it and retry.
+    if (existsSync(`${repoRoot}/spec/fixtures/state.sample.json`)) {
+      // @ts-expect-error — side-effect import of the plain-JS scaffold script
+      await import('../../scripts/scaffold-fixture.mjs');
+      try {
+        planDir = resolvePlanDir(argv, process.env, repoRoot);
+      } catch {
+        console.error((err as Error).message);
+        return 1;
+      }
+    } else {
+      console.error((err as Error).message);
+      return 1;
+    }
   }
 
   if (cmd === 'dev') {

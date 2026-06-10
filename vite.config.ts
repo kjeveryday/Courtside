@@ -10,5 +10,6 @@ export default defineConfig({
   publicDir: false,
   test: {
     environment: 'node',
+    globalSetup: './scripts/vitest-setup.mjs',
   },
 });
