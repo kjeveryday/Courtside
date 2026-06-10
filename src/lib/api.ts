@@ -34,3 +34,36 @@ export async function fetchState(token: string): Promise<FetchStateOutcome> {
     return { kind: 'network', detail: err instanceof Error ? err.message : String(err) };
   }
 }
+
+export type WsStatus = 'connecting' | 'live' | 'lost';
+
+// Broadcast-only live channel with quiet exponential reconnect.
+export function connectWs(
+  token: string,
+  onMessage: (payload: StatePayload) => void,
+  onStatus: (status: WsStatus) => void,
+): () => void {
+  let closed = false;
+  let ws: WebSocket | null = null;
+  let retry = 0;
+  const open = () => {
+    if (closed) return;
+    onStatus('connecting');
+    ws = new WebSocket(`ws://${window.location.host}/ws?token=${token}`);
+    ws.onopen = () => {
+      retry = 0;
+      onStatus('live');
+    };
+    ws.onmessage = (ev) => onMessage(JSON.parse(String(ev.data)) as StatePayload);
+    ws.onclose = () => {
+      if (closed) return;
+      onStatus('lost');
+      setTimeout(open, Math.min(5000, 500 * 2 ** retry++));
+    };
+  };
+  open();
+  return () => {
+    closed = true;
+    ws?.close();
+  };
+}

@@ -10,7 +10,7 @@ import { StatusCard } from './components/StatusCard';
 import { Ticker } from './components/Ticker';
 import type { CourtsideState } from './contract/state.generated';
 import { validateState } from './contract/validate';
-import { ensureToken, fetchState } from './lib/api';
+import { connectWs, ensureToken, fetchState, type StatePayload, type WsStatus } from './lib/api';
 
 type LoadState =
   | { phase: 'loading' }
@@ -20,32 +20,42 @@ type LoadState =
 
 export default function App() {
   const [load, setLoad] = useState<LoadState>({ phase: 'loading' });
+  const [ws, setWs] = useState<WsStatus>('connecting');
 
   useEffect(() => {
     let cancelled = false;
     const apply = (next: LoadState) => {
       if (!cancelled) setLoad(next);
     };
+    // One trust path for first fetch and every live push: validate locally,
+    // render fully or refuse (PRD §5).
+    const applyPayload = ({ result }: StatePayload) => {
+      if (!result.ok) return apply({ phase: 'refused', errors: result.errors });
+      const checked = validateState(result.state);
+      if (checked.ok) apply({ phase: 'ok', state: checked.state });
+      else apply({ phase: 'refused', errors: checked.errors });
+    };
     const token = ensureToken();
     if (!token) {
       apply({ phase: 'locked', detail: 'no token stored in this browser yet' });
       return;
     }
+    let disconnect = () => {};
     (async () => {
       const outcome = await fetchState(token);
+      if (cancelled) return;
       if (outcome.kind === 'unauthorized')
         return apply({ phase: 'locked', detail: 'the server rejected the stored token' });
       if (outcome.kind === 'network')
         return apply({ phase: 'refused', errors: [`/api/state — ${outcome.detail}`] });
-      const { result } = outcome.payload;
-      if (!result.ok) return apply({ phase: 'refused', errors: result.errors });
-      // Server already validated; re-validate locally so the UI's trust is its own.
-      const checked = validateState(result.state);
-      if (checked.ok) apply({ phase: 'ok', state: checked.state });
-      else apply({ phase: 'refused', errors: checked.errors });
+      applyPayload(outcome.payload);
+      disconnect = connectWs(token, applyPayload, (s) => {
+        if (!cancelled) setWs(s);
+      });
     })();
     return () => {
       cancelled = true;
+      disconnect();
     };
   }, []);
 
@@ -54,6 +64,7 @@ export default function App() {
       <Header
         phase={load.phase === 'ok' ? load.state.phase : undefined}
         slice={load.phase === 'ok' ? load.state.slice : undefined}
+        live={load.phase === 'ok' || load.phase === 'refused' ? ws : undefined}
       />
       <div className="mt-5">
         {load.phase === 'loading' && <p className="text-sm text-muted">loading state…</p>}

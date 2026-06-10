@@ -10,13 +10,13 @@ Building the **v0.1 "Courtside Lite"** cut ([PRD §12](docs/prd.md)).
 
 ```
 npm install
-npm run dev        # → http://127.0.0.1:4310  (loopback only, fixed port)
+npm run dev        # builds UI + starts the real server → printed token URL on 4310
 npm test           # vitest
 npm run check      # typecheck + lint + format + tests — must stay green
 ```
 
-Note: this is the Vite dev harness. The real Courtside server (token auth printed at
-start, WebSocket, SQLite) arrives in slice S4 per the
+Note: `npm run dev` boots the real Courtside server (token printed at
+start, WebSocket push, SQLite event log) against the sample fixture project, per the
 [system map](plan/01-system-map.md).
 
 ## The documentation spine

@@ -1,10 +1,15 @@
 // Server entry: binds 127.0.0.1 only (R7), prints the token URL once, serves the
-// built app + gated API. Programmatic startServer() is reused by tests (T17),
-// the dev harness script, and later the CLI.
+// built app + gated API, watches the plan dir and pushes validated state over WS,
+// logging server-observed events to SQLite (verified provenance by construction).
 import { mkdirSync } from 'node:fs';
 import { createServer } from 'node:http';
+import { join } from 'node:path';
 import { generateToken } from './auth.ts';
+import { openDb, type Db } from './db.ts';
 import { createHandler } from './http.ts';
+import { readState } from './state.ts';
+import { watchPlanDir } from './watch.ts';
+import { attachWs } from './ws.ts';
 
 export type StartOptions = {
   planDir: string;
@@ -12,11 +17,14 @@ export type StartOptions = {
   distDir?: string;
   runtimeDir?: string;
   announce?: boolean;
+  watch?: boolean;
+  watchDebounceMs?: number;
 };
 
 export type RunningServer = {
   port: number;
   token: string;
+  db: Db;
   close: () => Promise<void>;
 };
 
@@ -26,9 +34,30 @@ export async function startServer(opts: StartOptions): Promise<RunningServer> {
   const distDir = opts.distDir ?? new URL('../../dist', import.meta.url).pathname;
   const runtimeDir = opts.runtimeDir ?? new URL('../../.courtside', import.meta.url).pathname;
   mkdirSync(runtimeDir, { recursive: true });
+  const db = openDb(join(runtimeDir, 'courtside.db'));
 
   const token = generateToken();
   const server = createServer(createHandler({ distDir, planDir: opts.planDir, token }));
+  const ws = attachWs(server, token);
+
+  const watcher =
+    (opts.watch ?? true)
+      ? watchPlanDir(
+          opts.planDir,
+          () => {
+            const result = readState(opts.planDir);
+            db.insertEvent({
+              kind: result.ok ? 'state_change' : 'validation_failed',
+              provenance: 'verified',
+              text: result.ok
+                ? `state revalidated ok (${result.state.tasks.length} tasks)`
+                : `state invalid: ${result.errors[0] ?? 'unknown'}`,
+            });
+            ws.broadcast({ kind: 'state', receivedAt: new Date().toISOString(), result });
+          },
+          opts.watchDebounceMs ?? 150,
+        )
+      : undefined;
 
   const port = await new Promise<number>((resolve, reject) => {
     server.once('error', reject);
@@ -46,9 +75,13 @@ export async function startServer(opts: StartOptions): Promise<RunningServer> {
   return {
     port,
     token,
+    db,
     close: () =>
-      new Promise<void>((resolve, reject) =>
-        server.close((err) => (err ? reject(err) : resolve())),
-      ),
+      new Promise<void>((resolve, reject) => {
+        watcher?.close();
+        ws.close();
+        db.close();
+        server.close((err) => (err ? reject(err) : resolve()));
+      }),
   };
 }
