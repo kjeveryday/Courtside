@@ -4,15 +4,15 @@ Logged per CLAUDE.md rule 4: when the spec is silent, options + a labeled
 recommendation, then stop — never invent. (PRD-internal numbering OQ1–OQ5 belongs to
 the PRD; this ledger uses Q-n.)
 
-| ID | Question | Status | Raised | Resolution |
-|---|---|---|---|---|
-| Q-1 | Normalize doc/spec paths? | **answered** → A | Phase 0 | DEC-2 — moved 2026-06-10 |
-| Q-2 | When to `git init`? | **answered** → A | Phase 0 | DEC-3 — init'd 2026-06-10; remote URL still pending |
-| Q-3 | Missing fixture companion files | **answered** → A | Phase 0 | DEC-4 — placeholders + missing-state, lands with harness tasks |
-| Q-4 | "`npx courtside`" in v0.1 ship criteria | **answered** → A | Phase 0 | DEC-5 — local CLI bin; publishing stays M4 |
-| Q-5 | Fixture timestamps drift | **answered** → A | Phase 0 | DEC-6 — real clock, drift accepted |
-| Q-6 | (= PRD OQ1) Approval friction: PIN/keypress? | **open** — leaning A per GATE-0 delegation; confirm at Phase 2 gate (gate slice spec) | PRD v1.1 | — |
-| Q-7 | (= PRD OQ4) Completion report: structured vs freeform | **open** — leaning A per GATE-0 delegation; confirm at Phase 2 gate (verify slice spec) | PRD v1.1 | — |
+| ID  | Question                                              | Status                                                                                  | Raised   | Resolution                                                     |
+| --- | ----------------------------------------------------- | --------------------------------------------------------------------------------------- | -------- | -------------------------------------------------------------- |
+| Q-1 | Normalize doc/spec paths?                             | **answered** → A                                                                        | Phase 0  | DEC-2 — moved 2026-06-10                                       |
+| Q-2 | When to `git init`?                                   | **answered** → A                                                                        | Phase 0  | DEC-3 — init'd 2026-06-10; remote URL still pending            |
+| Q-3 | Missing fixture companion files                       | **answered** → A                                                                        | Phase 0  | DEC-4 — placeholders + missing-state, lands with harness tasks |
+| Q-4 | "`npx courtside`" in v0.1 ship criteria               | **answered** → A                                                                        | Phase 0  | DEC-5 — local CLI bin; publishing stays M4                     |
+| Q-5 | Fixture timestamps drift                              | **answered** → A                                                                        | Phase 0  | DEC-6 — real clock, drift accepted                             |
+| Q-6 | (= PRD OQ1) Approval friction: PIN/keypress?          | **open** — leaning A per GATE-0 delegation; confirm at Phase 2 gate (gate slice spec)   | PRD v1.1 | —                                                              |
+| Q-7 | (= PRD OQ4) Completion report: structured vs freeform | **open** — leaning A per GATE-0 delegation; confirm at Phase 2 gate (verify slice spec) | PRD v1.1 | —                                                              |
 
 ---
 
@@ -21,12 +21,12 @@ the PRD; this ledger uses Q-n.)
 Docs live in `Courside Docs/` and `Cousrside Specs/` (note typos); CLAUDE.md, the
 kickoff prompt, and this plan all reference `docs/` and `spec/`:
 
-| Today | Canonical |
-|---|---|
-| `Courside Docs/courtside-prd.md` | `docs/prd.md` |
-| `Courside Docs/framework-v2.md` | `docs/framework-v2.md` |
-| `Courside Docs/courtside-mock.html` | `docs/mock.html` |
-| `Cousrside Specs/state.schema.json` | `spec/state.schema.json` |
+| Today                               | Canonical                         |
+| ----------------------------------- | --------------------------------- |
+| `Courside Docs/courtside-prd.md`    | `docs/prd.md`                     |
+| `Courside Docs/framework-v2.md`     | `docs/framework-v2.md`            |
+| `Courside Docs/courtside-mock.html` | `docs/mock.html`                  |
+| `Cousrside Specs/state.schema.json` | `spec/state.schema.json`          |
 | `Cousrside Specs/state.sample.json` | `spec/fixtures/state.sample.json` |
 
 - **A — Move/rename to canonical paths at scaffold (RECOMMENDED).** Matches every
@@ -50,7 +50,7 @@ commits. Init is safe and reversible, but it's a repo-level change you should ca
 
 `state.sample.json` points at two tape frames, one artifact log, and one
 decisions-inbox file; none exist. The Game Tape viewer (F17) and verified-event
-artifacts (F18) need *something* to render in the harness, and the PRD also requires
+artifacts (F18) need _something_ to render in the harness, and the PRD also requires
 detecting stale/missing tape (R8).
 
 - **A — Both: add minimal placeholder fixtures AND build graceful missing-file states
@@ -64,7 +64,7 @@ detecting stale/missing tape (R8).
 ## Q-4 — "`npx courtside`" appears in v0.1 ship criteria, but npx packaging (F13) is M4
 
 - **A — Local CLI via the repo's own bin (RECOMMENDED).** `npx courtside` (or
-  `npm run ...`) works *inside a clone* without publishing to npm; publishing +
+  `npm run ...`) works _inside a clone_ without publishing to npm; publishing +
   quickstart docs remain M4 (F13). Satisfies the ship criterion's spirit: clone →
   all-green doctor in <15 min.
 - **B — Publish to npm in v0.1.** Pulls M4 packaging work into the Lite cut — scope
@@ -84,7 +84,7 @@ computed against the real clock will grow stale-looking over time.
 ## Q-6 — (= PRD OQ1) Should gate approval require extra friction (PIN/keypress)?
 
 - **A — No extra friction in v0.1 (RECOMMENDED).** F7 already gates the Approve button
-  behind completing every verify step (or skip-with-reason) — that *is* the
+  behind completing every verify step (or skip-with-reason) — that _is_ the
   anti-accident mechanism, and token auth covers "who." Revisit with real usage data.
 - **B — Typed confirmation phrase on Approve.** Cheap, explicit, slightly annoying.
 - **C — Local PIN.** Most friction; protects against shared-screen misclicks, which
@@ -93,7 +93,7 @@ computed against the real clock will grow stale-looking over time.
 ## Q-7 — (= PRD OQ4) Completion report: structured fields vs freeform markdown?
 
 Affects how rich Verify Mode (F7) can be. Note the schema already structures the part
-v0.1 *needs*: `gates[].verifySteps[]` with optional `criterionRef`.
+v0.1 _needs_: `gates[].verifySteps[]` with optional `criterionRef`.
 
 - **A — Hybrid (RECOMMENDED):** structured `verifySteps` (already in the contract) +
   the report body as freeform markdown in the gate payload file, rendered as-is.

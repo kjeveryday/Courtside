@@ -2,21 +2,21 @@
 
 - **Status:** complete, awaiting GATE 0
 - **Date:** 2026-06-10
-- **Gate question (framework §1):** *Is the corpus complete and scope right?*
+- **Gate question (framework §1):** _Is the corpus complete and scope right?_
 - Every file below was read in full before being described here (CLAUDE.md rule 5).
 
 ---
 
 ## 1. The corpus
 
-| # | File (actual path today) | Referenced in CLAUDE.md / kickoff as | Version | Role | Precedence |
-|---|---|---|---|---|---|
-| 1 | `CLAUDE.md` | — | — | Always-on rules for this repo; maps the Godot-flavored framework onto this web app | Binding rules |
-| 2 | `Courside Docs/framework-v2.md` | `docs/framework-v2.md` | v2 | Process: phases 0–5, gates, narration, task cards, completion reports, audits | Process law |
-| 3 | `Courside Docs/courtside-prd.md` | `docs/prd.md` | Draft v1.1 | **The design doc.** Features, behavior, architecture, security, cut-lines | **Wins on all features/behavior** |
-| 4 | `Courside Docs/courtside-mock.html` | `docs/mock.html` | built vs PRD v1.0 | Design language only: tokens, type, layout, theme system, Gate interaction | Reference only; PRD wins on conflict |
-| 5 | `Cousrside Specs/state.schema.json` | `spec/state.schema.json` | courtside/v0 | **The data contract.** JSON Schema (draft-07) for `/plan/state.json` | Law for data shapes & field names (rule 13) |
-| 6 | `Cousrside Specs/state.sample.json` | `spec/fixtures/state.sample.json` | courtside/v0 | Sample fixture: a Godot game project mid-Phase-5 with one pending gate; the harness's demo data | Must validate against #5 |
+| #   | File (actual path today)            | Referenced in CLAUDE.md / kickoff as | Version           | Role                                                                                            | Precedence                                  |
+| --- | ----------------------------------- | ------------------------------------ | ----------------- | ----------------------------------------------------------------------------------------------- | ------------------------------------------- |
+| 1   | `CLAUDE.md`                         | —                                    | —                 | Always-on rules for this repo; maps the Godot-flavored framework onto this web app              | Binding rules                               |
+| 2   | `Courside Docs/framework-v2.md`     | `docs/framework-v2.md`               | v2                | Process: phases 0–5, gates, narration, task cards, completion reports, audits                   | Process law                                 |
+| 3   | `Courside Docs/courtside-prd.md`    | `docs/prd.md`                        | Draft v1.1        | **The design doc.** Features, behavior, architecture, security, cut-lines                       | **Wins on all features/behavior**           |
+| 4   | `Courside Docs/courtside-mock.html` | `docs/mock.html`                     | built vs PRD v1.0 | Design language only: tokens, type, layout, theme system, Gate interaction                      | Reference only; PRD wins on conflict        |
+| 5   | `Cousrside Specs/state.schema.json` | `spec/state.schema.json`             | courtside/v0      | **The data contract.** JSON Schema (draft-07) for `/plan/state.json`                            | Law for data shapes & field names (rule 13) |
+| 6   | `Cousrside Specs/state.sample.json` | `spec/fixtures/state.sample.json`    | courtside/v0      | Sample fixture: a Godot game project mid-Phase-5 with one pending gate; the harness's demo data | Must validate against #5                    |
 
 Not part of the corpus: `.DS_Store` (macOS noise; gitignore at scaffold time).
 Nothing else exists in the repo — no code, no `package.json`, no git history, no README yet (expected before scaffolding).
@@ -61,12 +61,12 @@ optional). Enums for agent state, gate type/status, task status (includes `revis
 `blocked` for the F19 rejection flow), event kind, and `provenance: verified|claimed`.
 Patterns for task ids (`TASK-n`), gate ids (`G0`–`G5(-suffix)`), commit SHAs.
 `additionalProperties: false` throughout — the contract is closed.
-Two things the schema *describes but cannot enforce* (they land in `courtside lint` /
+Two things the schema _describes but cannot enforce_ (they land in `courtside lint` /
 generated types): the conditional "visualCriterion required unless logicOnly, then
 surfacesAt required," and referential integrity (deps / surfacesAt / blocking pointing
 at real tasks — the fixture's `surfacesAt: TASK-16` points outside its own task list).
 
-**state.sample.json** — A believable mid-project snapshot of a *consuming* Godot game
+**state.sample.json** — A believable mid-project snapshot of a _consuming_ Godot game
 (slice `battle-core`, agent parked at gate `G5-TASK-12`, five tasks across all statuses,
 one 6-day-old open question blocking a task, one debt item, one logged decision, four
 events mixing verified and claimed provenance). **Manually cross-checked field-by-field
@@ -98,18 +98,18 @@ one artifact log, one decision-inbox file — see Q-3.
 
 ### In scope (build this)
 
-| Feature | What ships in v0.1 | Source |
-|---|---|---|
-| F0 | Preflight wizard + `courtside doctor` (pass/warn/fail + fix-it lines; safe auto-fixes only; header health badge) | PRD §6 M0 |
-| F1–F5 | Status board · backlog view · progress · narration ticker · ledgers with age indicators | PRD §6 M1 |
-| F6 | Gate inbox — decision cards, Approve / Reject-with-comment / Request changes, decisions logged | PRD §6 M2, §12 |
-| F7 | Verify mode — interactive checklist; approval locked until all steps checked or skipped-with-reason | PRD §6 M2, §12 |
-| Async loop | File contract + `/plan/decisions-inbox/` only — **no MCP in v0.1** | PRD §5, §12 |
-| F19 | Rejection basics: comment required, `revise` state, rejection counter, 3 rejections auto-block | PRD §6 M2, §12 |
-| Security | 127.0.0.1 bind · token auth · HMAC-signed append-only decision log · answers-as-data | PRD §5, R7; rule 15 |
-| F17 | Game Tape **viewer** only (capture utility belongs to the consuming project's harness) | PRD §12 |
-| F18 (partial) | Verified/claimed **badges rendered everywhere** — launch requirement per R6; type-system-enforced per rule 14. (The *re-run-proofs* half of F18 is M2.) | PRD §5, R6, §12 |
-| F20 Tier 1 | Deterministic Huddle: template-generated catch-up diff from state + decision log + last-seen timestamp; zero AI | PRD §6 M2, §12 |
+| Feature       | What ships in v0.1                                                                                                                                      | Source              |
+| ------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------- |
+| F0            | Preflight wizard + `courtside doctor` (pass/warn/fail + fix-it lines; safe auto-fixes only; header health badge)                                        | PRD §6 M0           |
+| F1–F5         | Status board · backlog view · progress · narration ticker · ledgers with age indicators                                                                 | PRD §6 M1           |
+| F6            | Gate inbox — decision cards, Approve / Reject-with-comment / Request changes, decisions logged                                                          | PRD §6 M2, §12      |
+| F7            | Verify mode — interactive checklist; approval locked until all steps checked or skipped-with-reason                                                     | PRD §6 M2, §12      |
+| Async loop    | File contract + `/plan/decisions-inbox/` only — **no MCP in v0.1**                                                                                      | PRD §5, §12         |
+| F19           | Rejection basics: comment required, `revise` state, rejection counter, 3 rejections auto-block                                                          | PRD §6 M2, §12      |
+| Security      | 127.0.0.1 bind · token auth · HMAC-signed append-only decision log · answers-as-data                                                                    | PRD §5, R7; rule 15 |
+| F17           | Game Tape **viewer** only (capture utility belongs to the consuming project's harness)                                                                  | PRD §12             |
+| F18 (partial) | Verified/claimed **badges rendered everywhere** — launch requirement per R6; type-system-enforced per rule 14. (The _re-run-proofs_ half of F18 is M2.) | PRD §5, R6, §12     |
+| F20 Tier 1    | Deterministic Huddle: template-generated catch-up diff from state + decision log + last-seen timestamp; zero AI                                         | PRD §6 M2, §12      |
 
 **Ship criteria (PRD §12):** a full task cycle — gate posted → decided in the UI →
 agent acts on it next session — completes across two sessions without touching the
@@ -128,16 +128,16 @@ cloud, git-diff rendering, non-Claude adapters (v1 cut-line) — remote/mobile a
 
 ## 5. Discrepancies & gaps found (what GATE 0 should rule on)
 
-| # | Finding | Severity | Handling |
-|---|---|---|---|
-| 1 | Doc folders are `Courside Docs/` + `Cousrside Specs/` (typos), not the canonical `docs/` + `spec/` paths every rule references | Medium | **Q-1** — recommend normalizing at scaffold |
-| 2 | Not a git repository; rule 20 requires commit-per-task | Medium | **Q-2** — recommend `git init` at scaffold |
-| 3 | Fixture references files that don't exist: `plan/tape/TASK-12/frame-001.png`, `frame-002.png`, `plan/artifacts/gut-run-0610-1941.log`, `plan/decisions-inbox/G5-TASK-11.json` | Medium | **Q-3** — placeholders + graceful missing-file states |
-| 4 | Ship criterion says "`npx courtside`" but npx packaging (F13) is M4 | Low | **Q-4** — interpret as local CLI |
-| 5 | Fixture ages drift as real time passes (Q-7's "6 days" is true only today) | Low | **Q-5** |
-| 6 | Mock loads fonts from Google Fonts CDN; rule 15 forbids outbound calls | Low | **Resolved by rule 15:** vendor the three font families locally at build time. The *faces* are design language; how they load is implementation. |
-| 7 | Schema's conditional rules + referential integrity not mechanically enforceable in JSON Schema draft-07 | Info | Enforced in `courtside lint` + generated types — already PRD behavior (§10), noted so it lands in the lint slice spec |
-| 8 | PRD carries its own unresolved questions; OQ1 (approval friction) and OQ4 (report structure) affect v0.1 slices | Info | Imported as **Q-6**, **Q-7**; answers needed by Phase 2 at the latest |
+| #   | Finding                                                                                                                                                                       | Severity | Handling                                                                                                                                         |
+| --- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------- | ------------------------------------------------------------------------------------------------------------------------------------------------ |
+| 1   | Doc folders are `Courside Docs/` + `Cousrside Specs/` (typos), not the canonical `docs/` + `spec/` paths every rule references                                                | Medium   | **Q-1** — recommend normalizing at scaffold                                                                                                      |
+| 2   | Not a git repository; rule 20 requires commit-per-task                                                                                                                        | Medium   | **Q-2** — recommend `git init` at scaffold                                                                                                       |
+| 3   | Fixture references files that don't exist: `plan/tape/TASK-12/frame-001.png`, `frame-002.png`, `plan/artifacts/gut-run-0610-1941.log`, `plan/decisions-inbox/G5-TASK-11.json` | Medium   | **Q-3** — placeholders + graceful missing-file states                                                                                            |
+| 4   | Ship criterion says "`npx courtside`" but npx packaging (F13) is M4                                                                                                           | Low      | **Q-4** — interpret as local CLI                                                                                                                 |
+| 5   | Fixture ages drift as real time passes (Q-7's "6 days" is true only today)                                                                                                    | Low      | **Q-5**                                                                                                                                          |
+| 6   | Mock loads fonts from Google Fonts CDN; rule 15 forbids outbound calls                                                                                                        | Low      | **Resolved by rule 15:** vendor the three font families locally at build time. The _faces_ are design language; how they load is implementation. |
+| 7   | Schema's conditional rules + referential integrity not mechanically enforceable in JSON Schema draft-07                                                                       | Info     | Enforced in `courtside lint` + generated types — already PRD behavior (§10), noted so it lands in the lint slice spec                            |
+| 8   | PRD carries its own unresolved questions; OQ1 (approval friction) and OQ4 (report structure) affect v0.1 slices                                                               | Info     | Imported as **Q-6**, **Q-7**; answers needed by Phase 2 at the latest                                                                            |
 
 Full options + recommendations: [open-questions.md](open-questions.md).
 
@@ -145,14 +145,14 @@ Full options + recommendations: [open-questions.md](open-questions.md).
 
 ## 6. Framework → web-app mapping (per CLAUDE.md)
 
-| framework-v2.md says (Godot) | In this repo means |
-|---|---|
-| DebugBattle scene, "press Play (F5)" | `npm run dev` → dashboard at `localhost:4310` rendering the sample fixture |
-| Harness (Phase 1.5) | Dev server + fixture working from the first task onward (rules 8–10) |
-| GUT unit tests | vitest (rule 17) |
-| Headless engine run | Node processes; `npm run check` (lint + format + tests) stays green (rule 18) |
-| On-screen debug panel | The dashboard itself is the observability surface; doctor/health badge covers self-state |
-| Engine checks in doctor (F0) | Plugin-based per PRD §6; exact check list for v0.1 is a Phase 2 spec decision |
+| framework-v2.md says (Godot)         | In this repo means                                                                       |
+| ------------------------------------ | ---------------------------------------------------------------------------------------- |
+| DebugBattle scene, "press Play (F5)" | `npm run dev` → dashboard at `localhost:4310` rendering the sample fixture               |
+| Harness (Phase 1.5)                  | Dev server + fixture working from the first task onward (rules 8–10)                     |
+| GUT unit tests                       | vitest (rule 17)                                                                         |
+| Headless engine run                  | Node processes; `npm run check` (lint + format + tests) stays green (rule 18)            |
+| On-screen debug panel                | The dashboard itself is the observability surface; doctor/health badge covers self-state |
+| Engine checks in doctor (F0)         | Plugin-based per PRD §6; exact check list for v0.1 is a Phase 2 spec decision            |
 
 ---
 
@@ -179,6 +179,7 @@ Q-6/Q-7 can wait until Phase 2.
 
 **Approved** by the human; discrepancy handling delegated to agent judgment (DEC-1).
 Close-out actions, all completed the same day:
+
 - Q-1→A: corpus moved to canonical paths — the "actual path today" column in §1 is
   now historical; the canonical column is reality (DEC-2).
 - Q-2→A: `git init` on branch `main`; `.gitignore` + README hub added. Remote URL
