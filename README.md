@@ -4,7 +4,7 @@ A local-first dashboard for human + agent development: see everything your codin
 agent does, approve what matters, and feel the progress — without leaving your seat.
 Building the **v0.1 "Courtside Lite"** cut ([PRD §12](docs/prd.md)).
 
-> **Status:** pre-code · Phase 1 (system map) awaiting GATE 1.
+> **Status:** pre-code · GATE 1 approved · Phase 2 (S1 slice spec) awaiting GATE 2.
 > No `npm run dev` yet — the runnable harness lands with the first build task and
 > will serve `localhost:4310` against [the sample fixture](spec/fixtures/state.sample.json).
 

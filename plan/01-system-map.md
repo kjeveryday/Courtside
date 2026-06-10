@@ -1,6 +1,6 @@
 # Phase 1 — System Map & Slicing
 
-- **Status:** proposal, awaiting GATE 1
+- **Status:** ✅ **GATE 1 approved 2026-06-10** (DEC-8: map, slices, order, S1 + dependencies)
 - **Date:** 2026-06-10
 - **Gate question (framework §1):** *Approve slices + first slice?*
 - Scope is exactly the v0.1 cut approved at GATE 0 ([00-inventory.md §4](00-inventory.md)).
