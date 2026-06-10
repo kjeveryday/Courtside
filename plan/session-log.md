@@ -14,3 +14,5 @@ Format: `ts · TASK/PHASE · why → next`
 - 2026-06-10 · TASK-10 done · schema-as-TS codegen, native-TS validate proven, engines>=24, fixture project + tape frame + GUT log; drift check caught prettier-vs-generator live → TASK-11 server core (tests T15-T17 first).
 - 2026-06-10 · TASK-11 done · real server: token URL, gated /api/state, locked-out view; live smoke 401/200 → TASK-12 watch+ws+sqlite (T18-T20 first).
 - 2026-06-10 · TASK-12 done, S4 SHIPPED · watch→validate→ws push live; sqlite verified events; T18-T20 incl. real ws client → S5 spec (decisions/signing/async loop).
+- 2026-06-10 · S5 spec (Q-6/Q-7 consumed via DEC-24) + fixture gate payload → TASK-13 signing/writer/lint, tests first.
+- 2026-06-10 · TASK-13 done · HMAC chain + decision writer + lint (T21-T23, 38/38); fixture-vs-lint severity call recorded → TASK-14 API.

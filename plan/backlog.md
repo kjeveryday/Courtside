@@ -251,3 +251,35 @@ sources PRD §5/R7, AD-1..8).
   JSON → live refusal; header live-dot.
 - Test approach: unit T18/T19 + integration T20 · Dependencies: [TASK-11] · Risk: med
 - Status: done (auto-approved 2026-06-10 · report: [gates/G5-TASK-12.md](gates/G5-TASK-12.md)) — **S4 complete**
+
+---
+
+## Slice S5 — the-gate (spec: [specs/the-gate.md](specs/the-gate.md)) · gates auto-approved (DEC-20)
+
+Build order: **TASK-13 → TASK-14 → TASK-15 → TASK-16**. ACs = the spec's B1–B4
+bullets (card-shaped there; sources PRD F6/F7/F19, §5, R7, Q-6/Q-7 via DEC-24).
+
+### [TASK-13] Core: HMAC decision chain, decision writer, courtside lint
+
+- VISUAL CRITERION: LOGIC-ONLY — surfaces at TASK-15 (1st of 2 in a row).
+- Test approach: unit T21/T22/T23 · Dependencies: [TASK-12] · Risk: med (crypto chain correctness)
+- Status: done (auto-approved 2026-06-10 · report: [gates/G5-TASK-13.md](gates/G5-TASK-13.md))
+
+### [TASK-14] API: GET /api/gates, POST /api/decisions (server-enforced F6/F7/F19)
+
+- VISUAL CRITERION: LOGIC-ONLY — surfaces at TASK-15 (2nd of 2 — at budget, rule 9).
+- Test approach: integration T24 · Dependencies: [TASK-13] · Risk: med
+- Status: todo
+
+### [TASK-15] The Gate card UI: verify checklist, decide actions, async copy, next-up dimming
+
+- VISUAL CRITERION: spec §Visual — the full gate interaction in the browser.
+- Test approach: manual-in-harness (logic covered by T21–T24) · Dependencies: [TASK-14] · Risk: med
+- Status: todo
+
+### [TASK-16] Harness agent-session simulator + browser-only cycle demo
+
+- VISUAL CRITERION: click "simulate next agent session" → page live-updates to the
+  acted-on state (task done / revise, agent working, new narration).
+- Test approach: unit T25 + manual-in-harness · Dependencies: [TASK-15] · Risk: med
+- Status: todo
