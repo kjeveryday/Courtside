@@ -7,6 +7,7 @@ import { compile } from 'json-schema-to-typescript';
 
 const SCHEMA_PATH = new URL('../spec/state.schema.json', import.meta.url);
 const OUTPUT_PATH = new URL('../src/contract/state.generated.ts', import.meta.url);
+const SCHEMA_TS_PATH = new URL('../src/contract/schema.generated.ts', import.meta.url);
 
 const banner = `/* GENERATED — do not edit. Source of truth: spec/state.schema.json.
  * Regenerate with \`npm run codegen\`; \`npm run check\` fails on drift (rule 13). */`;
@@ -23,24 +24,37 @@ async function generate() {
   });
 }
 
-const generated = await generate();
+// Second artifact (AD-7): the schema itself as a TS const, so node/vite/vitest all
+// import it with identical semantics (no JSON import-attribute divergence).
+function generateSchemaTs() {
+  const raw = readFileSync(SCHEMA_PATH, 'utf-8');
+  return `${banner}\nexport const stateSchema = ${raw.trim()} as const;\n`;
+}
+
+const outputs = [
+  { path: OUTPUT_PATH, label: 'state.generated.ts', content: await generate() },
+  { path: SCHEMA_TS_PATH, label: 'schema.generated.ts', content: generateSchemaTs() },
+];
 
 if (process.argv.includes('--check')) {
-  let committed = '';
-  try {
-    committed = readFileSync(OUTPUT_PATH, 'utf-8');
-  } catch {
-    console.error('codegen check FAILED: src/contract/state.generated.ts is missing.');
-    console.error('Fix: run `npm run codegen` and commit the result.');
-    process.exit(1);
-  }
-  if (committed !== generated) {
-    console.error('codegen check FAILED: state.generated.ts drifted from the schema.');
-    console.error('Fix: run `npm run codegen` and commit the result. Never hand-edit it.');
-    process.exit(1);
+  for (const { path, label, content } of outputs) {
+    let committed = '';
+    try {
+      committed = readFileSync(path, 'utf-8');
+    } catch {
+      console.error(`codegen check FAILED: ${label} is missing. Fix: npm run codegen + commit.`);
+      process.exit(1);
+    }
+    if (committed !== content) {
+      console.error(`codegen check FAILED: ${label} drifted from the schema.`);
+      console.error('Fix: run `npm run codegen` and commit the result. Never hand-edit it.');
+      process.exit(1);
+    }
   }
   console.log('codegen check OK: generated types match the schema.');
 } else {
-  writeFileSync(OUTPUT_PATH, generated);
-  console.log('Wrote src/contract/state.generated.ts from spec/state.schema.json.');
+  for (const { path, label, content } of outputs) {
+    writeFileSync(path, content);
+    console.log(`Wrote ${label} from spec/state.schema.json.`);
+  }
 }

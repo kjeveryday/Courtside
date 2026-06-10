@@ -222,3 +222,32 @@ Build order: **TASK-7 → TASK-8 → TASK-9**.
 - Test approach: unit (T13/T14) + manual-in-harness
 - Dependencies: [TASK-8] · Risk: low
 - Status: done (auto-approved 2026-06-10 · reports: gates/G5-TASK-8.md, G5-TASK-9.md) — **S3 complete**
+
+---
+
+## Slice S4 — live-wire (spec: [specs/live-wire.md](specs/live-wire.md)) · gates auto-approved (DEC-20)
+
+Build order: **TASK-10 → TASK-11 → TASK-12**. Card details live in the spec's B1–B3
+(behaviors written card-shaped there to avoid duplication; ACs = each B's bullets;
+sources PRD §5/R7, AD-1..8).
+
+### [TASK-10] Contract embed, engines bump, fixture project scaffold
+
+- VISUAL CRITERION: LOGIC-ONLY — surfaces at TASK-11 (1 in a row).
+- Test approach: existing suite + drift check across both generated artifacts
+- Dependencies: [TASK-9] · Risk: med (engines/tsconfig churn hits everything; check catches)
+- Status: done (auto-approved 2026-06-10 · report: [gates/G5-TASK-10.md](gates/G5-TASK-10.md))
+
+### [TASK-11] Server core: token auth, static serve, /api/state
+
+- VISUAL CRITERION: token-URL boot; dashboard served by the Courtside server;
+  tokenless visit → locked-out screen.
+- Test approach: unit T15/T16 + integration T17 · Dependencies: [TASK-10] · Risk: med
+- Status: todo
+
+### [TASK-12] Watch → validate → WebSocket push + SQLite event log
+
+- VISUAL CRITERION: edit fixture state.json → page updates live, no reload; broken
+  JSON → live refusal; header live-dot.
+- Test approach: unit T18/T19 + integration T20 · Dependencies: [TASK-11] · Risk: med
+- Status: todo
