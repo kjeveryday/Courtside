@@ -3,6 +3,8 @@
 // docs/mock.html design language (TASK-4); scorebug/ticker arrive TASK-5/6.
 import { useEffect, useState } from 'react';
 import { Header } from './components/Header';
+import { Scorebug } from './components/Scorebug';
+import { StatusCard } from './components/StatusCard';
 import type { CourtsideState } from './contract/state.generated';
 import { validateState } from './contract/validate';
 
@@ -67,25 +69,11 @@ export default function App() {
 }
 
 function ValidState({ state }: { state: CourtsideState }) {
-  const { agent } = state;
-  const since = new Date(agent.since).toLocaleTimeString([], {
-    hour: 'numeric',
-    minute: '2-digit',
-  });
   return (
     <section>
       <p className="font-mono text-xs text-ok">fixture validates ✓ {state.schema}</p>
-      <div className="mt-4 rounded-card border border-line bg-surface p-5">
-        <p className="font-mono text-[10px] tracking-[0.12em] text-muted uppercase">Agent</p>
-        <p className="mt-1 font-display text-[22px] font-semibold">
-          {agent.state.replace(/_/g, ' ')}
-          <span className="ml-2 font-body text-sm font-normal text-muted">since {since}</span>
-        </p>
-        {agent.narration && <p className="mt-2 text-sm italic">{agent.narration}</p>}
-        {agent.currentTask && (
-          <p className="mt-2 font-mono text-xs text-muted">{agent.currentTask}</p>
-        )}
-      </div>
+      <Scorebug state={state} />
+      <StatusCard state={state} />
     </section>
   );
 }

@@ -140,7 +140,7 @@ in-review · med`, and the GUT test_run line with a solid ✓ verified badge.
 - Test approach: unit (vitest T7–T10) + manual-in-harness
 - Dependencies: [TASK-4]
 - Risk: low
-- Status: todo
+- Status: done (auto-approved 2026-06-10 · report: [gates/G5-TASK-5.md](gates/G5-TASK-5.md))
 
 ### [TASK-6] Ticker + layout grid
 
