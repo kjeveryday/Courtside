@@ -38,7 +38,7 @@ no parallelism available or needed.
 - Dependencies: none
 - Risk: low — boring, well-trodden scaffolding; only sharp edge is pinning
   host/port/strictPort correctly.
-- Status: in-review (GATE 5 posted 2026-06-10)
+- Status: in-review (GATE 5 posted 2026-06-10 · report: [gates/G5-TASK-1.md](gates/G5-TASK-1.md))
 
 ### [TASK-2] Contract pipeline: codegen, validator, tests
 
