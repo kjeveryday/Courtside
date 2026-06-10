@@ -7,3 +7,5 @@ Format: `ts · TASK/PHASE · why → next`
 - 2026-06-10 · TASK-4 done · tokens/fonts/header landed, 37 woff2 bundled, palette grep clean → TASK-5 scorebug+badges+helpers (tests first).
 - 2026-06-10 · TASK-5 done · scorebug 4 cells + Provenance (sole badge styling, grep-proven) + helpers 10/10 → TASK-6 ticker+grid.
 - 2026-06-10 · TASK-6 done, S2 SHIPPED · ticker+grid live, 10/10 → Phase 2 spec S3 mission-control (auto-gates per DEC-20).
+- 2026-06-10 · S3 spec+cards logged (auto-gates) → build TASK-7 backlog view, tests first (T11).
+- 2026-06-10 · TASK-7 done · backlog view + depsDepth (T11) → TASK-8 progress card.

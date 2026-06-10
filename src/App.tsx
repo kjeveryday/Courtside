@@ -2,6 +2,7 @@
 // invalid state never renders as truth — no partial data). Token-styled per
 // docs/mock.html design language (TASK-4); scorebug/ticker arrive TASK-5/6.
 import { useEffect, useState } from 'react';
+import { Backlog } from './components/Backlog';
 import { Header } from './components/Header';
 import { Scorebug } from './components/Scorebug';
 import { StatusCard } from './components/StatusCard';
@@ -77,6 +78,7 @@ function ValidState({ state }: { state: CourtsideState }) {
       <div className="grid grid-cols-[1.6fr_1fr] gap-5 max-[860px]:grid-cols-1">
         <div>
           <StatusCard state={state} />
+          <Backlog tasks={state.tasks} />
         </div>
         <aside>
           <Ticker events={state.events} />

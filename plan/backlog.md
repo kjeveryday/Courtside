@@ -169,3 +169,56 @@ in-review · med`, and the GUT test_run line with a solid ✓ verified badge.
 
 - S1 GATES 3+4 approved 2026-06-10 (DEC-11/12); TASK-1..3 done, S1 shipped (DEC-16).
 - S2 GATES 3+4 approved 2026-06-10 (DEC-18/19); TASK-4..6 done, S2 shipped (auto-approved per DEC-20).
+
+---
+
+## Slice S3 — mission-control (spec: [specs/mission-control.md](specs/mission-control.md)) · gates auto-approved (DEC-20)
+
+Build order: **TASK-7 → TASK-8 → TASK-9**.
+
+### [TASK-7] Backlog view with mini-graph
+
+- Source: specs/mission-control.md §B1 §B5; PRD F2; F19 (counter visibility)
+- Slice / Milestone: S3 mission-control / v0.1 Lite
+- Description: task cards grouped by slice — status chips, risk badges, prominent
+  visual criterion / LOGIC-ONLY chip, expandable full card (sourceRef, deps, commit,
+  rejections), per-slice dependency arrow strip via tested `depsDepth`.
+- Acceptance criteria: Given the fixture, Then 5 battle-core tasks render with
+  correct chips (TASK-11 done/ok, TASK-12 in-review/accent, TASK-15 LOGIC-ONLY chip
+  naming TASK-16); expanding TASK-12 shows `gdd.md#movement-ranges`, deps TASK-11,
+  commit 3f8a21c, rejections 0; dep strip orders 11→12→13→14→15; T11 passes incl.
+  unknown-dep and cycle-cap cases.
+- VISUAL CRITERION: backlog card in main column, expand/collapse drilldown works.
+- Test approach: unit (T11) + manual-in-harness
+- Dependencies: [TASK-6] · Risk: low
+- Status: done (auto-approved 2026-06-10 · report: [gates/G5-TASK-7.md](gates/G5-TASK-7.md))
+
+### [TASK-8] Progress card (milestone bar + sparkline)
+
+- Source: specs/mission-control.md §B2 §B5; PRD F3
+- Description: side-column milestone card — accent done/total bar for the active
+  slice, "N of M tasks", cumulative-decisions sparkline via tested `cumulativeByDay`.
+- Acceptance criteria: Given the fixture, Then the bar fills 1/5 (20%) with
+  "1 of 5 tasks"; sparkline renders one step (DEC-11 on 2026-06-10); T12 passes
+  (ordering, multi-per-day, empty series).
+- VISUAL CRITERION: milestone card tops the side column with a visible 20% bar.
+- Test approach: unit (T12) + manual-in-harness
+- Dependencies: [TASK-7] · Risk: low
+- Status: todo
+
+### [TASK-9] Ledgers + state freshness
+
+- Source: specs/mission-control.md §B3 §B5; PRD F5, R1
+- Description: ledgers card — questions/debt/decisions rows with age indicators
+  (risk-red itch at ≥3d) and expandable lists (options + labeled recommendation
+  shown read-only), plus the state-freshness row from `generatedAt`.
+- Acceptance criteria: Given the fixture, Then questions row reads 1 open with
+  oldest age in risk red (Q-7, opened 2026-06-04, blocking TASK-15 — expand shows 3
+  options + recommendation); debt 1 (D-3); decisions 1 (DEC-11, by human, commit
+  9d12e0a); freshness shows generatedAt ago with the spec's bucket color; T13/T14
+  pass at the exact thresholds.
+- VISUAL CRITERION: ledgers card under the ticker; expanding Open questions shows
+  Q-7 verbatim with its recommendation.
+- Test approach: unit (T13/T14) + manual-in-harness
+- Dependencies: [TASK-8] · Risk: low
+- Status: todo
