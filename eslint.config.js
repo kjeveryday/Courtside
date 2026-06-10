@@ -20,7 +20,7 @@ export default tseslint.config(
   reactHooks.configs.flat['recommended-latest'],
   prettier,
   {
-    files: ['scripts/**/*.mjs'],
+    files: ['scripts/**/*.mjs', 'bin/**/*.mjs'],
     languageOptions: {
       globals: {
         process: 'readonly',
