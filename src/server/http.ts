@@ -28,7 +28,7 @@ export type HttpContext = {
   extraRoutes?: (path: string, req: IncomingMessage, res: ServerResponse) => boolean;
 };
 
-function json(res: ServerResponse, status: number, body: unknown) {
+export function json(res: ServerResponse, status: number, body: unknown) {
   res.writeHead(status, { 'content-type': 'application/json' });
   res.end(JSON.stringify(body));
 }

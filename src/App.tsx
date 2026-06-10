@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { Backlog } from './components/Backlog';
 import { GateCard } from './components/Gate';
+import { HarnessBar } from './components/HarnessBar';
 import { Header } from './components/Header';
 import { Ledgers } from './components/Ledgers';
 import { NextUp } from './components/NextUp';
@@ -24,7 +25,7 @@ import {
 type LoadState =
   | { phase: 'loading' }
   | { phase: 'locked'; detail: string }
-  | { phase: 'ok'; state: CourtsideState; gates: GateView[]; token: string }
+  | { phase: 'ok'; state: CourtsideState; gates: GateView[]; token: string; harness: boolean }
   | { phase: 'refused'; errors: string[] };
 
 export default function App() {
@@ -40,11 +41,17 @@ export default function App() {
     const token = ensureToken();
     // One trust path for first fetch and every live push: validate locally,
     // render fully or refuse (PRD §5).
-    const applyPayload = ({ result, gates }: StatePayload) => {
+    const applyPayload = ({ result, gates, harness }: StatePayload) => {
       if (!result.ok) return apply({ phase: 'refused', errors: result.errors });
       const checked = validateState(result.state);
       if (checked.ok)
-        apply({ phase: 'ok', state: checked.state, gates: gates ?? [], token: token ?? '' });
+        apply({
+          phase: 'ok',
+          state: checked.state,
+          gates: gates ?? [],
+          token: token ?? '',
+          harness: harness ?? false,
+        });
       else apply({ phase: 'refused', errors: checked.errors });
     };
     if (!token) {
@@ -91,6 +98,7 @@ export default function App() {
         )}
         {load.phase === 'refused' && <RefusalState errors={load.errors} />}
       </div>
+      {load.phase === 'ok' && load.harness && <HarnessBar token={load.token} />}
     </main>
   );
 }

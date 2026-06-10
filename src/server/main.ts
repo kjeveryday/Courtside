@@ -4,9 +4,10 @@
 import { mkdirSync } from 'node:fs';
 import { createServer } from 'node:http';
 import { join } from 'node:path';
+import { simulateAgentSession } from '../core/agentSession.ts';
 import { generateToken } from './auth.ts';
 import { openDb, type Db } from './db.ts';
-import { createHandler, statePayload, type HttpContext } from './http.ts';
+import { createHandler, json, statePayload, type HttpContext } from './http.ts';
 import { readState } from './state.ts';
 import { watchPlanDir } from './watch.ts';
 import { attachWs } from './ws.ts';
@@ -39,6 +40,23 @@ export async function startServer(opts: StartOptions): Promise<RunningServer> {
   const token = generateToken();
   const harness = opts.planDir.includes(join('spec', 'fixtures', 'sample-project'));
   const ctx: HttpContext = { distDir, planDir: opts.planDir, runtimeDir, token, harness };
+  if (harness) {
+    // Demo-only route (spec B4): lets the human drive the full async cycle from
+    // the browser. Mounted exclusively when serving the fixture project.
+    ctx.extraRoutes = (path, req, res) => {
+      if (req.method === 'POST' && path === '/api/dev/agent-session') {
+        const summary = simulateAgentSession(opts.planDir);
+        db.insertEvent({
+          kind: 'agent_session_sim',
+          provenance: 'verified',
+          text: summary.actions.join('; '),
+        });
+        json(res, 200, summary);
+        return true;
+      }
+      return false;
+    };
+  }
   const server = createServer(createHandler(ctx));
   const ws = attachWs(server, token);
 
