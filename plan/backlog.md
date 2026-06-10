@@ -85,7 +85,7 @@ no parallelism available or needed.
 - Test approach: manual-in-harness (validation logic already unit-tested in TASK-2)
 - Dependencies: [TASK-2]
 - Risk: low
-- Status: in-progress
+- Status: in-review (GATE 5 posted 2026-06-10 · report: [gates/G5-TASK-3.md](gates/G5-TASK-3.md))
 
 ---
 

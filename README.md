@@ -4,7 +4,7 @@ A local-first dashboard for human + agent development: see everything your codin
 agent does, approve what matters, and feel the progress — without leaving your seat.
 Building the **v0.1 "Courtside Lite"** cut ([PRD §12](docs/prd.md)).
 
-> **Status:** Phase 5 · S1 walking-skeleton · TASK-1 in review (GATE 5).
+> **Status:** Phase 5 · S1 walking-skeleton · TASK-3 in review (GATE 5) — approving it completes S1.
 
 ## Run it
 
