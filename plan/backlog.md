@@ -99,9 +99,8 @@ components that use them; helpers/badges before the ticker that renders them).
 - Source: specs/scorebug.md §B1 §B2; mock `:root` tokens; CLAUDE.md rules 2, 15
 - Slice / Milestone: S2 scorebug / v0.1 Lite
 - Description: land the mock's tokens as Tailwind v4 `@theme` variables, vendor the
-  three typefaces via @fontsource (GATE-2-approved), build the header (brand wordmark
-  - mono phase chip from state), restyle the existing loading/refusal/status views
-    onto tokens.
+  three typefaces via @fontsource (GATE-2-approved), build the header (brand wordmark and mono phase chip from state), restyle the
+  existing loading/refusal/status views onto tokens.
 - Acceptance criteria:
   - Given `npm run dev`, When the page loads, Then the background is the mock's dark
     `#14171C`, the brand reads COURT**SIDE** in condensed display type with the
