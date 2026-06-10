@@ -161,11 +161,11 @@ in-review · med`, and the GUT test_run line with a solid ✓ verified badge.
 - Test approach: manual-in-harness (helpers already unit-tested)
 - Dependencies: [TASK-5]
 - Risk: low
-- Status: todo
+- Status: done (auto-approved 2026-06-10 · report: [gates/G5-TASK-6.md](gates/G5-TASK-6.md)) — **S2 complete**
 
 ---
 
 ## Gate history
 
 - S1 GATES 3+4 approved 2026-06-10 (DEC-11/12); TASK-1..3 done, S1 shipped (DEC-16).
-- S2 GATES 3+4: **pending** — right tasks/size? approve order + TASK-4?
+- S2 GATES 3+4 approved 2026-06-10 (DEC-18/19); TASK-4..6 done, S2 shipped (auto-approved per DEC-20).

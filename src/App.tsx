@@ -5,6 +5,7 @@ import { useEffect, useState } from 'react';
 import { Header } from './components/Header';
 import { Scorebug } from './components/Scorebug';
 import { StatusCard } from './components/StatusCard';
+import { Ticker } from './components/Ticker';
 import type { CourtsideState } from './contract/state.generated';
 import { validateState } from './contract/validate';
 
@@ -73,7 +74,14 @@ function ValidState({ state }: { state: CourtsideState }) {
     <section>
       <p className="font-mono text-xs text-ok">fixture validates ✓ {state.schema}</p>
       <Scorebug state={state} />
-      <StatusCard state={state} />
+      <div className="grid grid-cols-[1.6fr_1fr] gap-5 max-[860px]:grid-cols-1">
+        <div>
+          <StatusCard state={state} />
+        </div>
+        <aside>
+          <Ticker events={state.events} />
+        </aside>
+      </div>
     </section>
   );
 }
