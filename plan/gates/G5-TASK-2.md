@@ -1,4 +1,9 @@
-# GATE 5 · G5-TASK-2 — pending
+# GATE 5 · G5-TASK-2 — ✅ approved 2026-06-10 (DEC-15)
+
+Per-feature audit (framework §8) re-checked report claims against the diff before
+posting: all trace to shown output (6/6 tests, drift exit codes); deviations
+disclosed pre-approval; 0 findings. _(Agent-performed audit; the human approved on
+test evidence per the logic-only declaration.)_
 
 Posted 2026-06-10 · task: [TASK-2](../backlog.md) · commit `1fac2ed` ·
 [diff on GitHub](https://github.com/kjeveryday/Courtside/commit/1fac2ed)
