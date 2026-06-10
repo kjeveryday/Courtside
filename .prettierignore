@@ -2,3 +2,6 @@
 docs/
 spec/
 CLAUDE.md
+
+# Generated; content pinned by the codegen drift check, not by prettier.
+src/contract/state.generated.ts

@@ -14,8 +14,5 @@ export default defineConfig({
   },
   test: {
     environment: 'node',
-    // TASK-2 lands the first real suite; until then `npm run check` must not
-    // fail on an intentionally empty test set.
-    passWithNoTests: true,
   },
 });
