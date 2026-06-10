@@ -14,3 +14,4 @@ Appended immediately when decided (CLAUDE.md rule 23). Format:
 | DEC-7 | 2026-06-10 | Repo-local git identity set to placeholder `Kyle Johnson <kyle@courtside.local>` (no global identity on machine); human confirmed **keep for now** (commits won't link to a GitHub account until changed) | human | GATE 1 Q&A |
 | DEC-8 | 2026-06-10 | **GATE 1 approved** — component map, slices S1–S7 in proposed order, S1 walking-skeleton first **including its dependency list** (rule 16 satisfied for S1) | human | GATE 1 |
 | DEC-9 | 2026-06-10 | Git remote provided and wired: `https://github.com/kjeveryday/Courtside` — push at session end per rule 20 | human | GATE 1 Q&A |
+| DEC-10 | 2026-06-10 | **GATE 2 approved** — S1 walking-skeleton spec confirmed as written (B1–B5, refusal state, T1–T6) | human | GATE 2 |

@@ -1,6 +1,6 @@
 # Slice spec — S1 "walking-skeleton"
 
-- **Status:** awaiting GATE 2
+- **Status:** ✅ **GATE 2 approved 2026-06-10** (DEC-10)
 - **Date:** 2026-06-10 · **Source:** [01-system-map.md §5](../01-system-map.md) (approved DEC-8)
 - **Gate question (framework §1):** *Spec confirmed, questions answered?*
 
