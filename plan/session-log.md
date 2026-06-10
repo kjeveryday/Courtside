@@ -23,3 +23,4 @@ Format: `ts · TASK/PHASE · why → next`
 - 2026-06-10 · TASK-17 done · npx courtside doctor/lint/dev live, T26/T27 → TASK-18 badge+panel.
 - 2026-06-10 · PROCESS SLIP logged: TASK-17 commit landed while lint was red (shell chain bug); fixed next commit. Noted for final report honesty.
 - 2026-06-10 · TASK-18 done, S6 SHIPPED · health badge + preflight panel, doctor api 11 checks 0 fail → S7 tape+huddle.
+- 2026-06-10 · TASK-19 done · filmstrip + missing-state + confined tape route (T28; 49/49) → TASK-20 huddle (T29 first).

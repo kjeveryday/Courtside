@@ -4,6 +4,7 @@ import { existsSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import type { CourtsideState } from '../contract/state.generated.ts';
 import { appendDecision, decisionFor } from '../core/decisions.ts';
+import { resolveTape, type TapeFrame } from './tape.ts';
 
 type StateGate = CourtsideState['gates'][number];
 
@@ -12,6 +13,7 @@ export type GateView = {
   payload?: unknown;
   payloadMissing?: boolean;
   decided?: unknown;
+  tape?: TapeFrame[];
 };
 
 const relToPlan = (p: string) => (p.startsWith('plan/') ? p.slice('plan/'.length) : p);
@@ -26,6 +28,7 @@ export function gateViews(planDir: string, state: CourtsideState | undefined): G
       else view.payloadMissing = true;
     }
     view.decided = decisionFor(planDir, gate.id);
+    if (gate.tape?.length) view.tape = resolveTape(planDir, gate.tape);
     return view;
   });
 }

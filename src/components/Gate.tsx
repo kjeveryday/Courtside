@@ -95,6 +95,40 @@ export function GateCard({
         </div>
       )}
 
+      {view.tape && view.tape.length > 0 && (
+        <div className="mt-3">
+          <p className="mb-1.5 font-mono text-[10px] tracking-[0.12em] text-muted uppercase">
+            Game tape — evidence, never verification (R8)
+          </p>
+          <div className="flex flex-wrap gap-2.5">
+            {view.tape.map((f) =>
+              f.exists && f.url ? (
+                <figure key={f.ref} className="w-40">
+                  <img
+                    src={`${f.url}?token=${token}`}
+                    alt={f.ref}
+                    className="rounded border border-line"
+                  />
+                  <figcaption className="mt-0.5 flex items-center gap-1 font-mono text-[9.5px] text-muted">
+                    {f.ref.split('/').at(-1)} <ProvenanceBadge provenance="verified" />
+                  </figcaption>
+                </figure>
+              ) : (
+                <figure
+                  key={f.ref}
+                  className="flex h-[90px] w-40 flex-col items-center justify-center rounded border border-dashed border-risk/50 bg-risk/5 text-center"
+                >
+                  <span className="font-mono text-[10px] text-risk">missing — unverifiable</span>
+                  <span className="mt-1 font-mono text-[9.5px] text-muted">
+                    {f.ref.split('/').at(-1)}
+                  </span>
+                </figure>
+              ),
+            )}
+          </div>
+        </div>
+      )}
+
       {decided ? (
         <p className="mt-4 rounded-lg border border-ok/40 bg-ok/10 px-3 py-2.5 text-sm text-ok">
           decision logged · <b>{decided.decision.replace('_', ' ')}</b>

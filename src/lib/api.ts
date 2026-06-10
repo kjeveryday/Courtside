@@ -35,6 +35,14 @@ export type DecidedInfo = {
   seq?: number;
 };
 
+export type TapeFrameView = {
+  ref: string;
+  exists: boolean;
+  mtime?: string;
+  size?: number;
+  url?: string;
+};
+
 export type GateView = {
   gate: {
     id: string;
@@ -49,6 +57,7 @@ export type GateView = {
   payload?: GatePayloadFile;
   payloadMissing?: boolean;
   decided?: DecidedInfo;
+  tape?: TapeFrameView[];
 };
 
 export type StatePayload = {

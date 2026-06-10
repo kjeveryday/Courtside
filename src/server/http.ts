@@ -1,8 +1,9 @@
 // Request routing: gated /api/* + open static app shell from dist/ (AD-6 note:
 // the shell carries no data; every byte of state sits behind the token).
-import { readFileSync } from 'node:fs';
+import { existsSync, readFileSync } from 'node:fs';
 import type { IncomingMessage, ServerResponse } from 'node:http';
 import { extname, join, normalize } from 'node:path';
+import { safeTapePath } from './tape.ts';
 import { runDoctor } from '../core/doctor.ts';
 import { extractToken, tokenEquals } from './auth.ts';
 import { decideGate, gateViews, type DecisionRequest } from './gates.ts';
@@ -91,6 +92,12 @@ export async function handleApi(ctx: HttpContext, req: IncomingMessage, res: Ser
     );
     if (ruling.status === 200) return json(res, 200, { ok: true, seq: ruling.seq });
     return json(res, ruling.status, { error: ruling.error });
+  }
+  if (req.method === 'GET' && path.startsWith('/api/tape/')) {
+    const file = safeTapePath(ctx.planDir, path);
+    if (!file || !existsSync(file)) return json(res, 404, { error: 'no such tape frame' });
+    res.writeHead(200, { 'content-type': MIME[extname(file)] ?? 'application/octet-stream' });
+    return res.end(readFileSync(file));
   }
   if (ctx.extraRoutes?.(path, req, res)) return;
   return json(res, 404, { error: `no such route: ${req.method} ${path}` });
