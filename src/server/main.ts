@@ -6,7 +6,7 @@ import { createServer } from 'node:http';
 import { join } from 'node:path';
 import { generateToken } from './auth.ts';
 import { openDb, type Db } from './db.ts';
-import { createHandler } from './http.ts';
+import { createHandler, statePayload, type HttpContext } from './http.ts';
 import { readState } from './state.ts';
 import { watchPlanDir } from './watch.ts';
 import { attachWs } from './ws.ts';
@@ -37,7 +37,9 @@ export async function startServer(opts: StartOptions): Promise<RunningServer> {
   const db = openDb(join(runtimeDir, 'courtside.db'));
 
   const token = generateToken();
-  const server = createServer(createHandler({ distDir, planDir: opts.planDir, token }));
+  const harness = opts.planDir.includes(join('spec', 'fixtures', 'sample-project'));
+  const ctx: HttpContext = { distDir, planDir: opts.planDir, runtimeDir, token, harness };
+  const server = createServer(createHandler(ctx));
   const ws = attachWs(server, token);
 
   const watcher =
@@ -53,7 +55,7 @@ export async function startServer(opts: StartOptions): Promise<RunningServer> {
                 ? `state revalidated ok (${result.state.tasks.length} tasks)`
                 : `state invalid: ${result.errors[0] ?? 'unknown'}`,
             });
-            ws.broadcast({ kind: 'state', receivedAt: new Date().toISOString(), result });
+            ws.broadcast({ kind: 'state', ...statePayload(ctx) });
           },
           opts.watchDebounceMs ?? 150,
         )

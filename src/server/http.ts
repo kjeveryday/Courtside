@@ -4,6 +4,7 @@ import { readFileSync } from 'node:fs';
 import type { IncomingMessage, ServerResponse } from 'node:http';
 import { extname, join, normalize } from 'node:path';
 import { extractToken, tokenEquals } from './auth.ts';
+import { decideGate, gateViews, type DecisionRequest } from './gates.ts';
 import { readState } from './state.ts';
 
 const MIME: Record<string, string> = {
@@ -17,7 +18,15 @@ const MIME: Record<string, string> = {
   '.map': 'application/json',
 };
 
-export type HttpContext = { distDir: string; planDir: string; token: string };
+export type HttpContext = {
+  distDir: string;
+  planDir: string;
+  runtimeDir: string;
+  token: string;
+  harness: boolean;
+  // extension point: TASK-16 mounts the harness-only agent-session route here
+  extraRoutes?: (path: string, req: IncomingMessage, res: ServerResponse) => boolean;
+};
 
 function json(res: ServerResponse, status: number, body: unknown) {
   res.writeHead(status, { 'content-type': 'application/json' });
@@ -28,12 +37,49 @@ export function authorized(ctx: HttpContext, req: IncomingMessage): boolean {
   return tokenEquals(ctx.token, extractToken(req.headers.authorization, req.url ?? ''));
 }
 
-export function handleApi(ctx: HttpContext, req: IncomingMessage, res: ServerResponse) {
-  if (!authorized(ctx, req)) return json(res, 401, { error: 'missing or invalid token' });
-  const path = (req.url ?? '').split('?')[0];
-  if (req.method === 'GET' && path === '/api/state') {
-    return json(res, 200, { receivedAt: new Date().toISOString(), result: readState(ctx.planDir) });
+export function statePayload(ctx: HttpContext) {
+  const result = readState(ctx.planDir);
+  return {
+    receivedAt: new Date().toISOString(),
+    harness: ctx.harness,
+    result,
+    gates: gateViews(ctx.planDir, result.ok ? result.state : undefined),
+  };
+}
+
+async function readBody(req: IncomingMessage): Promise<unknown> {
+  const chunks: Buffer[] = [];
+  let size = 0;
+  for await (const chunk of req) {
+    size += (chunk as Buffer).length;
+    if (size > 1_000_000) throw new Error('body too large');
+    chunks.push(chunk as Buffer);
   }
+  return JSON.parse(Buffer.concat(chunks).toString('utf-8') || '{}');
+}
+
+export async function handleApi(ctx: HttpContext, req: IncomingMessage, res: ServerResponse) {
+  if (!authorized(ctx, req)) return json(res, 401, { error: 'missing or invalid token' });
+  const path = (req.url ?? '').split('?')[0] ?? '';
+  if (req.method === 'GET' && path === '/api/state') return json(res, 200, statePayload(ctx));
+  if (req.method === 'POST' && path === '/api/decisions') {
+    let body: DecisionRequest;
+    try {
+      body = (await readBody(req)) as DecisionRequest;
+    } catch (err) {
+      return json(res, 400, { error: `bad request body: ${(err as Error).message}` });
+    }
+    const result = readState(ctx.planDir);
+    const ruling = decideGate(
+      ctx.planDir,
+      ctx.runtimeDir,
+      result.ok ? result.state : undefined,
+      body,
+    );
+    if (ruling.status === 200) return json(res, 200, { ok: true, seq: ruling.seq });
+    return json(res, ruling.status, { error: ruling.error });
+  }
+  if (ctx.extraRoutes?.(path, req, res)) return;
   return json(res, 404, { error: `no such route: ${req.method} ${path}` });
 }
 
@@ -60,7 +106,12 @@ export function handleStatic(ctx: HttpContext, req: IncomingMessage, res: Server
 
 export function createHandler(ctx: HttpContext) {
   return (req: IncomingMessage, res: ServerResponse) => {
-    if ((req.url ?? '').startsWith('/api/')) return handleApi(ctx, req, res);
+    if ((req.url ?? '').startsWith('/api/')) {
+      handleApi(ctx, req, res).catch((err: unknown) =>
+        json(res, 500, { error: (err as Error).message }),
+      );
+      return;
+    }
     return handleStatic(ctx, req, res);
   };
 }
