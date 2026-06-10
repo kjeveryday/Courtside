@@ -282,4 +282,4 @@ bullets (card-shaped there; sources PRD F6/F7/F19, §5, R7, Q-6/Q-7 via DEC-24).
 - VISUAL CRITERION: click "simulate next agent session" → page live-updates to the
   acted-on state (task done / revise, agent working, new narration).
 - Test approach: unit T25 + manual-in-harness · Dependencies: [TASK-15] · Risk: med
-- Status: in-progress
+- Status: todo
