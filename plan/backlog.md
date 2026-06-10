@@ -204,7 +204,7 @@ Build order: **TASK-7 → TASK-8 → TASK-9**.
 - VISUAL CRITERION: milestone card tops the side column with a visible 20% bar.
 - Test approach: unit (T12) + manual-in-harness
 - Dependencies: [TASK-7] · Risk: low
-- Status: todo
+- Status: done (auto-approved 2026-06-10 · reports: gates/G5-TASK-8.md, G5-TASK-9.md) — **S3 complete**
 
 ### [TASK-9] Ledgers + state freshness
 
@@ -221,4 +221,4 @@ Build order: **TASK-7 → TASK-8 → TASK-9**.
   Q-7 verbatim with its recommendation.
 - Test approach: unit (T13/T14) + manual-in-harness
 - Dependencies: [TASK-8] · Risk: low
-- Status: todo
+- Status: done (auto-approved 2026-06-10 · reports: gates/G5-TASK-8.md, G5-TASK-9.md) — **S3 complete**

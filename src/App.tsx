@@ -4,6 +4,8 @@
 import { useEffect, useState } from 'react';
 import { Backlog } from './components/Backlog';
 import { Header } from './components/Header';
+import { Ledgers } from './components/Ledgers';
+import { Progress } from './components/Progress';
 import { Scorebug } from './components/Scorebug';
 import { StatusCard } from './components/StatusCard';
 import { Ticker } from './components/Ticker';
@@ -81,7 +83,9 @@ function ValidState({ state }: { state: CourtsideState }) {
           <Backlog tasks={state.tasks} />
         </div>
         <aside>
+          <Progress state={state} />
           <Ticker events={state.events} />
+          <Ledgers state={state} />
         </aside>
       </div>
     </section>

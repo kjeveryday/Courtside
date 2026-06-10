@@ -9,3 +9,4 @@ Format: `ts · TASK/PHASE · why → next`
 - 2026-06-10 · TASK-6 done, S2 SHIPPED · ticker+grid live, 10/10 → Phase 2 spec S3 mission-control (auto-gates per DEC-20).
 - 2026-06-10 · S3 spec+cards logged (auto-gates) → build TASK-7 backlog view, tests first (T11).
 - 2026-06-10 · TASK-7 done · backlog view + depsDepth (T11) → TASK-8 progress card.
+- 2026-06-10 · TASK-8+9 done, S3 SHIPPED · progress bar 1/5, ledgers w/ Q-7 itching, freshness row → S4 spec (server core, the big architecture decisions).
