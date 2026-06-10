@@ -1,4 +1,9 @@
-# GATE 5 · G5-TASK-3 — pending
+# GATE 5 · G5-TASK-3 — ✅ approved 2026-06-10 (DEC-16) — S1 SHIPPED
+
+Human verified the two-state demo in the browser. Per-feature audit (framework §8):
+all report claims trace to shown output (check green, curl smoke test); no
+undisclosed changes in the diff; 0 findings. _(Agent-performed audit; the browser
+verify is the human-verified half.)_
 
 Posted 2026-06-10 · task: [TASK-3](../backlog.md) · commit `de062d4` ·
 [diff on GitHub](https://github.com/kjeveryday/Courtside/commit/de062d4) ·
