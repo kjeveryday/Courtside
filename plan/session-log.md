@@ -12,3 +12,4 @@ Format: `ts · TASK/PHASE · why → next`
 - 2026-06-10 · TASK-8+9 done, S3 SHIPPED · progress bar 1/5, ledgers w/ Q-7 itching, freshness row → S4 spec (server core, the big architecture decisions).
 - 2026-06-10 · S4 spec w/ AD-1..8 logged → TASK-10 (codegen embed + engines + fixture scaffold).
 - 2026-06-10 · TASK-10 done · schema-as-TS codegen, native-TS validate proven, engines>=24, fixture project + tape frame + GUT log; drift check caught prettier-vs-generator live → TASK-11 server core (tests T15-T17 first).
+- 2026-06-10 · TASK-11 done · real server: token URL, gated /api/state, locked-out view; live smoke 401/200 → TASK-12 watch+ws+sqlite (T18-T20 first).
