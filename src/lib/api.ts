@@ -99,6 +99,15 @@ export async function fetchState(token: string): Promise<FetchStateOutcome> {
   }
 }
 
+export async function fetchDoctor(token: string): Promise<unknown | null> {
+  try {
+    const res = await fetch('/api/doctor', { headers: { authorization: `Bearer ${token}` } });
+    return res.ok ? await res.json() : null;
+  } catch {
+    return null;
+  }
+}
+
 export type WsStatus = 'connecting' | 'live' | 'lost';
 
 // Broadcast-only live channel with quiet exponential reconnect.

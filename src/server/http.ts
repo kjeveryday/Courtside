@@ -3,6 +3,7 @@
 import { readFileSync } from 'node:fs';
 import type { IncomingMessage, ServerResponse } from 'node:http';
 import { extname, join, normalize } from 'node:path';
+import { runDoctor } from '../core/doctor.ts';
 import { extractToken, tokenEquals } from './auth.ts';
 import { decideGate, gateViews, type DecisionRequest } from './gates.ts';
 import { readState } from './state.ts';
@@ -22,6 +23,7 @@ export type HttpContext = {
   distDir: string;
   planDir: string;
   runtimeDir: string;
+  repoRoot: string;
   token: string;
   harness: boolean;
   // extension point: TASK-16 mounts the harness-only agent-session route here
@@ -62,6 +64,17 @@ export async function handleApi(ctx: HttpContext, req: IncomingMessage, res: Ser
   if (!authorized(ctx, req)) return json(res, 401, { error: 'missing or invalid token' });
   const path = (req.url ?? '').split('?')[0] ?? '';
   if (req.method === 'GET' && path === '/api/state') return json(res, 200, statePayload(ctx));
+  if (req.method === 'GET' && path === '/api/doctor') {
+    // Server-run checks = verified provenance (F18); the UI renders, never invents.
+    return json(res, 200, {
+      ranAt: new Date().toISOString(),
+      findings: runDoctor({
+        repoRoot: ctx.repoRoot,
+        planDir: ctx.planDir,
+        runtimeDir: ctx.runtimeDir,
+      }),
+    });
+  }
   if (req.method === 'POST' && path === '/api/decisions') {
     let body: DecisionRequest;
     try {

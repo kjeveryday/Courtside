@@ -39,7 +39,15 @@ export async function startServer(opts: StartOptions): Promise<RunningServer> {
 
   const token = generateToken();
   const harness = opts.planDir.includes(join('spec', 'fixtures', 'sample-project'));
-  const ctx: HttpContext = { distDir, planDir: opts.planDir, runtimeDir, token, harness };
+  const repoRoot = new URL('../..', import.meta.url).pathname;
+  const ctx: HttpContext = {
+    distDir,
+    planDir: opts.planDir,
+    runtimeDir,
+    repoRoot,
+    token,
+    harness,
+  };
   if (harness) {
     // Demo-only route (spec B4): lets the human drive the full async cycle from
     // the browser. Mounted exclusively when serving the fixture project.

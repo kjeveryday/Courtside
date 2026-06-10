@@ -5,6 +5,7 @@ import { Backlog } from './components/Backlog';
 import { GateCard } from './components/Gate';
 import { HarnessBar } from './components/HarnessBar';
 import { Header } from './components/Header';
+import { HealthBadge, PreflightPanel, type DoctorReport } from './components/Health';
 import { Ledgers } from './components/Ledgers';
 import { NextUp } from './components/NextUp';
 import { Progress } from './components/Progress';
@@ -16,6 +17,7 @@ import { validateState } from './contract/validate';
 import {
   connectWs,
   ensureToken,
+  fetchDoctor,
   fetchState,
   type GateView,
   type StatePayload,
@@ -32,6 +34,12 @@ export default function App() {
   const [load, setLoad] = useState<LoadState>({ phase: 'loading' });
   const [ws, setWs] = useState<WsStatus>('connecting');
   const [decisionError, setDecisionError] = useState('');
+  const [doctor, setDoctor] = useState<DoctorReport | null>(null);
+  const [showPreflight, setShowPreflight] = useState(false);
+
+  const refreshDoctor = (token: string) => {
+    void fetchDoctor(token).then((r) => setDoctor(r as DoctorReport | null));
+  };
 
   useEffect(() => {
     let cancelled = false;
@@ -42,6 +50,7 @@ export default function App() {
     // One trust path for first fetch and every live push: validate locally,
     // render fully or refuse (PRD §5).
     const applyPayload = ({ result, gates, harness }: StatePayload) => {
+      if (token) refreshDoctor(token); // health decays live (F0)
       if (!result.ok) return apply({ phase: 'refused', errors: result.errors });
       const checked = validateState(result.state);
       if (checked.ok)
@@ -83,7 +92,25 @@ export default function App() {
         phase={load.phase === 'ok' ? load.state.phase : undefined}
         slice={load.phase === 'ok' ? load.state.slice : undefined}
         live={load.phase === 'ok' || load.phase === 'refused' ? ws : undefined}
+        health={
+          <HealthBadge
+            report={doctor}
+            open={showPreflight}
+            onToggle={() => setShowPreflight((v) => !v)}
+          />
+        }
       />
+      {showPreflight && doctor && (
+        <div className="mt-5">
+          <PreflightPanel
+            report={doctor}
+            onRerun={() => {
+              const token = ensureToken();
+              if (token) refreshDoctor(token);
+            }}
+          />
+        </div>
+      )}
       <div className="mt-5">
         {load.phase === 'loading' && <p className="text-sm text-muted">loading state…</p>}
         {load.phase === 'locked' && <LockedOut detail={load.detail} />}

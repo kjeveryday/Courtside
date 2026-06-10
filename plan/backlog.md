@@ -298,4 +298,23 @@ bullets (card-shaped there; sources PRD F6/F7/F19, §5, R7, Q-6/Q-7 via DEC-24).
 
 - VISUAL CRITERION: green badge → click → preflight panel; break state → badge flips red live.
 - Test approach: manual-in-harness + T26 reuse · Dependencies: [TASK-17] · Risk: low
+- Status: done (auto-approved 2026-06-10 · report: [gates/G5-TASK-18.md](gates/G5-TASK-18.md)) — **S6 complete**
+
+---
+
+## Slice S7 — tape-and-huddle (spec: [specs/tape-and-huddle.md](specs/tape-and-huddle.md)) · gates auto-approved (DEC-20)
+
+### [TASK-19] Game Tape viewer (filmstrip + missing/unverifiable state)
+
+- VISUAL CRITERION: gate card grows a filmstrip — frame-001 renders (mtime shown,
+  verified badge), frame-002 shows the designed missing/unverifiable state (DEC-4);
+  tape is evidence, never verification (R8 — no auto-checking).
+- Test approach: unit T28 (tape resolution) + manual · Dependencies: [TASK-18] · Risk: low
 - Status: in-progress
+
+### [TASK-20] The Huddle (Tier 1 deterministic briefing)
+
+- VISUAL CRITERION: "The Huddle" button → since-you-last-looked briefing computed
+  from state + decision log + SQLite last-seen; all facts verified-provenance.
+- Test approach: unit T29 (briefing builder) + manual · Dependencies: [TASK-19] · Risk: low
+- Status: todo

@@ -12,10 +12,12 @@ export function Header({
   phase,
   slice,
   live,
+  health,
 }: {
   phase?: string;
   slice?: string;
   live?: WsStatus;
+  health?: React.ReactNode;
 }) {
   return (
     <header className="flex flex-wrap items-center gap-4 border-b border-line py-4">
@@ -28,6 +30,7 @@ export function Header({
           {slice ? ` · ${slice}` : ''}
         </span>
       )}
+      {health}
       <span className="flex-1" />
       {live && (
         <span className={`flex items-center gap-1.5 font-mono text-[11px] ${LIVE_TONE[live].text}`}>
