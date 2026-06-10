@@ -1,0 +1,4 @@
+# The corpus is law — tooling never reformats it (PRD, framework, mock, contract).
+docs/
+spec/
+CLAUDE.md

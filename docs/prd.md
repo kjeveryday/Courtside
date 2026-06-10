@@ -1,4 +1,5 @@
 # PRD: Courtside
+
 ## A mission-control dashboard for human + AI-agent game development
 
 **Status:** Draft v1.1 (revised after adversarial review) · **Owner:** Kyle ·
@@ -31,6 +32,7 @@ progress — without leaving your seat.
 ## 3. Goals / non-goals
 
 **Goals**
+
 - G1: Make all plan state (phases, slices, tasks, gates, questions, debt, decisions)
   visible at a glance and drillable to source.
 - G2: Move gate approvals (G0–G5) and open-question answers out of the terminal and
@@ -42,6 +44,7 @@ progress — without leaving your seat.
   documented spec for the data contract and themes.
 
 **Non-goals (v1)**
+
 - Not an IDE, code reviewer, or diff tool (link out to files; don't re-implement git UIs).
 - Not a Claude Code wrapper or replacement terminal; the agent still runs where it runs.
 - Not cloud/multi-user; local-first single-player. (Multi-user is a future maybe.)
@@ -97,7 +100,7 @@ progress — without leaving your seat.
    blocking gate assumes a human sitting at the desk; the actual user has a job, kids,
    and a board seat. Blocking burns the 5-hour usage window on idle waiting, and a
    dead session loses gate state. Async file-backed gates survive everything.
-3. **MCP live mode (optional, M2).** For co-working sessions when the human *is*
+3. **MCP live mode (optional, M2).** For co-working sessions when the human _is_
    present, Courtside's MCP server offers `request_gate_approval` (short timeout →
    falls back to parking the gate async), `post_question`, `post_progress`, and
    `get_pending_feedback`. Live mode is a latency upgrade, never a dependency.
@@ -105,18 +108,20 @@ progress — without leaving your seat.
 
 **Core data principle — verified vs. claimed.** The dashboard must never launder agent
 claims into facts. Every datum carries provenance:
+
 - **Verified:** Courtside executed or parsed it itself — doctor checks, lint, git
   history, test runs invoked via F15 hooks, raw output artifacts.
 - **Claimed:** agent-authored text — narration, TL;DRs, "self-audit clean."
-The UI renders these differently (solid badge vs. outlined "agent-reported" badge).
-Where cheap, Courtside re-runs the proof (e.g., headless test suite) rather than
-trusting the report. Corollary: derive as much of state.json as possible
-**mechanically** — from git history and Claude Code hooks rather than agent
-discipline — because agents drift after context compaction and `lint` only detects
-drift after the dashboard has already gone stale.
+  The UI renders these differently (solid badge vs. outlined "agent-reported" badge).
+  Where cheap, Courtside re-runs the proof (e.g., headless test suite) rather than
+  trusting the report. Corollary: derive as much of state.json as possible
+  **mechanically** — from git history and Claude Code hooks rather than agent
+  discipline — because agents drift after context compaction and `lint` only detects
+  drift after the dashboard has already gone stale.
 
 **Security model.** A localhost server whose buttons authorize a code-executing agent
 is an attack surface, and an OSS tool can't hand-wave it:
+
 - Server binds to `127.0.0.1` only; no network interface exposure, CORS locked to the
   served origin.
 - Browser sessions authenticate with a token printed at server start.
@@ -134,13 +139,14 @@ WebSocket updates. Installs via `npx courtside` in any repo with a `/plan/` dire
 ## 6. Core features
 
 ### M0 — Set up (preflight & doctor)
+
 - **F0 Preflight wizard + `courtside doctor`:** a first-run guided checklist in the UI,
   backed by a re-runnable CLI health check. Same checks, two surfaces. Categories:
   - **Environment:** Node/npm versions; git repo detected; **GitHub connection** —
     remote configured, auth working (`gh` CLI or token), push access verified with a
     dry-run; engine installed and on a supported version (Godot 4.x + .NET SDK for
     C#), with the engine check implemented
-    as a *plugin* so OSS users can swap in Unity/other adapters.
+    as a _plugin_ so OSS users can swap in Unity/other adapters.
   - **Agent:** Claude Code installed and on a known-good version; `CLAUDE.md` present
     and containing the required framework rules (checksum/marker-based check);
     Courtside's MCP server registered in the agent's config; **live MCP handshake
@@ -163,6 +169,7 @@ WebSocket updates. Installs via `npx courtside` in any repo with a `/plan/` dire
     you don't tip off until warmups are done.
 
 ### M1 — See (read-only mission control)
+
 - **F1 Status board:** current phase, active slice, active task, agent state
   (working / waiting-at-gate / blocked / idle), last narration line.
 - **F2 Backlog view:** task cards with status, dependencies (mini-graph), risk flags,
@@ -174,6 +181,7 @@ WebSocket updates. Installs via `npx courtside` in any repo with a `/plan/` dire
   age indicators ("question open 6 days" should itch).
 
 ### M2 — Decide (the copilot loop)
+
 - **F6 Gate inbox:** pending gates rendered as decision cards — TL;DR, what-to-check
   checklist, links to artifacts/diffs. Actions: Approve / Reject with comment /
   Request changes. Every decision is logged (who/when/what) to the event log and
@@ -211,7 +219,7 @@ WebSocket updates. Installs via `npx courtside` in any repo with a `/plan/` dire
   - **Engine note:** Godot `--headless` doesn't render; capture requires a brief
     windowed/offscreen run via a screenshot autoload. This is a real harness task
     (ships with Phase 1.5), and the doctor gains a "capture works" check.
-  - **Hard rule:** tape is *evidence*, never *verification*. A screenshot proves one
+  - **Hard rule:** tape is _evidence_, never _verification_. A screenshot proves one
     frame looked right once — it can be stale or show the wrong state. Verify-step
     checkboxes can never be auto-checked from tape; Play Mode remains the test.
   - Tape frames are **verified-provenance** data (Courtside can confirm file mtime
@@ -219,7 +227,7 @@ WebSocket updates. Installs via `npx courtside` in any repo with a `/plan/` dire
 - **F18 Verified/claimed badges:** every fact on the dashboard carries its provenance
   badge per the §5 data principle. Test results shown as verified only when Courtside
   ran the suite via an F15 hook or parsed the raw runner output; an agent sentence
-  saying "all tests pass" renders as *agent-reported* until proven. The gate card's
+  saying "all tests pass" renders as _agent-reported_ until proven. The gate card's
   meta row is the flagship use: ✓-verified vs ◇-claimed at a glance.
 - **F19 Rejection & escalation flow:** rejection is a first-class path, not a button.
   - Reject requires a comment; the task enters a `revise` state and the resubmitted
@@ -234,19 +242,19 @@ WebSocket updates. Installs via `npx courtside` in any repo with a `/plan/` dire
   answers it in 15 seconds for a human returning cold. Two tiers:
   - **Tier 1 — deterministic briefing (ships in v0.1 Lite):** Courtside tracks the
     human's last-seen timestamp (SQLite) and renders a template-generated diff:
-    *"Since you last looked (5 days ago): 2 tasks shipped (TASK-11, TASK-12) ·
+    _"Since you last looked (5 days ago): 2 tasks shipped (TASK-11, TASK-12) ·
     1 gate waiting on you (GATE 5 · TASK-12) · Q-7 still open, 6 days, blocking
-    TASK-15 · agent parked since Tue."* All facts computed from state.json + decision
+    TASK-15 · agent parked since Tue."_ All facts computed from state.json + decision
     log — zero AI, zero cost, verified provenance, can't hallucinate.
   - **Tier 2 — narrative huddle (v0.2, opt-in):** a small model (Claude Haiku via the
-    user's own Anthropic API key) writes 3–5 sentences of narrative glue *around* the
+    user's own Anthropic API key) writes 3–5 sentences of narrative glue _around_ the
     Tier-1 facts — what the slice is trying to achieve, why the open question
     matters, what your one decision today should be. The model receives only the
     deterministic fact set, not raw repo content, which bounds both cost (fractions
     of a cent per huddle) and hallucination surface. Follow-up questions route to
     click-to-ask (F8).
   - **Provenance rule:** Tier-1 facts render verified; the narrative paragraph renders
-    with a distinct *generated* badge — it is an interpretation, never evidence.
+    with a distinct _generated_ badge — it is an interpretation, never evidence.
   - **Security/cost:** the API key is user-supplied, stored locally outside the repo,
     and is the only sanctioned outbound call besides GitHub. Note for subscription
     users: API calls bill separately per-token from a claude.ai plan — at Haiku
@@ -254,6 +262,7 @@ WebSocket updates. Installs via `npx courtside` in any repo with a `/plan/` dire
   - Theme hook: Front Office calls it "Briefing"; Ballhalla calls it **"The Huddle."**
 
 ### M3 — Feel (gamification + theming)
+
 - **F10 Theme engine:** themes are JSON packs (palette, type, copy strings, icons,
   achievement definitions, progress metaphor) loaded at runtime. Ships with:
   - **Base — "Front Office":** clean, quiet, professional. Default for OSS users.
@@ -263,7 +272,7 @@ WebSocket updates. Installs via `npx courtside` in any repo with a `/plan/` dire
     zero rejections; "Lockdown Defense" — audit pass with zero findings; "Heat Check"
     — 5 approvals in one session), end-of-session box score (tasks, tests added,
     questions resolved, debt paid down).
-- **F11 Honest-metrics rule:** gamification rewards *verified* outcomes only (gate
+- **F11 Honest-metrics rule:** gamification rewards _verified_ outcomes only (gate
   approvals, passing audits, resolved questions) — never raw activity like lines of
   code or message count. No streak mechanics that pressure daily use; streaks count
   sessions, not calendar days. Fun must never create an incentive to rubber-stamp.
@@ -275,6 +284,7 @@ WebSocket updates. Installs via `npx courtside` in any repo with a `/plan/` dire
 - **F12 Session recap:** shareable end-of-session summary card (theme-styled).
 
 ### M4 — Share (OSS readiness)
+
 - F13: `npx` quickstart, sample repo, data-contract spec doc, theme-authoring guide.
 - F14: Agent-setup snippets — drop-in CLAUDE.md rules + MCP config for Claude Code.
 - F15: Engine-agnostic verification hooks (a task's verify steps can include a shell
@@ -285,7 +295,7 @@ WebSocket updates. Installs via `npx courtside` in any repo with a `/plan/` dire
 - **Aesthetic:** "broadcast scorebug meets mission control" — calm, dense-but-legible
   information design. The base theme earns trust through restraint: a disciplined
   type scale (one characterful display face for numbers/states, a quiet body face),
-  generous whitespace, and a single accent used only for *things awaiting the human*.
+  generous whitespace, and a single accent used only for _things awaiting the human_.
 - **Signature element:** the **Gate** — a full-width decision strip that physically
   separates "what the agent did" (above) from "what happens next" (below, dimmed until
   approved). The UI itself enacts the process: nothing below a gate renders in full
@@ -317,7 +327,7 @@ WebSocket updates. Installs via `npx courtside` in any repo with a `/plan/` dire
   <10 seconds (self-report, then usability test with OSS users).
 - **Loop speed:** median time-to-gate-decision drops vs. terminal baseline.
 - **Trust:** % of GATE 5 approvals where all verify steps were actually checked (target
-  >90%; if humans skip steps, the verify UX has failed).
+  > 90%; if humans skip steps, the verify UX has failed).
 - **Adoption (OSS):** 10 external repos using the data contract within 3 months of
   release; ≥1 community theme pack.
 
@@ -325,6 +335,7 @@ WebSocket updates. Installs via `npx courtside` in any repo with a `/plan/` dire
 
 `/plan/state.json` — schema-versioned; **mechanically derived where possible** (git,
 hooks), agent-written where necessary, every entry carrying provenance:
+
 ```json
 {
   "schema": "courtside/v0",
@@ -340,6 +351,7 @@ hooks), agent-written where necessary, every entry carrying provenance:
               "provenance": "verified|claimed", "text": "..."}]
 }
 ```
+
 Companion files: `/plan/gates/<id>.json` (full gate payloads, agent-written),
 `/plan/decisions-inbox/<id>.json` (human decisions, Courtside-written, HMAC-signed),
 `/plan/tape/<task-id>/` (stamped frames). Markdown files remain canonical for humans;
@@ -352,15 +364,15 @@ signature integrity of the decision log.
   compaction). → derive state mechanically from git/hooks wherever possible (§5);
   `courtside lint` in the audit cadence; "state freshness" badge; markdown fallback.
 - **R2 MCP wiring fragility** (sessions, timeouts at gates). → async file-backed gates
-  are the *primary* path (§5); MCP live mode is an optional upgrade; gates can never
+  are the _primary_ path (§5); MCP live mode is an optional upgrade; gates can never
   deadlock or strand the agent.
 - **R3 Gamification corrupts judgment** (approving to score points; agent farming
   easy approvals). → F11 honest-metrics + anti-gaming rules; rejections and audit
-  findings are *also* celebrated ("Charge Taken").
+  findings are _also_ celebrated ("Charge Taken").
 - **R4 Scope creep toward IDE/PM tool.** → non-goals enforced; v1 cut-line below.
 - **R5 Building the tool eats the game.** → Courtside Lite cut (§12): v0.1 is M0 + M1
-  + file-backed gate decisions only, sized to 1–2 weekends of agent-built effort;
-  Ballhalla resumes on Lite; M2+ built later as framework-run slices.
+  - file-backed gate decisions only, sized to 1–2 weekends of agent-built effort;
+    Ballhalla resumes on Lite; M2+ built later as framework-run slices.
 - **R6 The dashboard amplifies false confidence** by rendering agent claims with the
   authority of a UI. This is the inverse of the product's purpose. → F18
   verified/claimed provenance is a launch requirement, not polish; Courtside re-runs
@@ -378,17 +390,17 @@ signature integrity of the decision log.
 - **M1 (v0.1 — "Courtside Lite," the real cut-line):** doctor/preflight (F0), see-
   features (F1–F5), **async gate decisions** — gate inbox + verify mode backed by the
   file contract and decisions-inbox (no MCP), rejection flow basics (F19), security
-  model, Game Tape *viewer* (capture utility ships as a Phase 1.5 harness task),
+  model, Game Tape _viewer_ (capture utility ships as a Phase 1.5 harness task),
   deterministic Huddle briefing (F20 Tier 1).
-  *Ship when: a full task cycle — gate posted, decided in the UI, agent acts on it
+  _Ship when: a full task cycle — gate posted, decided in the UI, agent acts on it
   next session — completes across two sessions without touching the terminal, and a
-  fresh clone goes from `npx courtside` to all-green checks in under 15 minutes.*
+  fresh clone goes from `npx courtside` to all-green checks in under 15 minutes._
   **Then Ballhalla development resumes.** Everything below is built later, in
   parallel slices, using the framework itself.
 - **M2 (v0.2):** MCP live mode, click-to-ask, question responder, verified/claimed
   test re-run hooks (F18 full), narrative Huddle (F20 Tier 2), GitHub connect
   (commit links + session-end push; PR-per-slice may slip to v0.3).
-  *Ship when: a live co-working session completes a task cycle in real time.*
+  _Ship when: a live co-working session completes a task cycle in real time._
 - **M3 (v0.3):** theme engine + Front Office + Ballhalla packs, achievements, recap.
 - **M4 (v1.0):** OSS docs, npx installer, sample repo, theme guide, security review,
   public release.

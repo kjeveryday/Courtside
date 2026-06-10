@@ -16,6 +16,7 @@ Build order (Phase 4): **TASK-1 → TASK-2 → TASK-3** — a strict dependency 
 no parallelism available or needed.
 
 ### [TASK-1] Scaffold the harness app
+
 - Source: specs/walking-skeleton.md §B1; CLAUDE.md rules 8, 11–12, 15, 18; framework §2
 - Slice / Milestone: S1 walking-skeleton / v0.1 Lite
 - Description: Vite + React + TypeScript-strict + Tailwind scaffold with ESLint/
@@ -37,9 +38,10 @@ no parallelism available or needed.
 - Dependencies: none
 - Risk: low — boring, well-trodden scaffolding; only sharp edge is pinning
   host/port/strictPort correctly.
-- Status: todo
+- Status: in-review (GATE 5 posted 2026-06-10)
 
 ### [TASK-2] Contract pipeline: codegen, validator, tests
+
 - Source: specs/walking-skeleton.md §B2 §B3 §B5; CLAUDE.md rules 13, 17; PRD §10
 - Slice / Milestone: S1 walking-skeleton / v0.1 Lite
 - Description: generate `src/contract/state.generated.ts` from
@@ -63,6 +65,7 @@ no parallelism available or needed.
 - Status: todo
 
 ### [TASK-3] Fixture status page with refusal state
+
 - Source: specs/walking-skeleton.md §B4 §4; PRD §5 (no partial trust); DEC-4, DEC-6
 - Slice / Milestone: S1 walking-skeleton / v0.1 Lite
 - Description: fetch the fixture from the served `spec/` directory, validate via

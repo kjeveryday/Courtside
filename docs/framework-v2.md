@@ -1,10 +1,11 @@
 # Mechanics → Implementation Framework v2
+
 ## (Observability Edition — Godot 4 + Claude Code + MCP)
 
-*Operating procedure for Claude Code: convert mechanics docs into small, testable,
+_Operating procedure for Claude Code: convert mechanics docs into small, testable,
 **visible** implementation tasks, with human-in-the-loop gates. v2 adds the
 observability harness, narration rules, completion report format, and audit cadence
-in response to v1's core failure: code that worked but couldn't be seen.*
+in response to v1's core failure: code that worked but couldn't be seen._
 
 ---
 
@@ -13,10 +14,10 @@ in response to v1's core failure: code that worked but couldn't be seen.*
 1. **New prime directive: every task ends in something the human can see** in a running
    scene, or explicitly declares itself logic-only and binds to the next visual checkpoint.
    Max 2–3 logic-only tasks in a row before a visual checkpoint is mandatory.
-2. **New Phase 1.5 — Harness First.** The debug/visualization harness is built *before*
+2. **New Phase 1.5 — Harness First.** The debug/visualization harness is built _before_
    any mechanic. "Show me" must be cheap before feature work begins.
-3. **Narration rule.** Before every step, state in 1–2 plain-language sentences *why* this
-   step is happening and *what comes after it*. Never act silently.
+3. **Narration rule.** Before every step, state in 1–2 plain-language sentences _why_ this
+   step is happening and _what comes after it_. Never act silently.
 4. **Completion report format** (Section 6) is mandatory for every task.
 5. **Audit cadence** (Section 8): per-feature audit after every GATE 5, scoped weekly audit.
 6. **Docs spine**: README.md is the hub; CLAUDE.md holds always-on rules; this file holds
@@ -30,15 +31,15 @@ traceability to source docs, explicit dependencies, ambiguity protocol (log ques
 
 ## 1. Phases & gates (v2)
 
-| Phase | Output | Gate question |
-|---|---|---|
-| 0. Intake & Inventory | `/plan/00-inventory.md` | Is the corpus complete and scope right? |
-| 1. System Map & Slicing | `/plan/01-system-map.md` | Approve slices + first slice? |
-| **1.5 Harness First** | **DebugBattle scene + overlays + debug panel** | **Can the human see state by pressing Play?** |
-| 2. Slice Spec Extraction | `/plan/specs/<slice>.md` | Spec confirmed, questions answered? |
-| 3. Task Decomposition | task cards in `/plan/backlog.md` | Right tasks, right size? |
-| 4. Sequencing | ordered milestones in backlog | Approve build order + task #1? |
-| 5. Per-task loop | code + tests + completion report | GATE 5: verified in-scene by human |
+| Phase                    | Output                                         | Gate question                                 |
+| ------------------------ | ---------------------------------------------- | --------------------------------------------- |
+| 0. Intake & Inventory    | `/plan/00-inventory.md`                        | Is the corpus complete and scope right?       |
+| 1. System Map & Slicing  | `/plan/01-system-map.md`                       | Approve slices + first slice?                 |
+| **1.5 Harness First**    | **DebugBattle scene + overlays + debug panel** | **Can the human see state by pressing Play?** |
+| 2. Slice Spec Extraction | `/plan/specs/<slice>.md`                       | Spec confirmed, questions answered?           |
+| 3. Task Decomposition    | task cards in `/plan/backlog.md`               | Right tasks, right size?                      |
+| 4. Sequencing            | ordered milestones in backlog                  | Approve build order + task #1?                |
+| 5. Per-task loop         | code + tests + completion report               | GATE 5: verified in-scene by human            |
 
 No phase begins until the prior gate is explicitly approved.
 
@@ -60,8 +61,9 @@ tasks with their own GATE 5 reviews:
   reload scene. Plus a timestamped on-screen log of game events.
 
 **Harness invariants from here on:**
+
 - A task is not done if its effect cannot be observed via the harness (or unit tests
-  alone, *only* if declared logic-only at GATE 3).
+  alone, _only_ if declared logic-only at GATE 3).
 - New systems must register their key state with the debug panel as part of the task.
 - The harness is maintained like production code — if it breaks, fixing it preempts
   feature work.
@@ -71,6 +73,7 @@ tasks with their own GATE 5 reviews:
 ## 3. Narration rule (always on)
 
 For every step — reading a file, writing code, running a test — first state:
+
 - **Why:** what this step accomplishes toward the current task (1 sentence, plain language).
 - **Next:** what happens after it (1 sentence).
 

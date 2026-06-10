@@ -30,13 +30,19 @@
         "additionalProperties": false,
         "properties": {
           "id": { "type": "string", "pattern": "^G[0-5](-[A-Z0-9-]+)?$" },
-          "type": { "enum": ["scope", "slicing", "harness", "spec", "tasks", "sequence", "task_review"] },
+          "type": {
+            "enum": ["scope", "slicing", "harness", "spec", "tasks", "sequence", "task_review"]
+          },
           "status": { "enum": ["pending", "approved", "rejected", "superseded"] },
           "postedAt": { "type": "string", "format": "date-time" },
           "taskId": { "$ref": "#/definitions/taskId" },
           "payloadRef": { "type": "string", "description": "Path to /plan/gates/<id>.json" },
           "commit": { "$ref": "#/definitions/sha" },
-          "tape": { "type": "array", "items": { "type": "string" }, "description": "Paths under /plan/tape/" },
+          "tape": {
+            "type": "array",
+            "items": { "type": "string" },
+            "description": "Paths under /plan/tape/"
+          },
           "verifySteps": {
             "type": "array",
             "items": {
@@ -45,11 +51,17 @@
               "additionalProperties": false,
               "properties": {
                 "text": { "type": "string" },
-                "criterionRef": { "type": "string", "description": "Acceptance criterion this step proves; audited by F11 anti-gaming check" }
+                "criterionRef": {
+                  "type": "string",
+                  "description": "Acceptance criterion this step proves; audited by F11 anti-gaming check"
+                }
               }
             }
           },
-          "decisionRef": { "type": "string", "description": "Path to /plan/decisions-inbox/<id>.json once decided" }
+          "decisionRef": {
+            "type": "string",
+            "description": "Path to /plan/decisions-inbox/<id>.json once decided"
+          }
         }
       }
     },
@@ -66,11 +78,24 @@
           "risk": { "enum": ["low", "med", "high"] },
           "deps": { "type": "array", "items": { "$ref": "#/definitions/taskId" } },
           "slice": { "type": "string" },
-          "visualCriterion": { "type": "string", "description": "Required unless logicOnly is true" },
+          "visualCriterion": {
+            "type": "string",
+            "description": "Required unless logicOnly is true"
+          },
           "logicOnly": { "type": "boolean", "default": false },
-          "surfacesAt": { "$ref": "#/definitions/taskId", "description": "Required when logicOnly; the visual checkpoint task" },
-          "sourceRef": { "type": "string", "description": "doc#section the task derives from; no source = scope creep" },
-          "rejections": { "type": "integer", "minimum": 0, "description": "3 auto-blocks the task (F19)" },
+          "surfacesAt": {
+            "$ref": "#/definitions/taskId",
+            "description": "Required when logicOnly; the visual checkpoint task"
+          },
+          "sourceRef": {
+            "type": "string",
+            "description": "doc#section the task derives from; no source = scope creep"
+          },
+          "rejections": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "3 auto-blocks the task (F19)"
+          },
           "commit": { "$ref": "#/definitions/sha" }
         }
       }
@@ -84,7 +109,12 @@
         "properties": {
           "id": { "type": "string" },
           "text": { "type": "string" },
-          "options": { "type": "array", "items": { "type": "string" }, "minItems": 2, "maxItems": 4 },
+          "options": {
+            "type": "array",
+            "items": { "type": "string" },
+            "minItems": 2,
+            "maxItems": 4
+          },
           "recommendation": { "type": "string" },
           "blocking": { "type": "array", "items": { "$ref": "#/definitions/taskId" } },
           "openedAt": { "type": "string", "format": "date-time" },
@@ -137,7 +167,10 @@
             "description": "verified = Courtside executed/parsed it (doctor, lint, hook output, git). claimed = agent-authored prose. UI must render these distinctly (F18)."
           },
           "text": { "type": "string", "maxLength": 500 },
-          "artifactRef": { "type": "string", "description": "Raw output file backing a verified event" }
+          "artifactRef": {
+            "type": "string",
+            "description": "Raw output file backing a verified event"
+          }
         }
       }
     }

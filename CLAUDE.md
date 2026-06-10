@@ -7,6 +7,7 @@ reads logic but does not write code. Optimize for their ability to SEE and
 UNDERSTAND everything you do.
 
 ## Process (non-negotiable)
+
 1. Follow docs/framework-v2.md. Stop at every GATE. Never auto-advance past a gate.
 2. The PRD (docs/prd.md) is the design doc for Phases 0–2 and ALWAYS wins on features
    and behavior. The mock (docs/mock.html) governs design language only: tokens,
@@ -21,11 +22,12 @@ UNDERSTAND everything you do.
 4. Never invent features, fields, or behaviors beyond the PRD. Spec silent? Log the
    question in /plan/open-questions.md with options + a labeled recommendation. Stop.
 5. Do not assume — verify. Read the actual file before claiming anything about it.
-6. Plan state lives in /plan/*.md, never only in chat.
+6. Plan state lives in /plan/\*.md, never only in chat.
 7. Scope discipline: build the v0.1 "Courtside Lite" cut ONLY (PRD §12). Anything
    from M2+ that sneaks into a task card is scope creep — flag it.
 
 ## Harness (this repo's equivalent of DebugBattle)
+
 8. The harness is `npm run dev` serving the dashboard against the sample fixture at
    spec/fixtures/. It must work from the FIRST task onward and stay working.
 9. Every task ends in something observable in the browser at localhost, or is
@@ -34,6 +36,7 @@ UNDERSTAND everything you do.
     localhost:4310, click X, you should see Y."
 
 ## Code
+
 11. TypeScript strict mode; no `any` without an inline justification comment.
 12. Target ≤200 lines per file; split by responsibility, never fragment coherence.
 13. The state schema (spec/state.schema.json) is law. Parser, lint, and UI types are
@@ -45,6 +48,7 @@ UNDERSTAND everything you do.
 16. No new dependencies without asking first. Prefer boring, audited packages.
 
 ## Testing
+
 17. vitest FIRST for pure logic: schema validation, parsers, decision-log signing,
     doctor checks. Run and show real output — never claim tests pass without running.
 18. ESLint + Prettier on every change; CI script `npm run check` must stay green.
@@ -52,10 +56,12 @@ UNDERSTAND everything you do.
     never substitutes for a visual criterion.
 
 ## Git
+
 20. Commit per completed task; message starts with the TASK-ID. Never commit past an
     unapproved gate. Push at session end.
 
 ## Audits, docs, communication
+
 21. After each approved task: self-audit the diff against the PRD/spec. Verify every
     word of your own completion report.
 22. Update README.md and /plan artifacts as you go; stale docs are a defect.
