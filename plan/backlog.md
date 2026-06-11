@@ -411,3 +411,14 @@ bullets (card-shaped there; sources PRD F6/F7/F19, §5, R7, Q-6/Q-7 via DEC-24).
   real ledger, and the v0.1 review as an approvable gate.
 - Test approach: T35 + live smoke · Dependencies: [TASK-25] · Risk: low
 - Status: done (2026-06-10) — **G5-V0-1 pending: Kyle's end review, in the tool**
+
+### [TASK-27] Honest expander label + clickable tape frames
+
+- Source: Kyle 2026-06-10 ("the tape part doesn't seem to do anything")
+- Description: the gate expander now names only what it contains (report ▸ /
+  tape (n) ▸ / report + tape (n) ▸ — the self-view gate has no tape, so it no
+  longer advertises any), and frames open full-size in a new tab on click.
+- VISUAL CRITERION: self view says "report ▸"; demo says "report + tape (2) ▸"
+  and clicking the frame opens it full-size.
+- Test approach: existing suite + manual · Dependencies: [TASK-26] · Risk: low
+- Status: done (2026-06-10) — awaiting Kyle's pass

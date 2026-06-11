@@ -35,3 +35,4 @@ Format: `ts · TASK/PHASE · why → next`
 - 2026-06-10 · DEC-31 → TASK-25 remove risk tags (dashboard-is-for-Kyle principle).
 - 2026-06-10 · TASK-25 done · risk tags off the UI per DEC-31.
 - 2026-06-10 · TASK-26 done · self plan/state.json + dev:self + G5-V0-1 review gate (T35; 60/60). NEXT SESSION: read plan/decisions-inbox/ FIRST — Kyle may have decided G5-V0-1 or dispatched items in the dashboard.
+- 2026-06-10 · TASK-27 done · expander label honest, frames clickable.

@@ -1,0 +1,32 @@
+{
+  "schema": "courtside/decision-v0",
+  "gateId": "G5-V0-1",
+  "decision": "approve",
+  "comment": "",
+  "steps": [
+    {
+      "text": "Open the demo (npm run dev, token link): scorebug, gate card, backlog, ticker, ledgers all render from the sample project",
+      "checked": true
+    },
+    {
+      "text": "Run the gate loop: check 4 steps, Approve, then 'agent's next session' — page updates itself, no reload",
+      "checked": true
+    },
+    {
+      "text": "Send TASK-13 to the agent with context; answer Q-7 from the ledger — both land via 'agent's next session'",
+      "checked": true
+    },
+    {
+      "text": "Click a gdd.md source link — the doc opens at the named section; '?' legend reads sensibly",
+      "checked": true
+    },
+    {
+      "text": "This view (npm run dev:self): all 25 real tasks, real decisions and debt, this very gate",
+      "checked": true
+    }
+  ],
+  "decidedAt": "2026-06-11T02:42:40.471Z",
+  "by": "human",
+  "seq": 1,
+  "mac": "47c463671c1f4633515f3349d307546e9302e9b55ec073cbd13afcb2d2a70c67"
+}

@@ -145,7 +145,13 @@ export function GateCard({
       {(payload?.reportMd || (view.tape && view.tape.length > 0)) && (
         <details className="mt-4">
           <summary className="cursor-pointer font-mono text-[11px] text-muted">
-            report + tape ▸
+            {[
+              payload?.reportMd ? 'report' : null,
+              view.tape?.length ? `tape (${view.tape.length})` : null,
+            ]
+              .filter(Boolean)
+              .join(' + ')}{' '}
+            ▸
           </summary>
           {payload?.reportMd && (
             <pre className="mt-2 rounded border border-line bg-bg p-3 font-body text-xs whitespace-pre-wrap text-muted">
@@ -157,11 +163,18 @@ export function GateCard({
               {view.tape.map((f) =>
                 f.exists && f.url ? (
                   <figure key={f.ref} className="w-40">
-                    <img
-                      src={`${f.url}?token=${token}`}
-                      alt={f.ref}
-                      className="rounded border border-line"
-                    />
+                    <a
+                      href={`${f.url}?token=${token}`}
+                      target="_blank"
+                      rel="noreferrer"
+                      title="open full size"
+                    >
+                      <img
+                        src={`${f.url}?token=${token}`}
+                        alt={f.ref}
+                        className="rounded border border-line hover:border-accent"
+                      />
+                    </a>
                     <figcaption className="mt-0.5 flex items-center gap-1 font-mono text-[9.5px] text-muted">
                       {f.ref.split('/').at(-1)} <ProvenanceBadge provenance="verified" />
                     </figcaption>
