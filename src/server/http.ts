@@ -4,7 +4,12 @@ import { existsSync, readFileSync } from 'node:fs';
 import type { IncomingMessage, ServerResponse } from 'node:http';
 import { extname, join, normalize } from 'node:path';
 import { safeTapePath } from './tape.ts';
-import { appendDirective, pendingDispatches, readDecisionLog } from '../core/decisions.ts';
+import {
+  appendDirective,
+  decisionFor,
+  pendingDispatches,
+  readDecisionLog,
+} from '../core/decisions.ts';
 import { runDoctor } from '../core/doctor.ts';
 import { buildHuddle } from '../core/huddle.ts';
 import { currentRuns, dispatchAgent } from './agentRunner.ts';
@@ -96,7 +101,10 @@ export async function handleApi(ctx: HttpContext, req: IncomingMessage, res: Ser
     const lastSeen =
       ctx.db.getKv('prev_seen') ?? ctx.db.getKv('last_seen') ?? new Date(0).toISOString();
     const log = readDecisionLog(ctx.runtimeDir);
-    return json(res, 200, buildHuddle(result.state, log, lastSeen));
+    const decidedIds = result.state.gates
+      .filter((g) => decisionFor(ctx.planDir, g.id))
+      .map((g) => g.id);
+    return json(res, 200, buildHuddle(result.state, log, lastSeen, Date.now(), decidedIds));
   }
   if (req.method === 'GET' && path === '/api/doctor') {
     // Server-run checks = verified provenance (F18); the UI renders, never invents.

@@ -41,4 +41,16 @@ describe('buildHuddle (T29)', () => {
     const h = buildHuddle(state, [], new Date(NOW - 60_000).toISOString(), NOW);
     expect(h.facts.some((f) => f.text.includes('caught up'))).toBe(true);
   });
+
+  it('a decided gate is no longer "waiting on you" (TASK-28)', async () => {
+    const h = buildHuddle(await seed(), [], '2026-06-05T00:00:00-05:00', NOW, ['G5-TASK-12']);
+    expect(h.facts.some((f) => f.kind === 'waiting')).toBe(false);
+  });
+
+  it('agent self-report is claimed; structural facts are verified (TASK-28)', async () => {
+    const h = buildHuddle(await seed(), [], '2026-06-05T00:00:00-05:00', NOW);
+    expect(h.facts.find((f) => f.kind === 'agent')?.provenance).toBe('claimed');
+    expect(h.facts.find((f) => f.kind === 'waiting')?.provenance).toBe('verified');
+    expect(h.facts.find((f) => f.kind === 'question')?.provenance).toBe('verified');
+  });
 });

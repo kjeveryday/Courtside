@@ -1,10 +1,13 @@
-// F20 Tier 1: "what's going on?" answered in seconds. Every fact is
-// server-computed from state + decision log (verified provenance); the panel
-// renders, never invents. Tier-2 narrative is M2.
+// F20 Tier 1: "what's going on?" answered in seconds. Facts are server-computed
+// and carry their own provenance — structural reads ✓, agent self-reports ◇.
+// The panel renders, never invents. Tier-2 narrative is M2.
 import { useState } from 'react';
 import { ProvenanceBadge } from './Provenance';
 
-export type HuddleData = { sinceLabel: string; facts: { text: string; kind: string }[] };
+export type HuddleData = {
+  sinceLabel: string;
+  facts: { text: string; kind: string; provenance: 'verified' | 'claimed' }[];
+};
 
 const KIND_DOT: Record<string, string> = {
   shipped: 'bg-ok',
@@ -45,7 +48,7 @@ export function HuddlePanel({ data, onClose }: { data: HuddleData | null; onClos
               className={`mt-1.5 h-2 w-2 flex-none rounded-full ${KIND_DOT[f.kind] ?? 'bg-muted'}`}
             />
             <span>
-              {f.text} <ProvenanceBadge provenance="verified" />
+              {f.text} <ProvenanceBadge provenance={f.provenance ?? 'verified'} />
             </span>
           </li>
         ))}

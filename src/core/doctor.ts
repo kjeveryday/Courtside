@@ -45,12 +45,14 @@ export function runDoctor(ctx: DoctorContext): DoctorFinding[] {
     detail: hasGit ? 'git repository detected' : 'not a git repository',
     fixit: hasGit ? undefined : 'git init (commit-per-task needs a repo)',
   });
+  const gitConfig = join(ctx.repoRoot, '.git', 'config');
+  const hasRemote = existsSync(gitConfig) && /\[remote "/.test(readFileSync(gitConfig, 'utf-8'));
   f.push({
     id: 'git-remote',
     category: 'environment',
-    status: existsSync(join(ctx.repoRoot, '.git', 'refs', 'remotes')) ? 'pass' : 'warn',
-    detail: 'remote configured (auth/push dry-run checks arrive with GitHub connect, v0.2)',
-    fixit: 'git remote add origin <url>',
+    status: hasRemote ? 'pass' : 'warn',
+    detail: hasRemote ? 'git remote configured' : 'no git remote — pushes have nowhere to go',
+    fixit: hasRemote ? undefined : 'git remote add origin <url>',
   });
 
   const claudeMd = join(ctx.repoRoot, 'CLAUDE.md');
@@ -67,7 +69,7 @@ export function runDoctor(ctx: DoctorContext): DoctorFinding[] {
     id: 'mcp',
     category: 'agent',
     status: 'skip',
-    detail: 'MCP handshake — live mode is v0.2 (M2); async file gates need no MCP',
+    detail: 'agent connection (MCP) — not needed here: gates work through plan files',
   });
 
   f.push({
@@ -89,7 +91,12 @@ export function runDoctor(ctx: DoctorContext): DoctorFinding[] {
     detail:
       lintFails.length > 0
         ? `courtside lint: ${lintFails[0]!.text}`
-        : `courtside lint clean (${lintWarns.length} warnings)`,
+        : lintWarns.length === 0
+          ? 'courtside lint clean'
+          : `courtside lint: no failures · ${lintWarns.length} warning${lintWarns.length > 1 ? 's' : ''}: ${lintWarns
+              .map((w) => w.text)
+              .join('; ')
+              .slice(0, 140)}`,
     fixit: lintFails.length > 0 ? 'fix state.json / referenced files, then re-run' : undefined,
   });
   f.push({

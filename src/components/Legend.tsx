@@ -32,11 +32,11 @@ export function Legend({ onClose }: { onClose: () => void }) {
       </div>
       <Term
         chip={<ProvenanceBadge provenance="verified" />}
-        text="verified — Courtside checked this itself (ran it, parsed it, or confirmed the file)"
+        text="verified — from tooling Courtside ran or files it checked (tests, lint, git, the decision log)"
       />
       <Term
         chip={<ProvenanceBadge provenance="claimed" />}
-        text="agent-reported — the agent's own words, unverified"
+        text="claimed — the agent's own account, not checked"
       />
       <Term
         chip={chip('bg-accent/15 text-accent', 'in-review')}

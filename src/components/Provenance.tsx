@@ -6,7 +6,7 @@ export function ProvenanceBadge({ provenance }: { provenance: Provenance }) {
   if (provenance === 'verified') {
     return (
       <span
-        title="verified — Courtside checked this itself"
+        title="verified — from tooling Courtside ran or files it checked, not from prose"
         className="inline-block cursor-help rounded-sm bg-ok/15 px-1 font-mono text-[10px] text-ok"
       >
         ✓
@@ -15,7 +15,7 @@ export function ProvenanceBadge({ provenance }: { provenance: Provenance }) {
   }
   return (
     <span
-      title="agent-reported — unverified claim"
+      title="claimed — the agent's own account, not checked"
       className="inline-block cursor-help rounded-sm border border-muted/50 px-1 font-mono text-[10px] text-muted"
     >
       ◇
