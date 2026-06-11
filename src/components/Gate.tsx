@@ -1,7 +1,5 @@
-// The signature Gate card (F6 + F7 + F19, mock's interaction pattern with the
-// v1.1 async deltas): verify checklist unlocks Approve; reject/request-changes
-// require a comment; after deciding, the card settles into "decision logged ·
-// agent acts next session" (delta b). Meta row badges are per-item (delta a).
+// The signature Gate card: only what a decision needs up front — title, TL;DR,
+// meta, checklist, actions. Full report + tape sit behind one expander (DEC-28).
 import { useState } from 'react';
 import type { CourtsideState } from '../contract/state.generated';
 import { postDecision, type DecisionPost, type GateView } from '../lib/api';
@@ -63,23 +61,18 @@ export function GateCard({
         <span className="font-display text-[22px] font-semibold">
           {payload?.title ?? `Task review · ${gate.taskId ?? gate.type}`}
         </span>
+        {payload?.sourceRef && (
+          <span className="font-mono text-[11px] text-muted">{payload.sourceRef}</span>
+        )}
         {rejections > 0 && (
           <span className="rounded bg-risk/15 px-1.5 py-px font-mono text-[10px] text-risk">
             {rejections}× rejected
           </span>
         )}
       </div>
-      {payload?.sourceRef && (
-        <p className="mt-1 text-[13px] text-muted">
-          source: <span className="font-mono text-xs">{payload.sourceRef}</span>
-        </p>
-      )}
 
       {payload?.tldr && (
         <div className="mt-3 rounded-r-md border-l-[3px] border-accent bg-surface2 px-3.5 py-2.5 text-[13.5px]">
-          <span className="mb-1 block font-mono text-[10px] tracking-[0.12em] text-accent uppercase">
-            TL;DR
-          </span>
           <EventText provenance="claimed" text={payload.tldr} />
         </div>
       )}
@@ -94,49 +87,14 @@ export function GateCard({
         </div>
       )}
 
-      {view.tape && view.tape.length > 0 && (
-        <div className="mt-3">
-          <p className="mb-1.5 font-mono text-[10px] tracking-[0.12em] text-muted uppercase">
-            Game tape — evidence, never verification (R8)
-          </p>
-          <div className="flex flex-wrap gap-2.5">
-            {view.tape.map((f) =>
-              f.exists && f.url ? (
-                <figure key={f.ref} className="w-40">
-                  <img
-                    src={`${f.url}?token=${token}`}
-                    alt={f.ref}
-                    className="rounded border border-line"
-                  />
-                  <figcaption className="mt-0.5 flex items-center gap-1 font-mono text-[9.5px] text-muted">
-                    {f.ref.split('/').at(-1)} <ProvenanceBadge provenance="verified" />
-                  </figcaption>
-                </figure>
-              ) : (
-                <figure
-                  key={f.ref}
-                  className="flex h-[90px] w-40 flex-col items-center justify-center rounded border border-dashed border-risk/50 bg-risk/5 text-center"
-                >
-                  <span className="font-mono text-[10px] text-risk">missing — unverifiable</span>
-                  <span className="mt-1 font-mono text-[9.5px] text-muted">
-                    {f.ref.split('/').at(-1)}
-                  </span>
-                </figure>
-              ),
-            )}
-          </div>
-        </div>
-      )}
-
       {decided ? (
         <p className="mt-4 rounded-lg border border-ok/40 bg-ok/10 px-3 py-2.5 text-sm text-ok">
-          decision logged · <b>{decided.decision.replace('_', ' ')}</b>
-          {decided.comment ? ` · "${decided.comment}"` : ''} · agent acts next session
+          {decided.decision.replace('_', ' ')} · logged — agent acts next session
+          {decided.comment ? ` · "${decided.comment}"` : ''}
         </p>
       ) : blocked ? (
         <p className="mt-4 rounded-lg border border-risk/40 bg-risk/10 px-3 py-2.5 text-sm text-risk">
-          auto-blocked after 3 rejections (F19) — this card is now a discussion thread; the task or
-          spec is probably wrong, not the code. Talk it out before more rework.
+          blocked after 3 rejections — discuss before more rework
         </p>
       ) : (
         <>
@@ -144,7 +102,7 @@ export function GateCard({
           <textarea
             value={comment}
             onChange={(e) => setComment(e.target.value)}
-            placeholder="comment — required to reject or request changes, optional on approve"
+            placeholder="comment (required to reject)"
             className="mt-2 w-full rounded border border-line bg-surface2 px-2.5 py-2 text-xs"
             rows={2}
           />
@@ -161,7 +119,7 @@ export function GateCard({
               onClick={() => decide('reject')}
               className="rounded-lg border border-line bg-surface2 px-4 py-2 text-[13px] disabled:opacity-35"
             >
-              Reject with comment
+              Reject
             </button>
             <button
               disabled={comment.trim() === '' || busy}
@@ -170,13 +128,50 @@ export function GateCard({
             >
               Request changes
             </button>
-            <span className="text-xs text-muted">
-              {complete
-                ? 'All steps handled — your call, coach.'
-                : 'Complete the steps to unlock approval.'}
-            </span>
           </div>
         </>
+      )}
+
+      {(payload?.reportMd || (view.tape && view.tape.length > 0)) && (
+        <details className="mt-4">
+          <summary className="cursor-pointer font-mono text-[11px] text-muted">
+            report + tape ▸
+          </summary>
+          {payload?.reportMd && (
+            <pre className="mt-2 rounded border border-line bg-bg p-3 font-body text-xs whitespace-pre-wrap text-muted">
+              {payload.reportMd}
+            </pre>
+          )}
+          {view.tape && view.tape.length > 0 && (
+            <div className="mt-2.5 flex flex-wrap gap-2.5">
+              {view.tape.map((f) =>
+                f.exists && f.url ? (
+                  <figure key={f.ref} className="w-40">
+                    <img
+                      src={`${f.url}?token=${token}`}
+                      alt={f.ref}
+                      className="rounded border border-line"
+                    />
+                    <figcaption className="mt-0.5 flex items-center gap-1 font-mono text-[9.5px] text-muted">
+                      {f.ref.split('/').at(-1)} <ProvenanceBadge provenance="verified" />
+                    </figcaption>
+                  </figure>
+                ) : (
+                  <figure
+                    key={f.ref}
+                    title="file not found — unverifiable evidence"
+                    className="flex h-[90px] w-40 flex-col items-center justify-center rounded border border-dashed border-risk/50 bg-risk/5 text-center"
+                  >
+                    <span className="font-mono text-[10px] text-risk">missing</span>
+                    <span className="mt-1 font-mono text-[9.5px] text-muted">
+                      {f.ref.split('/').at(-1)}
+                    </span>
+                  </figure>
+                ),
+              )}
+            </div>
+          )}
+        </details>
       )}
     </section>
   );

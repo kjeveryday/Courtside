@@ -94,7 +94,6 @@ export function PreflightPanel({ report, onRerun }: { report: DoctorReport; onRe
             ))}
         </div>
       ))}
-      <p className="font-mono text-[10px] text-muted">ran {report.ranAt} · server-verified</p>
     </section>
   );
 }

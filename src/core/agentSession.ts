@@ -2,9 +2,27 @@
 // the decisions-inbox exactly as CLAUDE.md instructs the real agent to (answers
 // as data), acts on each decision in state.json, and archives consumed files.
 // This is demo machinery for the fixture project — never product behavior.
-import { mkdirSync, readdirSync, readFileSync, renameSync, writeFileSync } from 'node:fs';
+import {
+  copyFileSync,
+  mkdirSync,
+  readdirSync,
+  readFileSync,
+  renameSync,
+  rmSync,
+  writeFileSync,
+} from 'node:fs';
 import { join } from 'node:path';
 import type { CourtsideState } from '../contract/state.generated.ts';
+
+// Demo reset (harness only): fixture back to the seed story, demo decisions gone.
+export function resetFixture(planDir: string, runtimeDir: string, seedPath: string) {
+  rmSync(join(planDir, 'decisions-inbox'), { recursive: true, force: true });
+  rmSync(join(planDir, 'decisions.md'), { force: true });
+  rmSync(join(runtimeDir, 'decision-log.ndjson'), { force: true });
+  mkdirSync(join(planDir, 'decisions-inbox'), { recursive: true });
+  copyFileSync(seedPath, join(planDir, 'state.json'));
+  return { reset: true };
+}
 
 type Inbox = {
   gateId: string;

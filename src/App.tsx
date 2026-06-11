@@ -12,7 +12,6 @@ import { NextUp } from './components/NextUp';
 import { Progress } from './components/Progress';
 import { Scorebug } from './components/Scorebug';
 import { LockedOut, RefusalState } from './components/Screens';
-import { StatusCard } from './components/StatusCard';
 import { Ticker } from './components/Ticker';
 import type { CourtsideState } from './contract/state.generated';
 import { validateState } from './contract/validate';
@@ -181,7 +180,6 @@ function ValidState({
             />
           ))}
           {pendingOrDecided.length > 0 && <NextUp state={state} gateApproved={anyApproved} />}
-          <StatusCard state={state} />
           <Backlog tasks={state.tasks} />
         </div>
         <aside>

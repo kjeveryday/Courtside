@@ -50,10 +50,6 @@ export function HuddlePanel({ data, onClose }: { data: HuddleData | null; onClos
           </li>
         ))}
       </ul>
-      <p className="mt-2 font-mono text-[10px] text-muted">
-        deterministic Tier-1 briefing — facts computed from state + decision log; narrative huddle
-        arrives in v0.2
-      </p>
     </section>
   );
 }

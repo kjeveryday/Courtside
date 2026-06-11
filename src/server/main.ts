@@ -4,7 +4,7 @@
 import { mkdirSync } from 'node:fs';
 import { createServer } from 'node:http';
 import { join } from 'node:path';
-import { simulateAgentSession } from '../core/agentSession.ts';
+import { resetFixture, simulateAgentSession } from '../core/agentSession.ts';
 import { generateToken } from './auth.ts';
 import { openDb, type Db } from './db.ts';
 import { createHandler, json, statePayload, type HttpContext } from './http.ts';
@@ -61,6 +61,11 @@ export async function startServer(opts: StartOptions): Promise<RunningServer> {
           text: summary.actions.join('; '),
         });
         json(res, 200, summary);
+        return true;
+      }
+      if (req.method === 'POST' && path === '/api/dev/reset') {
+        const seed = join(repoRoot, 'spec', 'fixtures', 'state.sample.json');
+        json(res, 200, resetFixture(opts.planDir, runtimeDir, seed));
         return true;
       }
       return false;

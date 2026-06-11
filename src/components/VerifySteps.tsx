@@ -20,10 +20,11 @@ export function VerifySteps({
 }) {
   const patch = (i: number, p: Partial<StepState>) =>
     onChange(steps.map((x, j) => (j === i ? { ...x, ...p } : x)));
+  const done = steps.filter((s) => s.checked || s.skippedReason.trim() !== '').length;
   return (
     <>
       <h3 className="mt-4 mb-2 font-mono text-[10px] tracking-[0.12em] text-muted uppercase">
-        Verify in 60 seconds — every step checked or skipped-with-reason to approve
+        Verify · {done}/{steps.length}
       </h3>
       {steps.map((s, i) => (
         <div key={s.text} className="mb-2 rounded-lg border border-line bg-bg px-3 py-2.5">
@@ -48,7 +49,7 @@ export function VerifySteps({
             <input
               value={s.skippedReason}
               onChange={(e) => patch(i, { skippedReason: e.target.value })}
-              placeholder="why is it safe to skip this step?"
+              placeholder="reason for skipping"
               className="mt-2 w-full rounded border border-line bg-surface2 px-2 py-1 text-xs"
             />
           )}

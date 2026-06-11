@@ -336,3 +336,20 @@ bullets (card-shaped there; sources PRD F6/F7/F19, §5, R7, Q-6/Q-7 via DEC-24).
 - Test approach: timed clone simulation + full check + manual demo
 - Dependencies: [TASK-20] · Risk: low
 - Status: done (auto-approved 2026-06-10 · report: [gates/G5-TASK-21.md](gates/G5-TASK-21.md)) — **v0.1 LITE COMPLETE, awaiting human end review**
+
+### [TASK-22] Copy diet & dedupe (human design review, DEC-28)
+
+- Source: Kyle's design review 2026-06-10 (6 points + duplication audit); DEC-28
+- Description: remove duplication and agent-voice prose from the dashboard; quality
+  over spec citations.
+- Acceptance criteria: duplicate Agent card deleted; provenance badges glyph-only
+  (✓/◇, label on hover); all spec-citation/explainer sentences removed; gate card
+  shows decision essentials with report+tape behind an expander and a label-less
+  source ref; verify heading is a `Verify · n/N` counter; scorebug labels/subs
+  shortened, duplicate task sub-line gone; demo strip reads DEMO with
+  "agent's next session ▸" and a working "reset ↺" button (no terminal).
+- VISUAL CRITERION: default view reads ~half the words; reset button restores the
+  demo live.
+- Test approach: T30 (resetFixture) + existing suite + Kyle's eyes
+- Dependencies: [TASK-21] · Risk: low
+- Status: done (2026-06-10 · report: [gates/G5-TASK-22.md](gates/G5-TASK-22.md)) — awaiting Kyle's visual pass

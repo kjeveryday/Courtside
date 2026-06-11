@@ -6,7 +6,7 @@ import { join } from 'node:path';
 import { afterAll, describe, expect, it } from 'vitest';
 import type { CourtsideState } from '../contract/state.generated.ts';
 import { appendDecision } from './decisions.ts';
-import { simulateAgentSession } from './agentSession.ts';
+import { resetFixture, simulateAgentSession } from './agentSession.ts';
 
 const seedDir = new URL('../../spec/fixtures/sample-project/plan/', import.meta.url).pathname;
 const seedState = new URL('../../spec/fixtures/state.sample.json', import.meta.url).pathname;
@@ -68,5 +68,17 @@ describe('simulateAgentSession (T25)', () => {
     cpSync(seedDir, planDir, { recursive: true });
     cpSync(seedState, join(planDir, 'state.json'));
     expect(simulateAgentSession(planDir).consumed).toBe(0);
+  });
+
+  it('T30: resetFixture restores the seed story and clears demo decisions', () => {
+    const { tmp, planDir } = fresh('approve', '');
+    trash.push(tmp);
+    simulateAgentSession(planDir); // state advanced, inbox consumed
+    resetFixture(planDir, join(tmp, '.courtside'), seedState);
+    const state = readBack(planDir);
+    expect(state.agent.state).toBe('parked_at_gate');
+    expect(state.gates.find((g) => g.id === 'G5-TASK-12')?.status).toBe('pending');
+    expect(existsSync(join(planDir, 'decisions-inbox', 'consumed'))).toBe(false);
+    expect(existsSync(join(tmp, '.courtside', 'decision-log.ndjson'))).toBe(false);
   });
 });

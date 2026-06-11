@@ -26,3 +26,5 @@ Format: `ts · TASK/PHASE · why → next`
 - 2026-06-10 · TASK-19 done · filmstrip + missing-state + confined tape route (T28; 49/49) → TASK-20 huddle (T29 first).
 - 2026-06-10 · TASK-20 done, S7 SHIPPED · huddle live matches PRD example (T29; 52/52) → TASK-21 ship-check.
 - 2026-06-10 · TASK-21 done · SHIP CRITERIA PROVEN (cycle browser-only; clone→green 14 s) · v0.1 complete, STOPPING for human end review.
+- 2026-06-10 · DEC-28 quality mandate + mock-provenance correction → TASK-22 copy diet & dedupe per Kyle's 6 points + duplication audit.
+- 2026-06-10 · TASK-22 done · copy diet & dedupe per Kyle + DEC-28; StatusCard deleted; reset button live (T30; 53/53) → awaiting Kyle visual pass.
