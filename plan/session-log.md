@@ -32,3 +32,5 @@ Format: `ts · TASK/PHASE · why → next`
 - 2026-06-10 · TASK-23 done · send-to-agent buttons + signed directives + config-gated spawn (T31-T33; 57/57) → awaiting Kyle pass.
 - 2026-06-10 · DEC-30 → TASK-24 doc links + legend.
 - 2026-06-10 · TASK-24 done · doc links + viewer w/ section jump + fixture gdd.md + legend/tooltips (T34; 59/59).
+- 2026-06-10 · DEC-31 → TASK-25 remove risk tags (dashboard-is-for-Kyle principle).
+- 2026-06-10 · TASK-25 done · risk tags off the UI per DEC-31.

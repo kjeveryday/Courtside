@@ -39,10 +39,6 @@ export function Legend({ onClose }: { onClose: () => void }) {
         text="agent-reported — the agent's own words, unverified"
       />
       <Term
-        chip={chip('bg-accent/15 text-accent', 'risk: med')}
-        text="agent-assessed chance the task needs rework (low / med / high) — how closely to review its gate"
-      />
-      <Term
         chip={chip('bg-accent/15 text-accent', 'in-review')}
         text="task status: todo → in-progress → in-review (gate posted, your call) → done; revise/blocked follow a rejection"
       />

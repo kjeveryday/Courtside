@@ -48,11 +48,7 @@ export function Scorebug({ state }: { state: CourtsideState }) {
         <div className="font-display text-[20px] leading-tight font-semibold">
           {agent.currentTask ?? '—'}
         </div>
-        <div className="mt-0.5 font-mono text-xs text-muted">
-          {currentTask
-            ? `${currentTask.status}${currentTask.risk ? ` · ${currentTask.risk}` : ''}`
-            : '—'}
-        </div>
+        <div className="mt-0.5 font-mono text-xs text-muted">{currentTask?.status ?? '—'}</div>
       </Cell>
       <Cell label="Tests">
         <div className="max-w-56 text-sm">

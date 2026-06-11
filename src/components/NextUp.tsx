@@ -51,14 +51,6 @@ export function NextUp({
               logic-only → {t.surfacesAt}
             </span>
           )}
-          {t.risk && (
-            <span
-              title="agent-assessed chance this needs rework — how closely to review"
-              className="rounded bg-accent/15 px-1.5 py-px font-mono text-[10px] text-accent"
-            >
-              risk: {t.risk}
-            </span>
-          )}
         </div>
       ))}
     </section>

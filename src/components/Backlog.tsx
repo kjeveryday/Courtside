@@ -16,12 +16,6 @@ const STATUS_TONE: Record<Task['status'], string> = {
   todo: 'bg-surface2 text-muted',
 };
 
-const RISK_TONE: Record<NonNullable<Task['risk']>, string> = {
-  low: 'bg-ok/15 text-ok',
-  med: 'bg-accent/15 text-accent',
-  high: 'bg-risk/15 text-risk',
-};
-
 function Chip({ tone, children }: { tone: string; children: React.ReactNode }) {
   return (
     <span className={`rounded px-1.5 py-px font-mono text-[10px] whitespace-nowrap ${tone}`}>
@@ -48,11 +42,6 @@ function TaskRow({
         {task.rejections ? (
           <Chip tone="bg-risk/15 text-risk">{task.rejections}× rejected</Chip>
         ) : null}
-        {task.risk && (
-          <span title="agent-assessed chance this needs rework — how closely to review">
-            <Chip tone={RISK_TONE[task.risk]}>risk: {task.risk}</Chip>
-          </span>
-        )}
         <span title="todo → in-progress → in-review (your call) → done; revise/blocked after rejection">
           <Chip tone={STATUS_TONE[task.status]}>{task.status}</Chip>
         </span>

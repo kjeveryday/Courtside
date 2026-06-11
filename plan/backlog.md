@@ -388,3 +388,13 @@ bullets (card-shaped there; sources PRD F6/F7/F19, §5, R7, Q-6/Q-7 via DEC-24).
 - VISUAL CRITERION: next-up rows carry doc links; "?" in header shows the legend.
 - Test approach: T34 + manual · Dependencies: [TASK-23] · Risk: low
 - Status: done (2026-06-10 · report: [gates/G5-TASK-24.md](gates/G5-TASK-24.md)) — awaiting Kyle's pass
+
+### [TASK-25] Remove risk tags (dashboard-is-for-Kyle, DEC-31)
+
+- Source: Kyle 2026-06-10 ("Everything in this dashboard should be for me, not the agent")
+- Description: risk chips removed from backlog rows, next-up rows, scorebug TASK
+  cell, and the legend. The `risk` field stays in the contract/plan files (agent
+  bookkeeping); the UI no longer renders it.
+- VISUAL CRITERION: no "risk:" anywhere on the dashboard.
+- Test approach: existing suite + grep · Dependencies: [TASK-24] · Risk-the-field: ironically, low
+- Status: done (2026-06-10 · report: this card) — awaiting Kyle's pass
