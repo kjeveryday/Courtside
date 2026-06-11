@@ -20,7 +20,10 @@ export function Ticker({ events }: { events: CourtsideState['events'] }) {
               key={`${e.ts}-${e.kind}-${e.text.slice(0, 24)}`}
               className="flex gap-2.5 border-b border-line py-2 text-[12.5px] last:border-b-0"
             >
-              <span className={`mt-1.5 h-2 w-2 flex-none rounded-full ${kindColor(e.kind)}`} />
+              <span
+                title={e.kind.replace('_', ' ')}
+                className={`mt-1.5 h-2 w-2 flex-none rounded-full ${kindColor(e.kind)}`}
+              />
               <time className="flex-none pt-px font-mono text-[10.5px] text-muted">
                 {localTime(e.ts)}
               </time>

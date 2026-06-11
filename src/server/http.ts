@@ -11,6 +11,7 @@ import { currentRuns, dispatchAgent } from './agentRunner.ts';
 import { extractToken, tokenEquals } from './auth.ts';
 import type { Db } from './db.ts';
 import { buildDirective } from './dispatch.ts';
+import { safeDocPath } from './docs.ts';
 import { decideGate, gateViews, type DecisionRequest } from './gates.ts';
 import { readState } from './state.ts';
 
@@ -165,6 +166,12 @@ export async function handleApi(ctx: HttpContext, req: IncomingMessage, res: Ser
     const file = safeTapePath(ctx.planDir, path);
     if (!file || !existsSync(file)) return json(res, 404, { error: 'no such tape frame' });
     res.writeHead(200, { 'content-type': MIME[extname(file)] ?? 'application/octet-stream' });
+    return res.end(readFileSync(file));
+  }
+  if (req.method === 'GET' && path.startsWith('/api/doc/')) {
+    const file = safeDocPath(ctx.planDir, path);
+    if (!file || !existsSync(file)) return json(res, 404, { error: 'no such doc' });
+    res.writeHead(200, { 'content-type': 'text/plain; charset=utf-8' });
     return res.end(readFileSync(file));
   }
   if (ctx.extraRoutes?.(path, req, res)) return;

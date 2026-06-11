@@ -30,7 +30,15 @@ function Chip({ tone, children }: { tone: string; children: React.ReactNode }) {
   );
 }
 
-function TaskRow({ task, dispatch }: { task: Task; dispatch?: DispatchApi }) {
+function TaskRow({
+  task,
+  dispatch,
+  onOpenDoc,
+}: {
+  task: Task;
+  dispatch?: DispatchApi;
+  onOpenDoc?: (ref: string) => void;
+}) {
   const dispatchable = dispatch && DISPATCHABLE.has(task.status);
   return (
     <details className="group mb-2 rounded-lg border border-line bg-bg">
@@ -40,8 +48,14 @@ function TaskRow({ task, dispatch }: { task: Task; dispatch?: DispatchApi }) {
         {task.rejections ? (
           <Chip tone="bg-risk/15 text-risk">{task.rejections}× rejected</Chip>
         ) : null}
-        {task.risk && <Chip tone={RISK_TONE[task.risk]}>risk: {task.risk}</Chip>}
-        <Chip tone={STATUS_TONE[task.status]}>{task.status}</Chip>
+        {task.risk && (
+          <span title="agent-assessed chance this needs rework — how closely to review">
+            <Chip tone={RISK_TONE[task.risk]}>risk: {task.risk}</Chip>
+          </span>
+        )}
+        <span title="todo → in-progress → in-review (your call) → done; revise/blocked after rejection">
+          <Chip tone={STATUS_TONE[task.status]}>{task.status}</Chip>
+        </span>
       </summary>
       <div className="border-t border-line px-3 py-2.5 text-xs">
         <p className="text-muted">
@@ -57,7 +71,13 @@ function TaskRow({ task, dispatch }: { task: Task; dispatch?: DispatchApi }) {
           )}
         </p>
         <p className="mt-1.5 font-mono text-[11px] text-muted">
-          source {task.sourceRef}
+          {onOpenDoc ? (
+            <button onClick={() => onOpenDoc(task.sourceRef)} className="underline">
+              {task.sourceRef}
+            </button>
+          ) : (
+            task.sourceRef
+          )}
           {task.deps?.length ? ` · deps ${task.deps.join(', ')}` : ''}
           {task.commit ? ` · commit ${task.commit}` : ''}
         </p>
@@ -77,9 +97,11 @@ function TaskRow({ task, dispatch }: { task: Task; dispatch?: DispatchApi }) {
 export function Backlog({
   tasks,
   dispatch,
+  onOpenDoc,
 }: {
   tasks: CourtsideState['tasks'];
   dispatch?: DispatchApi;
+  onOpenDoc?: (ref: string) => void;
 }) {
   const slices = [...new Set(tasks.map((t) => t.slice ?? 'unsliced'))];
   return (
@@ -99,7 +121,7 @@ export function Backlog({
               {slice} · {ordered.map((t) => t.id).join(' → ')}
             </p>
             {ordered.map((t) => (
-              <TaskRow key={t.id} task={t} dispatch={dispatch} />
+              <TaskRow key={t.id} task={t} dispatch={dispatch} onOpenDoc={onOpenDoc} />
             ))}
           </div>
         );

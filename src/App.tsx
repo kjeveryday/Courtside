@@ -1,28 +1,23 @@
 // App shell: token gate → /api/state → validated render or refusal (PRD §5).
 // Data arrives from the Courtside server (S4); live WS updates land in TASK-12.
 import { useEffect, useState } from 'react';
-import { Backlog } from './components/Backlog';
-import { GateCard } from './components/Gate';
 import { HarnessBar } from './components/HarnessBar';
 import { Header } from './components/Header';
+import { Dashboard } from './components/Dashboard';
+import { DocViewer } from './components/DocViewer';
 import { HealthBadge, PreflightPanel, type DoctorReport } from './components/Health';
 import { HuddleButton, HuddlePanel, type HuddleData } from './components/Huddle';
-import { Ledgers } from './components/Ledgers';
-import { NextUp } from './components/NextUp';
-import { Progress } from './components/Progress';
-import { Scorebug } from './components/Scorebug';
+import { Legend } from './components/Legend';
 import { LockedOut, RefusalState } from './components/Screens';
-import type { DispatchApi } from './components/SendToAgent';
-import { Ticker } from './components/Ticker';
 import type { CourtsideState } from './contract/state.generated';
 import { validateState } from './contract/validate';
 import {
   connectWs,
   ensureToken,
+  fetchDoc,
   fetchDoctor,
   fetchHuddle,
   fetchState,
-  postDispatch,
   type GateView,
   type PendingDispatch,
   type RunningAgent,
@@ -51,6 +46,25 @@ export default function App() {
   const [doctor, setDoctor] = useState<DoctorReport | null>(null);
   const [showPreflight, setShowPreflight] = useState(false);
   const [huddle, setHuddle] = useState<HuddleData | null>(null);
+  const [showLegend, setShowLegend] = useState(false);
+  const [docView, setDocView] = useState<{
+    ref: string;
+    text: string | null;
+    error: string | null;
+  } | null>(null);
+
+  const openDoc = (ref: string) => {
+    setDocView({ ref, text: null, error: null });
+    const token = ensureToken();
+    if (!token) return;
+    void fetchDoc(token, ref).then((r) =>
+      setDocView((cur) =>
+        cur?.ref === ref
+          ? { ref, text: 'text' in r ? r.text : null, error: 'error' in r ? r.error : null }
+          : cur,
+      ),
+    );
+  };
 
   const refreshDoctor = (token: string) => {
     void fetchDoctor(token).then((r) => setDoctor(r as DoctorReport | null));
@@ -121,9 +135,31 @@ export default function App() {
               onToggle={() => setShowPreflight((v) => !v)}
             />
             {load.phase === 'ok' && <HuddleButton onOpen={openHuddle} />}
+            <button
+              onClick={() => setShowLegend((v) => !v)}
+              title="legend — what the chips, dots, and badges mean"
+              className="rounded-full border border-line bg-surface2 px-2 py-1 font-mono text-[11px] text-muted"
+            >
+              ?
+            </button>
           </span>
         }
       />
+      {showLegend && (
+        <div className="mt-5">
+          <Legend onClose={() => setShowLegend(false)} />
+        </div>
+      )}
+      {docView && (
+        <div className="mt-5">
+          <DocViewer
+            docRef={docView.ref}
+            text={docView.text}
+            error={docView.error}
+            onClose={() => setDocView(null)}
+          />
+        </div>
+      )}
       {huddle && (
         <div className="mt-5">
           <HuddlePanel data={huddle} onClose={() => setHuddle(null)} />
@@ -144,7 +180,7 @@ export default function App() {
         {load.phase === 'loading' && <p className="text-sm text-muted">loading state…</p>}
         {load.phase === 'locked' && <LockedOut detail={load.detail} />}
         {load.phase === 'ok' && (
-          <ValidState
+          <Dashboard
             state={load.state}
             gates={load.gates}
             token={load.token}
@@ -152,71 +188,12 @@ export default function App() {
             runningAgents={load.runningAgents}
             decisionError={decisionError}
             onDecisionError={setDecisionError}
+            onOpenDoc={openDoc}
           />
         )}
         {load.phase === 'refused' && <RefusalState errors={load.errors} />}
       </div>
       {load.phase === 'ok' && load.harness && <HarnessBar token={load.token} />}
     </main>
-  );
-}
-
-function ValidState({
-  state,
-  gates,
-  token,
-  dispatches,
-  runningAgents,
-  decisionError,
-  onDecisionError,
-}: {
-  state: CourtsideState;
-  gates: GateView[];
-  token: string;
-  dispatches: PendingDispatch[];
-  runningAgents: RunningAgent[];
-  decisionError: string;
-  onDecisionError: (msg: string) => void;
-}) {
-  const pendingOrDecided = gates.filter((g) => g.gate.status === 'pending');
-  const anyApproved = pendingOrDecided.some((g) => g.decided?.decision === 'approve');
-  const dispatch: DispatchApi = {
-    stateOf: (kind, id) =>
-      runningAgents.some((r) => r.id === id && r.status === 'running')
-        ? 'running'
-        : dispatches.some((d) => d.kind === kind && d.id === id)
-          ? 'queued'
-          : 'idle',
-    send: (kind, id, answer, context) => postDispatch(token, { kind, id, answer, context }),
-  };
-  return (
-    <section>
-      <Scorebug state={state} />
-      <div className="grid grid-cols-[1.6fr_1fr] gap-5 max-[860px]:grid-cols-1">
-        <div>
-          {decisionError && (
-            <p className="mb-3 rounded border border-risk/40 bg-risk/10 px-3 py-2 text-xs text-risk">
-              decision failed: {decisionError}
-            </p>
-          )}
-          {pendingOrDecided.map((g) => (
-            <GateCard
-              key={g.gate.id}
-              view={g}
-              state={state}
-              token={token}
-              onDecisionError={onDecisionError}
-            />
-          ))}
-          {pendingOrDecided.length > 0 && <NextUp state={state} gateApproved={anyApproved} />}
-          <Backlog tasks={state.tasks} dispatch={dispatch} />
-        </div>
-        <aside>
-          <Progress state={state} />
-          <Ticker events={state.events} />
-          <Ledgers state={state} dispatch={dispatch} />
-        </aside>
-      </div>
-    </section>
   );
 }

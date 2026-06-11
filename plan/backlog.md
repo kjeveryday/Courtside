@@ -373,3 +373,18 @@ bullets (card-shaped there; sources PRD F6/F7/F19, §5, R7, Q-6/Q-7 via DEC-24).
   the agent acting on exactly that item, your context echoed in its narration.
 - Test approach: unit/integration T31–T33 + manual · Dependencies: [TASK-22] · Risk: med
 - Status: done (2026-06-10 · report: [gates/G5-TASK-23.md](gates/G5-TASK-23.md)) — awaiting Kyle's pass
+
+### [TASK-24] Source-doc links + legend (DEC-30)
+
+- Source: Kyle's design review 2026-06-10 (next-up GDD links; "values with no legend")
+- Description: sourceRefs become live links everywhere (gate card, next-up rows,
+  backlog drilldown) opening an in-app viewer that jumps to and highlights the
+  referenced section; fixture project gains a real gdd.md so demo links resolve;
+  header "?" opens a one-stop legend; tooltips on risk/status chips + ticker dots.
+- Acceptance criteria: clicking `gdd.md#movement-ranges` anywhere opens the doc
+  scrolled to that section, highlighted; doc route serves only project .md files
+  (traversal, plan internals, hidden dirs, node_modules refused — T34); legend
+  explains provenance glyphs, risk, statuses, LOGIC-ONLY, gate ids, dots, ages.
+- VISUAL CRITERION: next-up rows carry doc links; "?" in header shows the legend.
+- Test approach: T34 + manual · Dependencies: [TASK-23] · Risk: low
+- Status: done (2026-06-10 · report: [gates/G5-TASK-24.md](gates/G5-TASK-24.md)) — awaiting Kyle's pass

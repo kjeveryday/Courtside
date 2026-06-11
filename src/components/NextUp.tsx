@@ -2,7 +2,15 @@
 // approval un-dims it, but the agent still acts next session (delta b).
 import type { CourtsideState } from '../contract/state.generated';
 
-export function NextUp({ state, gateApproved }: { state: CourtsideState; gateApproved: boolean }) {
+export function NextUp({
+  state,
+  gateApproved,
+  onOpenDoc,
+}: {
+  state: CourtsideState;
+  gateApproved: boolean;
+  onOpenDoc?: (ref: string) => void;
+}) {
   const upcoming = state.tasks.filter((t) => t.status === 'todo');
   if (upcoming.length === 0) return null;
   return (
@@ -29,13 +37,25 @@ export function NextUp({ state, gateApproved }: { state: CourtsideState; gateApp
         >
           <span className="font-mono text-[11px] text-muted">{t.id}</span>
           <span className="flex-1 text-sm">{t.title}</span>
+          {onOpenDoc && (
+            <button
+              onClick={() => onOpenDoc(t.sourceRef)}
+              title={t.sourceRef}
+              className="font-mono text-[10px] text-info underline"
+            >
+              {t.sourceRef.split('#')[0]}
+            </button>
+          )}
           {t.logicOnly && (
             <span className="rounded border border-line bg-surface2 px-1.5 py-px font-mono text-[10px] text-muted">
               logic-only → {t.surfacesAt}
             </span>
           )}
           {t.risk && (
-            <span className="rounded bg-accent/15 px-1.5 py-px font-mono text-[10px] text-accent">
+            <span
+              title="agent-assessed chance this needs rework — how closely to review"
+              className="rounded bg-accent/15 px-1.5 py-px font-mono text-[10px] text-accent"
+            >
               risk: {t.risk}
             </span>
           )}

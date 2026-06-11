@@ -11,11 +11,13 @@ export function GateCard({
   state,
   token,
   onDecisionError,
+  onOpenDoc,
 }: {
   view: GateView;
   state: CourtsideState;
   token: string;
   onDecisionError: (msg: string) => void;
+  onOpenDoc?: (ref: string) => void;
 }) {
   const { gate, payload, decided } = view;
   const task = state.tasks.find((t) => t.id === gate.taskId);
@@ -61,9 +63,17 @@ export function GateCard({
         <span className="font-display text-[22px] font-semibold">
           {payload?.title ?? `Task review · ${gate.taskId ?? gate.type}`}
         </span>
-        {payload?.sourceRef && (
-          <span className="font-mono text-[11px] text-muted">{payload.sourceRef}</span>
-        )}
+        {payload?.sourceRef &&
+          (onOpenDoc ? (
+            <button
+              onClick={() => onOpenDoc(payload.sourceRef!)}
+              className="font-mono text-[11px] text-info underline"
+            >
+              {payload.sourceRef}
+            </button>
+          ) : (
+            <span className="font-mono text-[11px] text-muted">{payload.sourceRef}</span>
+          ))}
         {rejections > 0 && (
           <span className="rounded bg-risk/15 px-1.5 py-px font-mono text-[10px] text-risk">
             {rejections}× rejected

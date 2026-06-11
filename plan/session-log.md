@@ -30,3 +30,5 @@ Format: `ts · TASK/PHASE · why → next`
 - 2026-06-10 · TASK-22 done · copy diet & dedupe per Kyle + DEC-28; StatusCard deleted; reset button live (T30; 53/53) → awaiting Kyle visual pass.
 - 2026-06-10 · DEC-29 → TASK-23 dispatch: send-to-agent buttons (tasks/questions) + signed directives + config-gated spawn.
 - 2026-06-10 · TASK-23 done · send-to-agent buttons + signed directives + config-gated spawn (T31-T33; 57/57) → awaiting Kyle pass.
+- 2026-06-10 · DEC-30 → TASK-24 doc links + legend.
+- 2026-06-10 · TASK-24 done · doc links + viewer w/ section jump + fixture gdd.md + legend/tooltips (T34; 59/59).

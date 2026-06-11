@@ -141,6 +141,23 @@ export async function fetchDoctor(token: string): Promise<unknown | null> {
   }
 }
 
+// sourceRef = "gdd.md#movement-ranges" → fetch the doc text; anchor stays client-side
+export async function fetchDoc(
+  token: string,
+  ref: string,
+): Promise<{ text: string } | { error: string }> {
+  const file = ref.split('#')[0] ?? ref;
+  try {
+    const res = await fetch(`/api/doc/${file}`, {
+      headers: { authorization: `Bearer ${token}` },
+    });
+    if (!res.ok) return { error: `${file} — not available (HTTP ${res.status})` };
+    return { text: await res.text() };
+  } catch (err) {
+    return { error: err instanceof Error ? err.message : String(err) };
+  }
+}
+
 export async function fetchHuddle(token: string): Promise<unknown | null> {
   try {
     const res = await fetch('/api/huddle', { headers: { authorization: `Bearer ${token}` } });
