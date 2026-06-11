@@ -12,6 +12,7 @@ export type GateView = {
   gate: StateGate;
   payload?: unknown;
   payloadMissing?: boolean;
+  payloadNote?: string;
   decided?: unknown;
   tape?: TapeFrame[];
 };
@@ -24,8 +25,16 @@ export function gateViews(planDir: string, state: CourtsideState | undefined): G
     const view: GateView = { gate };
     if (gate.payloadRef) {
       const path = join(planDir, relToPlan(gate.payloadRef));
-      if (existsSync(path)) view.payload = JSON.parse(readFileSync(path, 'utf-8'));
-      else view.payloadMissing = true;
+      if (!existsSync(path)) view.payloadMissing = true;
+      else
+        try {
+          view.payload = JSON.parse(readFileSync(path, 'utf-8'));
+        } catch {
+          // one bad agent-written file must degrade to a visible notice on this
+          // gate, never take down the whole state payload
+          view.payloadMissing = true;
+          view.payloadNote = 'unreadable (invalid JSON)';
+        }
     }
     view.decided = decisionFor(planDir, gate.id);
     if (gate.tape?.length) view.tape = resolveTape(planDir, gate.tape);

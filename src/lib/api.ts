@@ -50,12 +50,14 @@ export type GateView = {
     status: string;
     postedAt: string;
     taskId?: string;
+    payloadRef?: string;
     commit?: string;
     tape?: string[];
     verifySteps?: { text: string; criterionRef?: string }[];
   };
   payload?: GatePayloadFile;
   payloadMissing?: boolean;
+  payloadNote?: string;
   decided?: DecidedInfo;
   tape?: TapeFrameView[];
 };

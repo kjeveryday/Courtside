@@ -1,5 +1,5 @@
 // T24 (specs/the-gate.md B2): server-enforced decision rules + artifacts on disk.
-import { cpSync, existsSync, mkdtempSync, rmSync } from 'node:fs';
+import { cpSync, existsSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { afterAll, describe, expect, it } from 'vitest';
@@ -101,5 +101,17 @@ describe('decisions API (T24)', () => {
     const state = await fetch(`${base}/api/state`, { headers: auth });
     const body = (await state.json()) as { gates: { decided?: { decision: string } }[] };
     expect(body.gates[0]!.decided?.decision).toBe('approve');
+  });
+
+  it('a malformed payload file degrades to a per-gate notice, never a 500 (TASK-28)', async () => {
+    writeFileSync(join(planDir, 'gates', 'G5-TASK-12.json'), '{ not json');
+    const res = await fetch(`${base}/api/state`, { headers: auth });
+    expect(res.status).toBe(200);
+    const body = (await res.json()) as {
+      gates: { payload?: unknown; payloadMissing?: boolean; payloadNote?: string }[];
+    };
+    expect(body.gates[0]!.payload).toBeUndefined();
+    expect(body.gates[0]!.payloadMissing).toBe(true);
+    expect(body.gates[0]!.payloadNote).toContain('invalid JSON');
   });
 });

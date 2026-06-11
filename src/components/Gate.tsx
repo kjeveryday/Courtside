@@ -81,6 +81,15 @@ export function GateCard({
         )}
       </div>
 
+      {view.payloadMissing && (
+        <p
+          title="the gate names a report file Courtside cannot read — unverifiable evidence"
+          className="mt-3 rounded border border-dashed border-risk/50 bg-risk/5 px-3 py-2.5 font-mono text-[11px] text-risk"
+        >
+          report {view.payloadNote ?? 'missing'} — {gate.payloadRef}
+        </p>
+      )}
+
       {payload?.tldr && (
         <div className="mt-3 rounded-r-md border-l-[3px] border-accent bg-surface2 px-3.5 py-2.5 text-[13.5px]">
           <EventText provenance="claimed" text={payload.tldr} />
