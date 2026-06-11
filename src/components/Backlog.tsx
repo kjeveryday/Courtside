@@ -1,4 +1,4 @@
-// F2 backlog view: grouped by slice, status chips, risk badges, prominent visual
+// F2 backlog view: grouped by slice, status chips, prominent visual
 // criterion, expandable full card, dependency arrow strip (depsDepth).
 import type { CourtsideState } from '../contract/state.generated';
 import { depsDepth } from '../lib/derive';
