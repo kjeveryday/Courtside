@@ -2,11 +2,11 @@
   "schema": "courtside/v0",
   "phase": "5",
   "slice": "refinements",
-  "generatedAt": "2026-06-11T12:49:00.000Z",
+  "generatedAt": "2026-06-11T13:28:00.000Z",
   "agent": {
-    "state": "working",
-    "since": "2026-06-11T12:49:00.000Z",
-    "narration": "Acting on your approval of G5-V0-1: adversarial review of the dashboard — fixes land as TASK-28.",
+    "state": "idle",
+    "since": "2026-06-11T13:28:00.000Z",
+    "narration": "TASK-28 shipped: 24 adversarial findings fixed, 71/71 tests. Idle — the next stage is your call (menu in the report).",
     "currentTask": "TASK-28"
   },
   "gates": [
@@ -290,11 +290,12 @@
     {
       "id": "TASK-28",
       "title": "Adversarial review: find and fix the small lies",
-      "status": "in-progress",
+      "status": "done",
       "slice": "refinements",
-      "sourceRef": "plan/adversarial-brief.md",
-      "visualCriterion": "Reviewer findings fixed in both views",
-      "deps": ["TASK-27"]
+      "sourceRef": "plan/gates/G5-TASK-28.md",
+      "visualCriterion": "Evidence links open; decided gates leave the Huddle; demo reset can't touch the real chain",
+      "deps": ["TASK-27"],
+      "commit": "35c94e2"
     }
   ],
   "debt": [
@@ -353,9 +354,27 @@
       "text": "G5-V0-1 approved — v0.1 accepted (5/5 steps verified, signed seq 1)",
       "decidedAt": "2026-06-11T02:42:40.471Z",
       "by": "human"
+    },
+    {
+      "id": "DEC-34",
+      "text": "Adversarial review installed (standing brief); first run: 24 findings, all fixed in TASK-28",
+      "decidedAt": "2026-06-11T13:00:00.000Z",
+      "by": "human"
     }
   ],
   "events": [
+    {
+      "ts": "2026-06-11T13:28:00.000Z",
+      "kind": "test_run",
+      "provenance": "verified",
+      "text": "vitest: 71/71 across 20 files (npm run check fully green)"
+    },
+    {
+      "ts": "2026-06-11T13:26:00.000Z",
+      "kind": "audit",
+      "provenance": "claimed",
+      "text": "TASK-28: adversarial review — 24/24 findings verified and fixed; live smoke 18/18 on both views"
+    },
     {
       "ts": "2026-06-11T12:49:00.000Z",
       "kind": "narration",

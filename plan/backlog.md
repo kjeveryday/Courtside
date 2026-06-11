@@ -422,3 +422,24 @@ bullets (card-shaped there; sources PRD F6/F7/F19, §5, R7, Q-6/Q-7 via DEC-24).
   and clicking the frame opens it full-size.
 - Test approach: existing suite + manual · Dependencies: [TASK-26] · Risk: low
 - Status: done (2026-06-10) — awaiting Kyle's pass
+
+### [TASK-28] Adversarial review: find and fix the small lies (DEC-34)
+
+- Source: Kyle 2026-06-10 ("Set up an adversarial agent to find any small
+  issues like this") + "Review results… implement all adjustments… report back"
+- Description: standing reviewer brief at [adversarial-brief.md](adversarial-brief.md);
+  first run returned **24 findings**, every one verified against source and
+  fixed across four commits — (1) runtime isolation per project: the demo
+  reset could erase the REAL signed decision chain; (2) payload/doc resilience:
+  a malformed gate payload 500'd the whole board, every self-view source link
+  dead-ended, anchors missed silently; (3) huddle/doctor honesty: decided
+  gates counted as "waiting on you", agent self-reports wore verified badges,
+  doctor copy lied on pass; (4) visible evidence: artifact links behind ✓s,
+  server-observed events in the ticker, failed agent launches surface red.
+- VISUAL CRITERION: gate meta "14/14 GUT tests" opens the log; ticker rows
+  carry "evidence ▸"; self-view source refs open at the section; a decided
+  gate leaves the Huddle's waiting list; demo reset leaves the real
+  decision-log.ndjson untouched.
+- Test approach: T36 anchors, T37 artifacts + 4 more (71/71); 18-step live
+  smoke on both views · Dependencies: [TASK-27] · Risk: low
+- Status: done (2026-06-11 · report: [gates/G5-TASK-28.md](gates/G5-TASK-28.md)) — awaiting Kyle's pass
