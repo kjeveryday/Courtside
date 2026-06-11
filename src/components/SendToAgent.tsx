@@ -1,12 +1,14 @@
 // DEC-29: the activate-the-agent control, shared by tasks and questions.
 // Collapsed: one button. Expanded: optional context (+ answer for questions).
-// After sending: a status chip — queued for the next session, or running now.
+// After sending: a status chip — queued, running now, or failed (with the log).
 import { useState } from 'react';
+import type { AgentRun } from '../lib/api';
 
-export type DispatchState = 'idle' | 'queued' | 'running';
+export type DispatchState = 'idle' | 'queued' | 'running' | 'failed';
 
 export type DispatchApi = {
   stateOf: (kind: 'task' | 'question', id: string) => DispatchState;
+  runOf: (kind: 'task' | 'question', id: string) => AgentRun | undefined;
   send: (
     kind: 'task' | 'question',
     id: string,
@@ -17,11 +19,13 @@ export type DispatchApi = {
 
 export function SendToAgent({
   state,
+  run,
   options,
   requireAnswer,
   onSend,
 }: {
   state: DispatchState;
+  run?: AgentRun;
   options?: string[];
   requireAnswer?: boolean;
   onSend: (answer: string | undefined, context: string | undefined) => Promise<string | null>;
@@ -42,6 +46,16 @@ export function SendToAgent({
     return (
       <span className="rounded bg-info/15 px-1.5 py-px font-mono text-[10px] text-info">
         agent running…
+      </span>
+    );
+  if (state === 'failed')
+    return (
+      <span
+        title={run ? `log: ${run.logFile}` : undefined}
+        className="rounded bg-risk/15 px-1.5 py-px font-mono text-[10px] text-risk"
+      >
+        agent run failed{run?.exitCode !== undefined ? ` (exit ${run.exitCode})` : ''} — still in
+        inbox for next session
       </span>
     );
 

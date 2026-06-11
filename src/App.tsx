@@ -18,9 +18,10 @@ import {
   fetchDoctor,
   fetchHuddle,
   fetchState,
+  type AgentRun,
   type GateView,
   type PendingDispatch,
-  type RunningAgent,
+  type ServerEvent,
   type StatePayload,
   type WsStatus,
 } from './lib/api';
@@ -35,7 +36,8 @@ type LoadState =
       token: string;
       harness: boolean;
       dispatches: PendingDispatch[];
-      runningAgents: RunningAgent[];
+      agentRuns: AgentRun[];
+      serverEvents: ServerEvent[];
     }
   | { phase: 'refused'; errors: string[] };
 
@@ -82,7 +84,8 @@ export default function App() {
     const token = ensureToken();
     // One trust path for first fetch and every live push: validate locally,
     // render fully or refuse (PRD §5).
-    const applyPayload = ({ result, gates, harness, dispatches, runningAgents }: StatePayload) => {
+    const applyPayload = (payload: StatePayload) => {
+      const { result, gates, harness, dispatches, agentRuns, serverEvents } = payload;
       if (token) refreshDoctor(token); // health decays live (F0)
       if (!result.ok) return apply({ phase: 'refused', errors: result.errors });
       const checked = validateState(result.state);
@@ -94,7 +97,8 @@ export default function App() {
           token: token ?? '',
           harness: harness ?? false,
           dispatches: dispatches ?? [],
-          runningAgents: runningAgents ?? [],
+          agentRuns: agentRuns ?? [],
+          serverEvents: serverEvents ?? [],
         });
       else apply({ phase: 'refused', errors: checked.errors });
     };
@@ -185,7 +189,8 @@ export default function App() {
             gates={load.gates}
             token={load.token}
             dispatches={load.dispatches}
-            runningAgents={load.runningAgents}
+            agentRuns={load.agentRuns}
+            serverEvents={load.serverEvents}
             decisionError={decisionError}
             onDecisionError={setDecisionError}
             onOpenDoc={openDoc}

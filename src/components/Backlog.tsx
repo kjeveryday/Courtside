@@ -50,7 +50,7 @@ function TaskRow({
         <p className="text-muted">
           {task.logicOnly ? (
             <Chip tone="border border-line bg-surface2 text-muted">
-              LOGIC-ONLY → surfaces at {task.surfacesAt ?? '?'}
+              {`LOGIC-ONLY${task.surfacesAt ? ` → surfaces at ${task.surfacesAt}` : ''}`}
             </Chip>
           ) : (
             <>
@@ -74,6 +74,7 @@ function TaskRow({
           <p className="mt-2">
             <SendToAgent
               state={dispatch.stateOf('task', task.id)}
+              run={dispatch.runOf('task', task.id)}
               onSend={(answer, context) => dispatch.send('task', task.id, answer, context)}
             />
           </p>

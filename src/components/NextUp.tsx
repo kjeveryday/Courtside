@@ -48,7 +48,7 @@ export function NextUp({
           )}
           {t.logicOnly && (
             <span className="rounded border border-line bg-surface2 px-1.5 py-px font-mono text-[10px] text-muted">
-              logic-only → {t.surfacesAt}
+              {`logic-only${t.surfacesAt ? ` → ${t.surfacesAt}` : ''}`}
             </span>
           )}
         </div>

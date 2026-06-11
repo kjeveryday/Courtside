@@ -49,8 +49,9 @@ export function GateCard({
       })),
     });
     setBusy(false);
-    if (!res.ok) onDecisionError(res.error);
-    // success needs no local state: the inbox write triggers the watcher → ws push
+    // success needs no local state (inbox write → watcher → ws push), but a
+    // stale failure banner must not outlive a decision that landed
+    onDecisionError(res.ok ? '' : res.error);
   };
 
   return (
@@ -100,14 +101,33 @@ export function GateCard({
         <div className="mt-3 flex flex-wrap gap-x-4 gap-y-1 font-mono text-[11px] text-muted">
           {payload.meta.map((m) => (
             <span key={m.label} className="flex items-center gap-1.5">
-              {m.label} <ProvenanceBadge provenance={m.provenance} />
+              {m.artifactRef ? (
+                <a
+                  href={`/api/artifact/${m.artifactRef}?token=${token}`}
+                  target="_blank"
+                  rel="noreferrer"
+                  title={`evidence: ${m.artifactRef}`}
+                  className="underline"
+                >
+                  {m.label}
+                </a>
+              ) : (
+                m.label
+              )}{' '}
+              <ProvenanceBadge provenance={m.provenance} />
             </span>
           ))}
         </div>
       )}
 
       {decided ? (
-        <p className="mt-4 rounded-lg border border-ok/40 bg-ok/10 px-3 py-2.5 text-sm text-ok">
+        <p
+          className={`mt-4 rounded-lg border px-3 py-2.5 text-sm ${
+            decided.decision === 'approve'
+              ? 'border-ok/40 bg-ok/10 text-ok'
+              : 'border-line bg-surface2 text-text'
+          }`}
+        >
           {decided.decision.replace('_', ' ')} · logged — agent acts next session
           {decided.comment ? ` · "${decided.comment}"` : ''}
         </p>
@@ -156,7 +176,13 @@ export function GateCard({
           <summary className="cursor-pointer font-mono text-[11px] text-muted">
             {[
               payload?.reportMd ? 'report' : null,
-              view.tape?.length ? `tape (${view.tape.length})` : null,
+              view.tape?.length
+                ? `tape (${view.tape.filter((f) => f.exists).length}${
+                    view.tape.some((f) => !f.exists)
+                      ? `, ${view.tape.filter((f) => !f.exists).length} missing`
+                      : ''
+                  })`
+                : null,
             ]
               .filter(Boolean)
               .join(' + ')}{' '}

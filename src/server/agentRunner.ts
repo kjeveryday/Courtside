@@ -17,8 +17,10 @@ export type AgentRun = {
 
 const runs = new Map<string, AgentRun>();
 
-export function currentRuns(): AgentRun[] {
-  return [...runs.values()].filter((r) => r.status === 'running');
+// All runs this server has launched (last per target) — failures must be
+// visible on the dashboard, not only in a log file nobody is told about.
+export function allRuns(): AgentRun[] {
+  return [...runs.values()];
 }
 
 export function dispatchAgent(opts: {

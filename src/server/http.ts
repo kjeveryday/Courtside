@@ -12,7 +12,8 @@ import {
 } from '../core/decisions.ts';
 import { runDoctor } from '../core/doctor.ts';
 import { buildHuddle } from '../core/huddle.ts';
-import { currentRuns, dispatchAgent } from './agentRunner.ts';
+import { allRuns, dispatchAgent } from './agentRunner.ts';
+import { safeArtifactPath } from './artifacts.ts';
 import { extractToken, tokenEquals } from './auth.ts';
 import type { Db } from './db.ts';
 import { buildDirective } from './dispatch.ts';
@@ -51,6 +52,9 @@ export type HttpContext = {
   harness: boolean;
   agentCmd?: string;
   db: Db;
+  // push the current state to connected clients (wired by main once WS exists) —
+  // agent exits must show up without waiting for an unrelated file change
+  broadcast?: () => void;
   // extension point: TASK-16 mounts the harness-only agent-session route here
   extraRoutes?: (path: string, req: IncomingMessage, res: ServerResponse) => boolean;
 };
@@ -73,7 +77,11 @@ export function statePayload(ctx: HttpContext) {
     result,
     gates: gateViews(ctx.planDir, result.ok ? result.state : undefined),
     dispatches: pendingDispatches(ctx.planDir),
-    runningAgents: currentRuns(),
+    agentRuns: allRuns(),
+    // the server's own observed events (dispatches, agent runs, refusals) —
+    // the one stream Courtside truly verified, so the ticker must show it.
+    // Routine revalidation noise stays out of Kyle's feed.
+    serverEvents: ctx.db.recentEvents(12).filter((e) => e.kind !== 'state_change'),
   };
 }
 
@@ -160,12 +168,14 @@ export async function handleApi(ctx: HttpContext, req: IncomingMessage, res: Ser
         id: ruling.directive.id,
         instruction: ruling.directive.instruction,
         context: ruling.directive.context,
-        onExit: (run) =>
+        onExit: (run) => {
           ctx.db.insertEvent({
             kind: 'agent_run',
             provenance: 'verified',
             text: `agent ${run.status} on ${run.kind} ${run.id} (exit ${run.exitCode ?? '—'})`,
-          }),
+          });
+          ctx.broadcast?.(); // a dead agent must not keep wearing the running chip
+        },
       });
     }
     return json(res, 200, { ok: true, launched: Boolean(ctx.agentCmd) });
@@ -180,6 +190,14 @@ export async function handleApi(ctx: HttpContext, req: IncomingMessage, res: Ser
     const file = safeDocPath(ctx.planDir, path);
     if (!file || !existsSync(file)) return json(res, 404, { error: 'no such doc' });
     res.writeHead(200, { 'content-type': 'text/plain; charset=utf-8' });
+    return res.end(readFileSync(file));
+  }
+  if (req.method === 'GET' && path.startsWith('/api/artifact/')) {
+    const file = safeArtifactPath(ctx.planDir, path);
+    if (!file || !existsSync(file)) return json(res, 404, { error: 'no such artifact' });
+    res.writeHead(200, {
+      'content-type': MIME[extname(file)] ?? 'text/plain; charset=utf-8',
+    });
     return res.end(readFileSync(file));
   }
   if (ctx.extraRoutes?.(path, req, res)) return;

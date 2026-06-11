@@ -1,7 +1,13 @@
 // The ok-phase layout: scorebug on top, gate(s) + backlog in the main column,
 // progress / ticker / ledgers in the side column. Split from App (rule-12 size).
 import type { CourtsideState } from '../contract/state.generated';
-import { postDispatch, type GateView, type PendingDispatch, type RunningAgent } from '../lib/api';
+import {
+  postDispatch,
+  type AgentRun,
+  type GateView,
+  type PendingDispatch,
+  type ServerEvent,
+} from '../lib/api';
 import { Backlog } from './Backlog';
 import { GateCard } from './Gate';
 import { Ledgers } from './Ledgers';
@@ -16,7 +22,8 @@ export function Dashboard({
   gates,
   token,
   dispatches,
-  runningAgents,
+  agentRuns,
+  serverEvents,
   decisionError,
   onDecisionError,
   onOpenDoc,
@@ -25,20 +32,25 @@ export function Dashboard({
   gates: GateView[];
   token: string;
   dispatches: PendingDispatch[];
-  runningAgents: RunningAgent[];
+  agentRuns: AgentRun[];
+  serverEvents: ServerEvent[];
   decisionError: string;
   onDecisionError: (msg: string) => void;
   onOpenDoc: (ref: string) => void;
 }) {
   const pendingOrDecided = gates.filter((g) => g.gate.status === 'pending');
   const anyApproved = pendingOrDecided.some((g) => g.decided?.decision === 'approve');
+  const runOf = (kind: string, id: string) => agentRuns.find((r) => r.kind === kind && r.id === id);
   const dispatch: DispatchApi = {
-    stateOf: (kind, id) =>
-      runningAgents.some((r) => r.id === id && r.status === 'running')
-        ? 'running'
-        : dispatches.some((d) => d.kind === kind && d.id === id)
-          ? 'queued'
-          : 'idle',
+    stateOf: (kind, id) => {
+      const run = runOf(kind, id);
+      if (run?.status === 'running') return 'running';
+      const queued = dispatches.some((d) => d.kind === kind && d.id === id);
+      // a launch that died with its directive still in the inbox must say so
+      if (queued && run?.status === 'failed') return 'failed';
+      return queued ? 'queued' : 'idle';
+    },
+    runOf,
     send: (kind, id, answer, context) => postDispatch(token, { kind, id, answer, context }),
   };
   return (
@@ -68,7 +80,7 @@ export function Dashboard({
         </div>
         <aside>
           <Progress state={state} />
-          <Ticker events={state.events} />
+          <Ticker events={state.events} serverEvents={serverEvents} token={token} />
           <Ledgers state={state} dispatch={dispatch} />
         </aside>
       </div>

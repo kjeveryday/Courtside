@@ -63,7 +63,22 @@ export type GateView = {
 };
 
 export type PendingDispatch = { kind: 'task' | 'question'; id: string };
-export type RunningAgent = { id: string; kind: string; status: string };
+export type AgentRun = {
+  id: string;
+  kind: string;
+  startedAt: string;
+  status: 'running' | 'exited' | 'failed';
+  exitCode?: number;
+  logFile: string;
+};
+// Events the server observed itself (dispatches, agent runs, refusals) —
+// verified by construction, merged into the ticker alongside plan events.
+export type ServerEvent = {
+  ts: string;
+  kind: string;
+  provenance: 'verified' | 'claimed';
+  text: string;
+};
 
 export type StatePayload = {
   receivedAt: string;
@@ -72,7 +87,8 @@ export type StatePayload = {
   result: { ok: true; state: unknown } | { ok: false; errors: string[] };
   gates?: GateView[];
   dispatches?: PendingDispatch[];
-  runningAgents?: RunningAgent[];
+  agentRuns?: AgentRun[];
+  serverEvents?: ServerEvent[];
 };
 
 export async function postDispatch(

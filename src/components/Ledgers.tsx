@@ -37,7 +37,9 @@ function Row({
       <span className={`font-mono text-[10.5px] ${TONE_TEXT[tone]}`}>{note}</span>
     </div>
   );
-  if (!children) return <div className="border-b border-line last:border-b-0">{head}</div>;
+  // an empty list must not render as a clickable expander that opens onto nothing
+  if (!children || count === 0)
+    return <div className="border-b border-line last:border-b-0">{head}</div>;
   return (
     <details className="border-b border-line last:border-b-0">
       <summary className="cursor-pointer list-none">{head}</summary>
@@ -64,7 +66,13 @@ export function Ledgers({ state, dispatch }: { state: CourtsideState; dispatch?:
       <Row
         label="Open questions"
         count={open.length}
-        note={oldestOpen ? `oldest ${formatAgo(oldestOpen.openedAt)} — itching` : '—'}
+        note={
+          oldestOpen
+            ? `oldest ${formatAgo(oldestOpen.openedAt)}${
+                ageBucket(oldestOpen.openedAt) === 'risk' ? ' — itching' : ''
+              }`
+            : '—'
+        }
         tone={oldestOpen ? ageBucket(oldestOpen.openedAt) : 'muted'}
       >
         {open.map((q) => (
@@ -88,6 +96,7 @@ export function Ledgers({ state, dispatch }: { state: CourtsideState; dispatch?:
               <p className="mt-2">
                 <SendToAgent
                   state={dispatch.stateOf('question', q.id)}
+                  run={dispatch.runOf('question', q.id)}
                   options={q.options}
                   requireAnswer
                   onSend={(answer, context) => dispatch.send('question', q.id, answer, context)}
@@ -111,7 +120,7 @@ export function Ledgers({ state, dispatch }: { state: CourtsideState; dispatch?:
         ))}
       </Row>
       <Row
-        label="Decisions logged"
+        label="Recent decisions"
         count={decisions.length}
         note={lastDecision ? `last ${formatAgo(lastDecision.decidedAt)}` : '—'}
         tone="muted"

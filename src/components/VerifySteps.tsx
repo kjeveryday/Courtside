@@ -39,7 +39,11 @@ export function VerifySteps({
             {!s.checked && (
               <button
                 className="ml-auto font-mono text-[10px] text-muted underline"
-                onClick={() => patch(i, { skipping: !s.skipping })}
+                // collapsing the skip field withdraws the reason — a hidden
+                // reason must not keep counting the step as complete
+                onClick={() =>
+                  patch(i, s.skipping ? { skipping: false, skippedReason: '' } : { skipping: true })
+                }
               >
                 skip…
               </button>

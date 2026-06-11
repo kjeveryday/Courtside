@@ -51,8 +51,19 @@ export function Legend({ onClose }: { onClose: () => void }) {
         text="a gate: checkpoint G0–G5 · the task under review. G5 = finished work awaiting your verify"
       />
       <Term chip={dot('bg-info', 'narration')} text="ticker dot: the agent explaining itself" />
-      <Term chip={dot('bg-ok', 'test / lint')} text="ticker dot: tool output (verified)" />
-      <Term chip={dot('bg-accent', 'gate')} text="ticker dot: a gate event — usually you" />
+      <Term chip={dot('bg-ok', 'test / lint')} text="ticker dot: tool output" />
+      <Term
+        chip={dot('bg-accent', 'gate / dispatch')}
+        text="ticker dot: a gate or send-to-agent event — usually you"
+      />
+      <Term
+        chip={dot('bg-muted', 'push / audit / capture')}
+        text="ticker dot: repo and process events (pushes, self-audits, screenshots)"
+      />
+      <Term
+        chip={chip('text-info underline', 'evidence ▸')}
+        text="opens the file behind a ✓ — a test log, decision record, or capture"
+      />
       <Term
         chip={dot('bg-risk', 'itching')}
         text="age colors: red = open too long (3+ days) or stale state; gray = fresh enough"

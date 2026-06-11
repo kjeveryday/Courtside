@@ -4,6 +4,13 @@ import { cumulativeByDay } from '../lib/derive';
 
 function Sparkline({ points }: { points: { day: string; count: number }[] }) {
   if (points.length === 0) return <p className="text-xs text-muted">no decisions yet</p>;
+  // one day of data draws as an invisible dot — say what's true instead
+  if (points.length === 1)
+    return (
+      <p className="mt-1 text-xs text-muted">
+        {points[0]!.count} on one day — a trend needs a second day
+      </p>
+    );
   const max = points.at(-1)!.count;
   const w = 120;
   const h = 24;
@@ -43,7 +50,7 @@ export function Progress({ state }: { state: CourtsideState }) {
         </span>
       </div>
       <div className="mt-3 font-mono text-[10px] tracking-[0.12em] text-muted uppercase">
-        Decisions over time
+        Recent decisions over time
       </div>
       <Sparkline points={series} />
     </section>

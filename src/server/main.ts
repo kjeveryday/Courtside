@@ -79,6 +79,7 @@ export async function startServer(opts: StartOptions): Promise<RunningServer> {
   }
   const server = createServer(createHandler(ctx));
   const ws = attachWs(server, token);
+  ctx.broadcast = () => ws.broadcast({ kind: 'state', ...statePayload(ctx) });
 
   const watcher =
     (opts.watch ?? true)

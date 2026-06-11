@@ -34,6 +34,19 @@ export function kindColor(kind: EventKind): string {
   return KIND_COLORS[kind];
 }
 
+// Server-observed event kinds (ticker merge, TASK-28) — outside the schema enum
+// on purpose: these come from the Courtside db, not from state.json.
+const SERVER_KIND_COLORS: Record<string, string> = {
+  validation_failed: 'bg-risk',
+  dispatch: 'bg-accent',
+  agent_run: 'bg-info',
+  agent_session_sim: 'bg-muted',
+};
+
+export function serverKindColor(kind: string): string {
+  return SERVER_KIND_COLORS[kind] ?? 'bg-muted';
+}
+
 export function latestEventOfKind(
   events: readonly CourtsideEvent[],
   kind: EventKind,
