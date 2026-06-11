@@ -19,7 +19,10 @@ function Sparkline({ points }: { points: { day: string; count: number }[] }) {
 }
 
 export function Progress({ state }: { state: CourtsideState }) {
-  const sliceTasks = state.tasks.filter((t) => t.slice === state.slice);
+  // Active slice when it has tasks; otherwise the whole board (real projects
+  // often carry tasks across many slices).
+  const inSlice = state.tasks.filter((t) => t.slice === state.slice);
+  const sliceTasks = inSlice.length > 0 ? inSlice : state.tasks;
   const done = sliceTasks.filter((t) => t.status === 'done').length;
   const total = sliceTasks.length;
   const pct = total > 0 ? Math.round((done / total) * 100) : 0;

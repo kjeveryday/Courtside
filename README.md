@@ -15,6 +15,8 @@ every gate artifact preserved in [/plan](plan/)).
 npm install            # Node >= 24 required (node:sqlite + native TS)
 npm run dev            # builds UI, resets the demo fixture, starts the real server
                        #   → open the printed http://127.0.0.1:4310/?token=… link
+npm run dev:self       # the dashboard pointed at THIS repo's real plan -
+                       #   all 25 tasks + your live v0.1 review gate (G5-V0-1)
 npx courtside doctor   # the same checks the header badge runs (all green)
 npm run check          # codegen-drift + typecheck + lint + format + 52 tests
 ```

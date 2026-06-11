@@ -1,0 +1,349 @@
+{
+  "schema": "courtside/v0",
+  "phase": "5",
+  "slice": "refinements",
+  "generatedAt": "2026-06-10T23:30:00-05:00",
+  "agent": {
+    "state": "parked_at_gate",
+    "since": "2026-06-10T23:30:00-05:00",
+    "narration": "v0.1 built — 25 tasks across 8 slices, 59/59 tests. Parked for your end review at G5-V0-1.",
+    "currentTask": "TASK-25"
+  },
+  "gates": [
+    {
+      "id": "G5-V0-1",
+      "type": "task_review",
+      "status": "pending",
+      "postedAt": "2026-06-10T23:30:00-05:00",
+      "payloadRef": "plan/gates/G5-V0-1.json",
+      "verifySteps": [
+        {
+          "text": "Open the demo (npm run dev, token link): scorebug, gate card, backlog, ticker, ledgers all render from the sample project"
+        },
+        {
+          "text": "Run the gate loop: check 4 steps, Approve, then 'agent's next session' — page updates itself, no reload"
+        },
+        {
+          "text": "Send TASK-13 to the agent with context; answer Q-7 from the ledger — both land via 'agent's next session'"
+        },
+        {
+          "text": "Click a gdd.md source link — the doc opens at the named section; '?' legend reads sensibly"
+        },
+        {
+          "text": "This view (npm run dev:self): all 25 real tasks, real decisions and debt, this very gate"
+        }
+      ]
+    }
+  ],
+  "tasks": [
+    {
+      "id": "TASK-1",
+      "title": "Scaffold the harness app",
+      "status": "done",
+      "slice": "S1-walking-skeleton",
+      "sourceRef": "plan/specs/walking-skeleton.md#b1",
+      "visualCriterion": "Styled page at 127.0.0.1:4310",
+      "commit": "cd8c233"
+    },
+    {
+      "id": "TASK-2",
+      "title": "Contract pipeline: codegen, validator, tests",
+      "status": "done",
+      "slice": "S1-walking-skeleton",
+      "sourceRef": "plan/specs/walking-skeleton.md#b2",
+      "logicOnly": true,
+      "surfacesAt": "TASK-3",
+      "deps": ["TASK-1"],
+      "commit": "1fac2ed"
+    },
+    {
+      "id": "TASK-3",
+      "title": "Fixture status page with refusal state",
+      "status": "done",
+      "slice": "S1-walking-skeleton",
+      "sourceRef": "plan/specs/walking-skeleton.md#b4",
+      "visualCriterion": "Green validated view; red refusal on broken fixture",
+      "deps": ["TASK-2"],
+      "commit": "de062d4"
+    },
+    {
+      "id": "TASK-4",
+      "title": "Design language: tokens, vendored type, header",
+      "status": "done",
+      "slice": "S2-scorebug",
+      "sourceRef": "plan/specs/scorebug.md#b1",
+      "visualCriterion": "Dark branded page, Barlow/Plex type",
+      "deps": ["TASK-3"]
+    },
+    {
+      "id": "TASK-5",
+      "title": "Scorebug strip + provenance badges + helpers",
+      "status": "done",
+      "slice": "S2-scorebug",
+      "sourceRef": "plan/specs/scorebug.md#b3",
+      "visualCriterion": "Four-cell strip; claim vs verified badges",
+      "deps": ["TASK-4"]
+    },
+    {
+      "id": "TASK-6",
+      "title": "Ticker + layout grid",
+      "status": "done",
+      "slice": "S2-scorebug",
+      "sourceRef": "plan/specs/scorebug.md#b4",
+      "visualCriterion": "Event feed with kind dots",
+      "deps": ["TASK-5"]
+    },
+    {
+      "id": "TASK-7",
+      "title": "Backlog view with dependency strip",
+      "status": "done",
+      "slice": "S3-mission-control",
+      "sourceRef": "plan/specs/mission-control.md#b1",
+      "visualCriterion": "Tasks grouped by slice, drilldown",
+      "deps": ["TASK-6"]
+    },
+    {
+      "id": "TASK-8",
+      "title": "Progress card (milestone bar + sparkline)",
+      "status": "done",
+      "slice": "S3-mission-control",
+      "sourceRef": "plan/specs/mission-control.md#b2",
+      "visualCriterion": "Done/total bar",
+      "deps": ["TASK-7"]
+    },
+    {
+      "id": "TASK-9",
+      "title": "Ledgers + state freshness",
+      "status": "done",
+      "slice": "S3-mission-control",
+      "sourceRef": "plan/specs/mission-control.md#b3",
+      "visualCriterion": "Questions/debt/decisions with ages",
+      "deps": ["TASK-8"]
+    },
+    {
+      "id": "TASK-10",
+      "title": "Contract embed, engines bump, fixture project scaffold",
+      "status": "done",
+      "slice": "S4-live-wire",
+      "sourceRef": "plan/specs/live-wire.md#b1",
+      "logicOnly": true,
+      "surfacesAt": "TASK-11",
+      "deps": ["TASK-9"]
+    },
+    {
+      "id": "TASK-11",
+      "title": "Server core: token auth, static serve, /api/state",
+      "status": "done",
+      "slice": "S4-live-wire",
+      "sourceRef": "plan/specs/live-wire.md#b2",
+      "visualCriterion": "Token URL boots the real server; lockout without it",
+      "deps": ["TASK-10"]
+    },
+    {
+      "id": "TASK-12",
+      "title": "Watch → validate → WebSocket push + SQLite log",
+      "status": "done",
+      "slice": "S4-live-wire",
+      "sourceRef": "plan/specs/live-wire.md#b3",
+      "visualCriterion": "File edits update the page live",
+      "deps": ["TASK-11"]
+    },
+    {
+      "id": "TASK-13",
+      "title": "HMAC decision chain, decision writer, courtside lint",
+      "status": "done",
+      "slice": "S5-the-gate",
+      "sourceRef": "plan/specs/the-gate.md#b1",
+      "logicOnly": true,
+      "surfacesAt": "TASK-15",
+      "deps": ["TASK-12"]
+    },
+    {
+      "id": "TASK-14",
+      "title": "Decisions API with server-enforced rules",
+      "status": "done",
+      "slice": "S5-the-gate",
+      "sourceRef": "plan/specs/the-gate.md#b2",
+      "logicOnly": true,
+      "surfacesAt": "TASK-15",
+      "deps": ["TASK-13"]
+    },
+    {
+      "id": "TASK-15",
+      "title": "The Gate card: checklist, decide actions, async copy",
+      "status": "done",
+      "slice": "S5-the-gate",
+      "sourceRef": "plan/specs/the-gate.md#b3",
+      "visualCriterion": "Checklist unlocks Approve; decision settles the card",
+      "deps": ["TASK-14"]
+    },
+    {
+      "id": "TASK-16",
+      "title": "Agent-session simulator + browser-only cycle",
+      "status": "done",
+      "slice": "S5-the-gate",
+      "sourceRef": "plan/specs/the-gate.md#b4",
+      "visualCriterion": "Full async loop without a terminal",
+      "deps": ["TASK-15"]
+    },
+    {
+      "id": "TASK-17",
+      "title": "Doctor core + courtside CLI",
+      "status": "done",
+      "slice": "S6-pre-game",
+      "sourceRef": "plan/specs/pre-game.md#b1",
+      "visualCriterion": "npx courtside doctor table, exit codes",
+      "deps": ["TASK-16"]
+    },
+    {
+      "id": "TASK-18",
+      "title": "/api/doctor + preflight panel + health badge",
+      "status": "done",
+      "slice": "S6-pre-game",
+      "sourceRef": "plan/specs/pre-game.md#b2",
+      "visualCriterion": "Green dot; panel with fix-its",
+      "deps": ["TASK-17"]
+    },
+    {
+      "id": "TASK-19",
+      "title": "Game Tape viewer with missing/unverifiable state",
+      "status": "done",
+      "slice": "S7-tape-and-huddle",
+      "sourceRef": "plan/specs/tape-and-huddle.md#b1",
+      "visualCriterion": "Filmstrip; dashed tile for missing frames",
+      "deps": ["TASK-18"]
+    },
+    {
+      "id": "TASK-20",
+      "title": "The Huddle (Tier 1 deterministic briefing)",
+      "status": "done",
+      "slice": "S7-tape-and-huddle",
+      "sourceRef": "plan/specs/tape-and-huddle.md#b2",
+      "visualCriterion": "Since-you-last-looked facts",
+      "deps": ["TASK-19"]
+    },
+    {
+      "id": "TASK-21",
+      "title": "Ship-check vs PRD §12 criteria",
+      "status": "done",
+      "slice": "ship",
+      "sourceRef": "plan/backlog.md#ship-check-task-21--v01-cut-line",
+      "visualCriterion": "Fresh clone to all-green in 14s",
+      "deps": ["TASK-20"]
+    },
+    {
+      "id": "TASK-22",
+      "title": "Copy diet & dedupe (design review)",
+      "status": "done",
+      "slice": "refinements",
+      "sourceRef": "plan/gates/G5-TASK-22.md",
+      "visualCriterion": "Half the words; duplicate card gone; reset button",
+      "deps": ["TASK-21"]
+    },
+    {
+      "id": "TASK-23",
+      "title": "Activate the agent from the dashboard",
+      "status": "done",
+      "slice": "refinements",
+      "sourceRef": "plan/gates/G5-TASK-23.md",
+      "visualCriterion": "Send-to-agent with context; queued chips",
+      "deps": ["TASK-22"]
+    },
+    {
+      "id": "TASK-24",
+      "title": "Source-doc links + legend",
+      "status": "done",
+      "slice": "refinements",
+      "sourceRef": "plan/gates/G5-TASK-24.md",
+      "visualCriterion": "Refs open the doc at the section; ? legend",
+      "deps": ["TASK-23"]
+    },
+    {
+      "id": "TASK-25",
+      "title": "Remove risk tags (dashboard is for Kyle)",
+      "status": "done",
+      "slice": "refinements",
+      "sourceRef": "plan/decisions.md",
+      "visualCriterion": "No risk chips anywhere",
+      "deps": ["TASK-24"]
+    }
+  ],
+  "debt": [
+    {
+      "id": "D-2",
+      "text": "node:fs.watch recursive is unreliable on Linux; fine on macOS/Windows. Fix before any OSS release; doctor should warn on Linux.",
+      "incurredAt": "2026-06-10T18:00:00-05:00",
+      "taskId": "TASK-10"
+    }
+  ],
+  "decisions": [
+    {
+      "id": "DEC-20",
+      "text": "Autonomous mode: gates auto-approved with full paper trail",
+      "decidedAt": "2026-06-10T17:45:00-05:00",
+      "by": "human"
+    },
+    {
+      "id": "DEC-27",
+      "text": "v0.1 Courtside Lite complete — both ship criteria proven",
+      "decidedAt": "2026-06-10T19:00:00-05:00",
+      "by": "agent"
+    },
+    {
+      "id": "DEC-28",
+      "text": "Quality mandate: best tool wins, PRD/mock demoted to references",
+      "decidedAt": "2026-06-10T21:30:00-05:00",
+      "by": "human"
+    },
+    {
+      "id": "DEC-29",
+      "text": "Agent activation from the dashboard (dispatch + context, config-gated spawn)",
+      "decidedAt": "2026-06-10T22:15:00-05:00",
+      "by": "human"
+    },
+    {
+      "id": "DEC-30",
+      "text": "Source refs become real links; legend for all vocabulary",
+      "decidedAt": "2026-06-10T22:45:00-05:00",
+      "by": "human"
+    },
+    {
+      "id": "DEC-31",
+      "text": "The dashboard is for Kyle, not the agent — risk tags removed",
+      "decidedAt": "2026-06-10T23:10:00-05:00",
+      "by": "human"
+    }
+  ],
+  "events": [
+    {
+      "ts": "2026-06-10T23:30:00-05:00",
+      "kind": "gate",
+      "provenance": "verified",
+      "text": "G5-V0-1 posted — v0.1 end review parked for Kyle"
+    },
+    {
+      "ts": "2026-06-10T23:25:00-05:00",
+      "kind": "narration",
+      "provenance": "claimed",
+      "text": "Why: pointing Courtside at its own plan so the review happens in the tool. Next: your call at G5-V0-1."
+    },
+    {
+      "ts": "2026-06-10T23:10:00-05:00",
+      "kind": "test_run",
+      "provenance": "verified",
+      "text": "vitest: 59/59 across 17 files"
+    },
+    {
+      "ts": "2026-06-10T23:05:00-05:00",
+      "kind": "push",
+      "provenance": "verified",
+      "text": "branch courtside-lite-v0 pushed (TASK-25)"
+    },
+    {
+      "ts": "2026-06-10T19:00:00-05:00",
+      "kind": "audit",
+      "provenance": "claimed",
+      "text": "Ship-check: fresh clone to all-green doctor + 59/59 in 14 seconds"
+    }
+  ]
+}

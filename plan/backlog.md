@@ -398,3 +398,16 @@ bullets (card-shaped there; sources PRD F6/F7/F19, §5, R7, Q-6/Q-7 via DEC-24).
 - VISUAL CRITERION: no "risk:" anywhere on the dashboard.
 - Test approach: existing suite + grep · Dependencies: [TASK-24] · Risk-the-field: ironically, low
 - Status: done (2026-06-10 · report: this card) — awaiting Kyle's pass
+
+### [TASK-26] Dogfood view: Courtside watching its own plan (DEC-32)
+
+- Source: Kyle 2026-06-10 ("There should be a full task list somewhere for me to see and review")
+- Description: this repo gains a real plan/state.json (25 tasks, real decisions,
+  debt, events) + a live G5-V0-1 end-review gate with payload; `npm run dev:self`
+  boots the dashboard against it (COURTSIDE_PLAN_DIR override in the dev script);
+  Progress falls back to all-tasks when the active slice is empty; T35 keeps the
+  self state valid + lint-clean forever.
+- VISUAL CRITERION: `npm run dev:self` → all 25 real tasks grouped by slice, the
+  real ledger, and the v0.1 review as an approvable gate.
+- Test approach: T35 + live smoke · Dependencies: [TASK-25] · Risk: low
+- Status: done (2026-06-10) — **G5-V0-1 pending: Kyle's end review, in the tool**
