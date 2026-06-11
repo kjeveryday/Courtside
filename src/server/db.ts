@@ -40,6 +40,9 @@ export function openDb(path: string) {
     recentEvents(limit: number) {
       return recent.all(limit) as { ts: string; kind: string; provenance: string; text: string }[];
     },
+    clearEvents() {
+      db.exec('DELETE FROM events');
+    },
     getKv(key: string): string | undefined {
       const row = kvGet.get(key) as { value: string } | undefined;
       return row?.value;

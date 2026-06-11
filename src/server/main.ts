@@ -3,7 +3,7 @@
 // logging server-observed events to SQLite (verified provenance by construction).
 import { mkdirSync } from 'node:fs';
 import { createServer } from 'node:http';
-import { join } from 'node:path';
+import { dirname, join } from 'node:path';
 import { resetFixture, simulateAgentSession } from '../core/agentSession.ts';
 import { generateToken } from './auth.ts';
 import { openDb, type Db } from './db.ts';
@@ -34,7 +34,10 @@ const HOST = '127.0.0.1'; // security default, CLAUDE.md rule 15 — never confi
 
 export async function startServer(opts: StartOptions): Promise<RunningServer> {
   const distDir = opts.distDir ?? new URL('../../dist', import.meta.url).pathname;
-  const runtimeDir = opts.runtimeDir ?? new URL('../../.courtside', import.meta.url).pathname;
+  // Runtime state (decision chain, secret, db) lives NEXT TO the plan it serves:
+  // the demo fixture and the real project must never share an audit trail — a
+  // demo "reset" must not be able to touch real signed decisions.
+  const runtimeDir = opts.runtimeDir ?? join(dirname(opts.planDir), '.courtside');
   mkdirSync(runtimeDir, { recursive: true });
   const db = openDb(join(runtimeDir, 'courtside.db'));
 
@@ -67,6 +70,7 @@ export async function startServer(opts: StartOptions): Promise<RunningServer> {
       }
       if (req.method === 'POST' && path === '/api/dev/reset') {
         const seed = join(repoRoot, 'spec', 'fixtures', 'state.sample.json');
+        db.clearEvents(); // demo-scoped db — the reset story starts clean too
         json(res, 200, resetFixture(opts.planDir, runtimeDir, seed));
         return true;
       }

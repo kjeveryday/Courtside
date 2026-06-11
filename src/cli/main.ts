@@ -1,6 +1,7 @@
 // `courtside` CLI (DEC-5: repo-local bin): doctor (default) · lint · dev.
 // Same check engine as the UI — one implementation, two surfaces (F0).
 import { existsSync } from 'node:fs';
+import { dirname, join } from 'node:path';
 import { resolvePlanDir } from '../server/config.ts';
 import { lintPlan } from '../core/lint.ts';
 import { runDoctor } from '../core/doctor.ts';
@@ -10,7 +11,6 @@ const ICONS = { pass: '✓', warn: '!', fail: '✗', skip: '–' } as const;
 export async function cli(argv: string[]): Promise<number> {
   const cmd = argv.find((a) => !a.startsWith('-')) ?? 'doctor';
   const repoRoot = process.cwd();
-  const runtimeDir = `${repoRoot}/.courtside`;
   let planDir: string;
   try {
     planDir = resolvePlanDir(argv, process.env, repoRoot);
@@ -31,6 +31,9 @@ export async function cli(argv: string[]): Promise<number> {
       return 1;
     }
   }
+  // Same isolation rule as the server: runtime state sits next to the plan it
+  // belongs to, so checking the demo never reads (or risks) the real chain.
+  const runtimeDir = join(dirname(planDir), '.courtside');
 
   if (cmd === 'dev') {
     // @ts-expect-error — side-effect import of the plain-JS boot script (AD-2);

@@ -9,7 +9,9 @@ const seed = new URL('../spec/fixtures/state.sample.json', import.meta.url);
 const planDir = new URL('../spec/fixtures/sample-project/plan/', import.meta.url);
 
 // Full demo reset on every boot: state from seed, decision artifacts cleared —
-// each `npm run dev` starts the story at "gate pending, your call".
+// each `npm run dev` starts the story at "gate pending, your call". The fixture's
+// own runtime dir (demo chain/db — never the real project's) goes with it.
+rmSync(new URL('../.courtside/', planDir), { recursive: true, force: true });
 rmSync(new URL('decisions-inbox/', planDir), { recursive: true, force: true });
 rmSync(new URL('decisions.md', planDir), { force: true });
 for (const sub of ['', 'gates', 'tape/TASK-12', 'artifacts', 'decisions-inbox']) {
