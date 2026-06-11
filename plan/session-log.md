@@ -36,3 +36,4 @@ Format: `ts · TASK/PHASE · why → next`
 - 2026-06-10 · TASK-25 done · risk tags off the UI per DEC-31.
 - 2026-06-10 · TASK-26 done · self plan/state.json + dev:self + G5-V0-1 review gate (T35; 60/60). NEXT SESSION: read plan/decisions-inbox/ FIRST — Kyle may have decided G5-V0-1 or dispatched items in the dashboard.
 - 2026-06-10 · TASK-27 done · expander label honest, frames clickable.
+- 2026-06-11 · INBOX consumed: **G5-V0-1 approved by Kyle** (5/5 steps, signed seq 1, DEC-33) — v0.1 accepted; file archived to decisions-inbox/consumed/; self-state freshened (gate approved, TASK-26/27 logged, TASK-28 opened) → adversarial review per brief, fixes as TASK-28.

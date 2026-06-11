@@ -2,18 +2,18 @@
   "schema": "courtside/v0",
   "phase": "5",
   "slice": "refinements",
-  "generatedAt": "2026-06-10T23:30:00-05:00",
+  "generatedAt": "2026-06-11T12:49:00.000Z",
   "agent": {
-    "state": "parked_at_gate",
-    "since": "2026-06-10T23:30:00-05:00",
-    "narration": "v0.1 built — 25 tasks across 8 slices, 59/59 tests. Parked for your end review at G5-V0-1.",
-    "currentTask": "TASK-25"
+    "state": "working",
+    "since": "2026-06-11T12:49:00.000Z",
+    "narration": "Acting on your approval of G5-V0-1: adversarial review of the dashboard — fixes land as TASK-28.",
+    "currentTask": "TASK-28"
   },
   "gates": [
     {
       "id": "G5-V0-1",
       "type": "task_review",
-      "status": "pending",
+      "status": "approved",
       "postedAt": "2026-06-10T23:30:00-05:00",
       "payloadRef": "plan/gates/G5-V0-1.json",
       "verifySteps": [
@@ -266,6 +266,35 @@
       "sourceRef": "plan/decisions.md",
       "visualCriterion": "No risk chips anywhere",
       "deps": ["TASK-24"]
+    },
+    {
+      "id": "TASK-26",
+      "title": "Dogfood view: Courtside watches its own plan",
+      "status": "done",
+      "slice": "refinements",
+      "sourceRef": "plan/backlog.md",
+      "visualCriterion": "dev:self shows the real plan and the live review gate",
+      "deps": ["TASK-25"],
+      "commit": "2cb7004"
+    },
+    {
+      "id": "TASK-27",
+      "title": "Honest gate expander label; tape frames open full-size",
+      "status": "done",
+      "slice": "refinements",
+      "sourceRef": "plan/backlog.md",
+      "visualCriterion": "Expander names only what it contains; frames click open",
+      "deps": ["TASK-26"],
+      "commit": "f8073a8"
+    },
+    {
+      "id": "TASK-28",
+      "title": "Adversarial review: find and fix the small lies",
+      "status": "in-progress",
+      "slice": "refinements",
+      "sourceRef": "plan/adversarial-brief.md",
+      "visualCriterion": "Reviewer findings fixed in both views",
+      "deps": ["TASK-27"]
     }
   ],
   "debt": [
@@ -312,9 +341,33 @@
       "text": "The dashboard is for Kyle, not the agent — risk tags removed",
       "decidedAt": "2026-06-10T23:10:00-05:00",
       "by": "human"
+    },
+    {
+      "id": "DEC-32",
+      "text": "Dogfood: Courtside watches its own plan; the v0.1 review is gate G5-V0-1",
+      "decidedAt": "2026-06-10T23:30:00-05:00",
+      "by": "human"
+    },
+    {
+      "id": "DEC-33",
+      "text": "G5-V0-1 approved — v0.1 accepted (5/5 steps verified, signed seq 1)",
+      "decidedAt": "2026-06-11T02:42:40.471Z",
+      "by": "human"
     }
   ],
   "events": [
+    {
+      "ts": "2026-06-11T12:49:00.000Z",
+      "kind": "narration",
+      "provenance": "claimed",
+      "text": "Why: your approval closes the v0.1 review. Next: adversarial review hunts small lies; fixes land as TASK-28."
+    },
+    {
+      "ts": "2026-06-11T12:49:00.000Z",
+      "kind": "gate",
+      "provenance": "verified",
+      "text": "G5-V0-1 approved by human — inbox consumed (signed seq 1)"
+    },
     {
       "ts": "2026-06-10T23:30:00-05:00",
       "kind": "gate",
