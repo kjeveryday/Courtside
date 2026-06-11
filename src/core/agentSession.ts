@@ -25,10 +25,16 @@ export function resetFixture(planDir: string, runtimeDir: string, seedPath: stri
 }
 
 type Inbox = {
-  gateId: string;
+  schema?: string;
+  gateId?: string;
   taskId?: string;
-  decision: 'approve' | 'reject' | 'request_changes';
+  decision?: 'approve' | 'reject' | 'request_changes';
   comment?: string;
+  // directive/answer fields (DEC-29)
+  kind?: 'task' | 'question';
+  id?: string;
+  answer?: string;
+  context?: string;
 };
 
 export type SessionSummary = { consumed: number; actions: string[] };
@@ -53,8 +59,54 @@ export function simulateAgentSession(planDir: string): SessionSummary {
     text: string,
   ) => state.events.unshift({ ts: now(), kind, provenance, text });
 
+  let consumedCount = 0;
+  const consume = (file: string) => {
+    consumedCount += 1;
+    const consumedDir = join(inboxDir, 'consumed');
+    mkdirSync(consumedDir, { recursive: true });
+    renameSync(join(inboxDir, file), join(consumedDir, file));
+  };
+
   for (const file of files) {
     const inbox = JSON.parse(readFileSync(join(inboxDir, file), 'utf-8')) as Inbox;
+
+    // Dashboard directives (DEC-29): task dispatches and question answers.
+    if (inbox.schema === 'courtside/directive-v0' && inbox.kind === 'task') {
+      const task = state.tasks.find((t) => t.id === inbox.id);
+      if (task) task.status = 'in-progress';
+      state.agent = {
+        state: 'working',
+        since: now(),
+        narration: `Working ${inbox.id} per your dispatch${inbox.context ? `: "${inbox.context}"` : ''}.`,
+        currentTask: inbox.id,
+      };
+      pushEvent('narration', 'claimed', state.agent.narration ?? '');
+      actions.push(`dispatched ${inbox.id} → in-progress`);
+      consume(file);
+      continue;
+    }
+    if (inbox.schema === 'courtside/answer-v0' && inbox.kind === 'question') {
+      const q = (state.questions ?? []).find((x) => x.id === inbox.id);
+      if (q) {
+        q.status = 'answered';
+        q.answerRef = `decisions-inbox/consumed/${file}`;
+      }
+      state.agent = {
+        ...state.agent,
+        state: 'working',
+        since: now(),
+        narration: `Acting on your answer to ${inbox.id}: "${inbox.answer ?? ''}"${q?.blocking?.length ? ` — unblocks ${q.blocking.join(', ')}` : ''}.`,
+      };
+      pushEvent('narration', 'claimed', state.agent.narration ?? '');
+      actions.push(`answered ${inbox.id}`);
+      consume(file);
+      continue;
+    }
+
+    if (!inbox.decision || !inbox.gateId) {
+      actions.push(`left unrecognized inbox file alone: ${file}`);
+      continue;
+    }
     const gate = state.gates.find((g) => g.id === inbox.gateId);
     const task = state.tasks.find((t) => t.id === (inbox.taskId ?? gate?.taskId));
 
@@ -90,13 +142,10 @@ export function simulateAgentSession(planDir: string): SessionSummary {
       pushEvent('narration', 'claimed', state.agent.narration ?? '');
       actions.push(`${inbox.decision} ${inbox.gateId} → ${task?.id ?? '?'} revise`);
     }
-
-    const consumedDir = join(inboxDir, 'consumed');
-    mkdirSync(consumedDir, { recursive: true });
-    renameSync(join(inboxDir, file), join(consumedDir, file));
+    consume(file);
   }
 
   state.generatedAt = now();
   writeFileSync(statePath, JSON.stringify(state, null, 2));
-  return { consumed: files.length, actions };
+  return { consumed: consumedCount, actions };
 }

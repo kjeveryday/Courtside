@@ -12,6 +12,7 @@ import { NextUp } from './components/NextUp';
 import { Progress } from './components/Progress';
 import { Scorebug } from './components/Scorebug';
 import { LockedOut, RefusalState } from './components/Screens';
+import type { DispatchApi } from './components/SendToAgent';
 import { Ticker } from './components/Ticker';
 import type { CourtsideState } from './contract/state.generated';
 import { validateState } from './contract/validate';
@@ -21,7 +22,10 @@ import {
   fetchDoctor,
   fetchHuddle,
   fetchState,
+  postDispatch,
   type GateView,
+  type PendingDispatch,
+  type RunningAgent,
   type StatePayload,
   type WsStatus,
 } from './lib/api';
@@ -29,7 +33,15 @@ import {
 type LoadState =
   | { phase: 'loading' }
   | { phase: 'locked'; detail: string }
-  | { phase: 'ok'; state: CourtsideState; gates: GateView[]; token: string; harness: boolean }
+  | {
+      phase: 'ok';
+      state: CourtsideState;
+      gates: GateView[];
+      token: string;
+      harness: boolean;
+      dispatches: PendingDispatch[];
+      runningAgents: RunningAgent[];
+    }
   | { phase: 'refused'; errors: string[] };
 
 export default function App() {
@@ -56,7 +68,7 @@ export default function App() {
     const token = ensureToken();
     // One trust path for first fetch and every live push: validate locally,
     // render fully or refuse (PRD §5).
-    const applyPayload = ({ result, gates, harness }: StatePayload) => {
+    const applyPayload = ({ result, gates, harness, dispatches, runningAgents }: StatePayload) => {
       if (token) refreshDoctor(token); // health decays live (F0)
       if (!result.ok) return apply({ phase: 'refused', errors: result.errors });
       const checked = validateState(result.state);
@@ -67,6 +79,8 @@ export default function App() {
           gates: gates ?? [],
           token: token ?? '',
           harness: harness ?? false,
+          dispatches: dispatches ?? [],
+          runningAgents: runningAgents ?? [],
         });
       else apply({ phase: 'refused', errors: checked.errors });
     };
@@ -134,6 +148,8 @@ export default function App() {
             state={load.state}
             gates={load.gates}
             token={load.token}
+            dispatches={load.dispatches}
+            runningAgents={load.runningAgents}
             decisionError={decisionError}
             onDecisionError={setDecisionError}
           />
@@ -149,17 +165,30 @@ function ValidState({
   state,
   gates,
   token,
+  dispatches,
+  runningAgents,
   decisionError,
   onDecisionError,
 }: {
   state: CourtsideState;
   gates: GateView[];
   token: string;
+  dispatches: PendingDispatch[];
+  runningAgents: RunningAgent[];
   decisionError: string;
   onDecisionError: (msg: string) => void;
 }) {
   const pendingOrDecided = gates.filter((g) => g.gate.status === 'pending');
   const anyApproved = pendingOrDecided.some((g) => g.decided?.decision === 'approve');
+  const dispatch: DispatchApi = {
+    stateOf: (kind, id) =>
+      runningAgents.some((r) => r.id === id && r.status === 'running')
+        ? 'running'
+        : dispatches.some((d) => d.kind === kind && d.id === id)
+          ? 'queued'
+          : 'idle',
+    send: (kind, id, answer, context) => postDispatch(token, { kind, id, answer, context }),
+  };
   return (
     <section>
       <Scorebug state={state} />
@@ -180,12 +209,12 @@ function ValidState({
             />
           ))}
           {pendingOrDecided.length > 0 && <NextUp state={state} gateApproved={anyApproved} />}
-          <Backlog tasks={state.tasks} />
+          <Backlog tasks={state.tasks} dispatch={dispatch} />
         </div>
         <aside>
           <Progress state={state} />
           <Ticker events={state.events} />
-          <Ledgers state={state} />
+          <Ledgers state={state} dispatch={dispatch} />
         </aside>
       </div>
     </section>

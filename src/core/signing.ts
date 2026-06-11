@@ -8,9 +8,9 @@ import { join } from 'node:path';
 export type DecisionBody = {
   seq: number;
   ts: string;
-  gateId: string;
+  gateId: string; // the object acted on: gate id, task id, or question id
   taskId?: string;
-  decision: 'approve' | 'reject' | 'request_changes';
+  decision: 'approve' | 'reject' | 'request_changes' | 'dispatch' | 'answer';
   comment: string;
   steps: { text: string; checked?: boolean; skippedReason?: string }[];
 };

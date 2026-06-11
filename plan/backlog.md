@@ -353,3 +353,23 @@ bullets (card-shaped there; sources PRD F6/F7/F19, §5, R7, Q-6/Q-7 via DEC-24).
 - Test approach: T30 (resetFixture) + existing suite + Kyle's eyes
 - Dependencies: [TASK-21] · Risk: low
 - Status: done (2026-06-10 · report: [gates/G5-TASK-22.md](gates/G5-TASK-22.md)) — awaiting Kyle's visual pass
+
+### [TASK-23] Activate the agent from the dashboard (DEC-29)
+
+- Source: Kyle's directive 2026-06-10 ("buttons to activate agents with the option
+  to include additional context"); DEC-29
+- Description: send-to-agent buttons on backlog tasks and open questions; optional
+  context field; signed directives into the decisions-inbox; config-gated real
+  agent launch; demo loop consumes dispatches like a real session.
+- Acceptance criteria: dispatchable tasks (todo/revise/blocked) and open questions
+  carry the control; questions require an answer (option click or written);
+  directives are chain-signed alongside decisions (mixed chain verifies, T32);
+  invalid targets refused server-side (T31); queued/running chips render from the
+  payload; with COURTSIDE_AGENT_CMD set, dispatch spawns the agent and captures
+  its output to .courtside/runs/ (stub-proven, T33); without it, dispatch queues
+  for the next session; the demo's "agent's next session ▸" consumes both kinds.
+- VISUAL CRITERION: expand a todo task or Q-7 → "send to agent ▸" → context →
+  send → chip "in agent inbox ▸ next session" → run the session → the page shows
+  the agent acting on exactly that item, your context echoed in its narration.
+- Test approach: unit/integration T31–T33 + manual · Dependencies: [TASK-22] · Risk: med
+- Status: done (2026-06-10 · report: [gates/G5-TASK-23.md](gates/G5-TASK-23.md)) — awaiting Kyle's pass

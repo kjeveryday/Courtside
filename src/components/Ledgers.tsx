@@ -3,6 +3,7 @@
 import type { CourtsideState } from '../contract/state.generated';
 import { ageBucket, freshness, type Tone } from '../lib/derive';
 import { formatAgo } from '../lib/format';
+import { SendToAgent, type DispatchApi } from './SendToAgent';
 
 const TONE_TEXT: Record<Tone, string> = {
   ok: 'text-ok',
@@ -45,7 +46,7 @@ function Row({
   );
 }
 
-export function Ledgers({ state }: { state: CourtsideState }) {
+export function Ledgers({ state, dispatch }: { state: CourtsideState; dispatch?: DispatchApi }) {
   const questions = state.questions ?? [];
   const debt = state.debt ?? [];
   const decisions = state.decisions ?? [];
@@ -83,6 +84,16 @@ export function Ledgers({ state }: { state: CourtsideState }) {
               opened {formatAgo(q.openedAt)}
               {q.blocking?.length ? ` · blocking ${q.blocking.join(', ')}` : ''}
             </p>
+            {dispatch && (
+              <p className="mt-2">
+                <SendToAgent
+                  state={dispatch.stateOf('question', q.id)}
+                  options={q.options}
+                  requireAnswer
+                  onSend={(answer, context) => dispatch.send('question', q.id, answer, context)}
+                />
+              </p>
+            )}
           </div>
         ))}
       </Row>

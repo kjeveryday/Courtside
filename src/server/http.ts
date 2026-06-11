@@ -4,11 +4,13 @@ import { existsSync, readFileSync } from 'node:fs';
 import type { IncomingMessage, ServerResponse } from 'node:http';
 import { extname, join, normalize } from 'node:path';
 import { safeTapePath } from './tape.ts';
-import { readDecisionLog } from '../core/decisions.ts';
+import { appendDirective, pendingDispatches, readDecisionLog } from '../core/decisions.ts';
 import { runDoctor } from '../core/doctor.ts';
 import { buildHuddle } from '../core/huddle.ts';
+import { currentRuns, dispatchAgent } from './agentRunner.ts';
 import { extractToken, tokenEquals } from './auth.ts';
 import type { Db } from './db.ts';
+import { buildDirective } from './dispatch.ts';
 import { decideGate, gateViews, type DecisionRequest } from './gates.ts';
 import { readState } from './state.ts';
 
@@ -41,6 +43,7 @@ export type HttpContext = {
   repoRoot: string;
   token: string;
   harness: boolean;
+  agentCmd?: string;
   db: Db;
   // extension point: TASK-16 mounts the harness-only agent-session route here
   extraRoutes?: (path: string, req: IncomingMessage, res: ServerResponse) => boolean;
@@ -60,8 +63,11 @@ export function statePayload(ctx: HttpContext) {
   return {
     receivedAt: new Date().toISOString(),
     harness: ctx.harness,
+    agentConfigured: Boolean(ctx.agentCmd),
     result,
     gates: gateViews(ctx.planDir, result.ok ? result.state : undefined),
+    dispatches: pendingDispatches(ctx.planDir),
+    runningAgents: currentRuns(),
   };
 }
 
@@ -118,6 +124,42 @@ export async function handleApi(ctx: HttpContext, req: IncomingMessage, res: Ser
     );
     if (ruling.status === 200) return json(res, 200, { ok: true, seq: ruling.seq });
     return json(res, ruling.status, { error: ruling.error });
+  }
+  if (req.method === 'POST' && path === '/api/dispatch') {
+    let body: { kind?: string; id?: string; answer?: string; context?: string };
+    try {
+      body = (await readBody(req)) as typeof body;
+    } catch (err) {
+      return json(res, 400, { error: `bad request body: ${(err as Error).message}` });
+    }
+    const result = readState(ctx.planDir);
+    if (!result.ok) return json(res, 409, { error: 'state invalid — fix it before dispatching' });
+    const ruling = buildDirective(result.state, body);
+    if ('error' in ruling) return json(res, ruling.status, { error: ruling.error });
+    appendDirective({ planDir: ctx.planDir, runtimeDir: ctx.runtimeDir, ...ruling.directive });
+    ctx.db.insertEvent({
+      kind: 'dispatch',
+      provenance: 'verified',
+      text: `${ruling.directive.kind} ${ruling.directive.id} sent to agent${ctx.agentCmd ? ' (launching)' : ' (queued for next session)'}`,
+    });
+    if (ctx.agentCmd) {
+      dispatchAgent({
+        agentCmd: ctx.agentCmd,
+        cwd: ctx.repoRoot,
+        runtimeDir: ctx.runtimeDir,
+        kind: ruling.directive.kind,
+        id: ruling.directive.id,
+        instruction: ruling.directive.instruction,
+        context: ruling.directive.context,
+        onExit: (run) =>
+          ctx.db.insertEvent({
+            kind: 'agent_run',
+            provenance: 'verified',
+            text: `agent ${run.status} on ${run.kind} ${run.id} (exit ${run.exitCode ?? '—'})`,
+          }),
+      });
+    }
+    return json(res, 200, { ok: true, launched: Boolean(ctx.agentCmd) });
   }
   if (req.method === 'GET' && path.startsWith('/api/tape/')) {
     const file = safeTapePath(ctx.planDir, path);

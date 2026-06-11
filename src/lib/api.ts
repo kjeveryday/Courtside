@@ -60,12 +60,36 @@ export type GateView = {
   tape?: TapeFrameView[];
 };
 
+export type PendingDispatch = { kind: 'task' | 'question'; id: string };
+export type RunningAgent = { id: string; kind: string; status: string };
+
 export type StatePayload = {
   receivedAt: string;
   harness?: boolean;
+  agentConfigured?: boolean;
   result: { ok: true; state: unknown } | { ok: false; errors: string[] };
   gates?: GateView[];
+  dispatches?: PendingDispatch[];
+  runningAgents?: RunningAgent[];
 };
+
+export async function postDispatch(
+  token: string,
+  body: { kind: 'task' | 'question'; id: string; answer?: string; context?: string },
+): Promise<string | null> {
+  try {
+    const res = await fetch('/api/dispatch', {
+      method: 'POST',
+      headers: { authorization: `Bearer ${token}`, 'content-type': 'application/json' },
+      body: JSON.stringify(body),
+    });
+    if (res.ok) return null;
+    const data = (await res.json().catch(() => ({}))) as { error?: string };
+    return data.error ?? `HTTP ${res.status}`;
+  } catch (err) {
+    return err instanceof Error ? err.message : String(err);
+  }
+}
 
 export type DecisionPost = {
   gateId: string;

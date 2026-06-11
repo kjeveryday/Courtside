@@ -2,8 +2,10 @@
 // criterion, expandable full card, dependency arrow strip (depsDepth).
 import type { CourtsideState } from '../contract/state.generated';
 import { depsDepth } from '../lib/derive';
+import { SendToAgent, type DispatchApi } from './SendToAgent';
 
 type Task = CourtsideState['tasks'][number];
+const DISPATCHABLE = new Set<Task['status']>(['todo', 'revise', 'blocked']);
 
 const STATUS_TONE: Record<Task['status'], string> = {
   done: 'bg-ok/15 text-ok',
@@ -28,7 +30,8 @@ function Chip({ tone, children }: { tone: string; children: React.ReactNode }) {
   );
 }
 
-function TaskRow({ task }: { task: Task }) {
+function TaskRow({ task, dispatch }: { task: Task; dispatch?: DispatchApi }) {
+  const dispatchable = dispatch && DISPATCHABLE.has(task.status);
   return (
     <details className="group mb-2 rounded-lg border border-line bg-bg">
       <summary className="flex cursor-pointer list-none flex-wrap items-center gap-2.5 px-3 py-2.5">
@@ -58,12 +61,26 @@ function TaskRow({ task }: { task: Task }) {
           {task.deps?.length ? ` · deps ${task.deps.join(', ')}` : ''}
           {task.commit ? ` · commit ${task.commit}` : ''}
         </p>
+        {dispatchable && (
+          <p className="mt-2">
+            <SendToAgent
+              state={dispatch.stateOf('task', task.id)}
+              onSend={(answer, context) => dispatch.send('task', task.id, answer, context)}
+            />
+          </p>
+        )}
       </div>
     </details>
   );
 }
 
-export function Backlog({ tasks }: { tasks: CourtsideState['tasks'] }) {
+export function Backlog({
+  tasks,
+  dispatch,
+}: {
+  tasks: CourtsideState['tasks'];
+  dispatch?: DispatchApi;
+}) {
   const slices = [...new Set(tasks.map((t) => t.slice ?? 'unsliced'))];
   return (
     <section className="mt-5 rounded-card border border-line bg-surface p-5">
@@ -82,7 +99,7 @@ export function Backlog({ tasks }: { tasks: CourtsideState['tasks'] }) {
               {slice} · {ordered.map((t) => t.id).join(' → ')}
             </p>
             {ordered.map((t) => (
-              <TaskRow key={t.id} task={t} />
+              <TaskRow key={t.id} task={t} dispatch={dispatch} />
             ))}
           </div>
         );

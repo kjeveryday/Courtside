@@ -20,6 +20,7 @@ export type StartOptions = {
   announce?: boolean;
   watch?: boolean;
   watchDebounceMs?: number;
+  agentCmd?: string; // DEC-29: enables real agent launch on dispatch
 };
 
 export type RunningServer = {
@@ -47,6 +48,7 @@ export async function startServer(opts: StartOptions): Promise<RunningServer> {
     repoRoot,
     token,
     harness,
+    agentCmd: opts.agentCmd ?? process.env.COURTSIDE_AGENT_CMD,
     db,
   };
   if (harness) {
