@@ -536,3 +536,21 @@ bullets (card-shaped there; sources PRD F6/F7/F19, §5, R7, Q-6/Q-7 via DEC-24).
   verbatim-paste (101/101); 9-step live ws smoke · Dependencies: [TASK-31] ·
   Risk: low
 - Status: done (2026-06-11 · report: [gates/G5-TASK-32.md](gates/G5-TASK-32.md)) — awaiting Kyle's pass
+
+### [TASK-33] Debt paydown: persisted agent runs; routes split; Linux note
+
+- Source: Kyle 2026-06-11 ("Let's finish up the build") — finishing means the
+  debt ledger gets paid or honestly downgraded, per its own rows.
+- Description: **D-3 resolved** — finished agent runs persist to the runtime
+  db (deliberately never "running": a stale running chip from a dead server
+  would lie); a failed launch now survives a server restart, proven by T45
+  booting a second server on the same runtime. **D-4 resolved** — http.ts
+  split into context/helpers (77 lines) + routes.ts (the one coherent API
+  surface); App.tsx stays whole as the shell. **D-2 downgraded** — Node ≥24
+  (our engines floor) documents recursive fs.watch on Linux since v19.1; the
+  residual is one Linux smoke before OSS, named in the ledger.
+- VISUAL CRITERION: with an agent command set, a failed dispatch keeps its
+  red "agent run failed (exit n)" chip even after restarting `npm run dev`.
+- Test approach: T45 persistence ×2 incl. restart-survival (103/103) ·
+  Dependencies: [TASK-32] · Risk: low
+- Status: done (2026-06-11 · report: [gates/G5-TASK-33.md](gates/G5-TASK-33.md)) — awaiting Kyle's pass

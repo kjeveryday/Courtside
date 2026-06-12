@@ -5,6 +5,7 @@
 import { spawn } from 'node:child_process';
 import { createWriteStream, mkdirSync } from 'node:fs';
 import { join } from 'node:path';
+import type { Db } from './db.ts';
 
 export type AgentRun = {
   id: string;
@@ -17,10 +18,32 @@ export type AgentRun = {
 
 const runs = new Map<string, AgentRun>();
 
-// All runs this server has launched (last per target) — failures must be
-// visible on the dashboard, not only in a log file nobody is told about.
-export function allRuns(): AgentRun[] {
-  return [...runs.values()];
+// Finished runs persist in the runtime db (D-3): a server restart must not
+// silently downgrade a failed launch back to "in agent inbox". Only finished
+// runs are stored — a stale "running" from a dead server would be a lie.
+const KV_KEY = 'agent_runs';
+
+export function persistRun(db: Db, run: AgentRun) {
+  if (run.status === 'running') return;
+  const rest = persistedRuns(db).filter((r) => !(r.kind === run.kind && r.id === run.id));
+  db.setKv(KV_KEY, JSON.stringify([...rest, run].slice(-20)));
+}
+
+export function persistedRuns(db: Db): AgentRun[] {
+  try {
+    return JSON.parse(db.getKv(KV_KEY) ?? '[]') as AgentRun[];
+  } catch {
+    return [];
+  }
+}
+
+// All runs visible to the dashboard: live ones first, then finished runs
+// remembered from earlier boots (memory wins per target).
+export function allRuns(db?: Db): AgentRun[] {
+  const mem = [...runs.values()];
+  if (!db) return mem;
+  const seen = new Set(mem.map((r) => `${r.kind}:${r.id}`));
+  return [...mem, ...persistedRuns(db).filter((r) => !seen.has(`${r.kind}:${r.id}`))];
 }
 
 export function dispatchAgent(opts: {
