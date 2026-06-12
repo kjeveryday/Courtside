@@ -8,8 +8,8 @@ every gate artifact preserved in [/plan](plan/)).
 
 > **Status:** v0.1 **approved by Kyle inside the dashboard itself** (gate G5-V0-1,
 > 5/5 verify steps, signed — DEC-33) · refinements continue on `courtside-lite-v0`
-> (latest: TASK-30 **Ask Courtside** live Q&A; TASK-28 fixed all 24 adversarial
-> findings).
+> (latest: TASK-31 **pre-game setup wizard** + TASK-30 **Ask Courtside** live Q&A;
+> TASK-28 fixed all 24 adversarial findings).
 
 ## Run it (60 seconds)
 
@@ -18,9 +18,11 @@ npm install            # Node >= 24 required (node:sqlite + native TS)
 npm run dev            # builds UI, resets the demo fixture, starts the real server
                        #   → open the printed http://127.0.0.1:4310/?token=… link
 npm run dev:self       # the dashboard pointed at THIS repo's real plan -
-                       #   all 28 tasks, the decided v0.1 review gate, real ledgers
+                       #   all 31 tasks, the decided v0.1 review gate, real ledgers
+npm run dev:new        # the PRE-GAME SETUP WIZARD on a scratch project -
+                       #   a few answers stand up config, plan, gdd, and rules
 npx courtside doctor   # the same checks the header badge runs (all green)
-npm run check          # codegen-drift + typecheck + lint + format + 85 tests
+npm run check          # codegen-drift + typecheck + lint + format + 95 tests
 ```
 
 The harness serves the **sample fixture project** (a Godot game mid-Phase-5,
@@ -58,8 +60,8 @@ only, live WebSocket updates, SQLite event log, HMAC-signed decisions. Every
 ## Plan state (the paper trail)
 
 [plan/00-inventory.md](plan/00-inventory.md) · [plan/01-system-map.md](plan/01-system-map.md) ·
-[plan/specs/](plan/specs/) (7 slice specs) · [plan/backlog.md](plan/backlog.md) (30 task cards) ·
+[plan/specs/](plan/specs/) (7 slice specs) · [plan/backlog.md](plan/backlog.md) (31 task cards) ·
 [plan/gates/](plan/gates/) (a completion report per task) · [plan/decisions.md](plan/decisions.md)
-(DEC-1…36) · [plan/open-questions.md](plan/open-questions.md) · [plan/tech-debt.md](plan/tech-debt.md) ·
+(DEC-1…37) · [plan/open-questions.md](plan/open-questions.md) · [plan/tech-debt.md](plan/tech-debt.md) ·
 [plan/adversarial-brief.md](plan/adversarial-brief.md) (standing reviewer brief) ·
 [plan/session-log.md](plan/session-log.md) (narration trail)

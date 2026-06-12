@@ -2,12 +2,12 @@
   "schema": "courtside/v0",
   "phase": "5",
   "slice": "refinements",
-  "generatedAt": "2026-06-12T03:00:00.000Z",
+  "generatedAt": "2026-06-12T03:20:00.000Z",
   "agent": {
     "state": "idle",
-    "since": "2026-06-12T03:00:00.000Z",
-    "narration": "TASK-30 shipped: Ask Courtside is live — ask ▸ in the header. 85/85. Parked for your confirm before #2, the setup wizard.",
-    "currentTask": "TASK-30"
+    "since": "2026-06-12T03:20:00.000Z",
+    "narration": "TASK-31 shipped: the setup wizard — npm run dev:new to try it on a scratch project. 95/95. Your #1 and #2 are both live.",
+    "currentTask": "TASK-31"
   },
   "gates": [
     {
@@ -316,6 +316,16 @@
       "visualCriterion": "ask ▸ answers from the live board; tool questions open the manual; prose only via your own agent, badged claimed",
       "deps": ["TASK-29"],
       "commit": "8b9710d"
+    },
+    {
+      "id": "TASK-31",
+      "title": "Pre-game setup wizard: an empty project becomes a live board",
+      "status": "done",
+      "slice": "refinements",
+      "sourceRef": "plan/gates/G5-TASK-31.md",
+      "visualCriterion": "dev:new boots the wizard; answers → config + plan + starter docs written (nothing overwritten) → live board in place",
+      "deps": ["TASK-30"],
+      "commit": "77fe675"
     }
   ],
   "debt": [
@@ -392,9 +402,27 @@
       "text": "Ask Courtside (TASK-30): live Q&A — deterministic bearings always, prose only via your own connected agent (claimed badge)",
       "decidedAt": "2026-06-12T02:35:00.000Z",
       "by": "human"
+    },
+    {
+      "id": "DEC-37",
+      "text": "Pre-game setup wizard (TASK-31): empty projects boot into setup; courtside.config.json becomes the durable per-project config",
+      "decidedAt": "2026-06-12T03:05:00.000Z",
+      "by": "human"
     }
   ],
   "events": [
+    {
+      "ts": "2026-06-12T03:20:00.000Z",
+      "kind": "test_run",
+      "provenance": "verified",
+      "text": "vitest: 95/95 across 25 files (npm run check fully green)"
+    },
+    {
+      "ts": "2026-06-12T03:15:00.000Z",
+      "kind": "narration",
+      "provenance": "claimed",
+      "text": "Why: your #2 — empty projects deserve a greeting, not a refusal. Next: wizard live (dev:new); both directives shipped, menu in the report."
+    },
     {
       "ts": "2026-06-12T03:00:00.000Z",
       "kind": "test_run",

@@ -486,4 +486,30 @@ bullets (card-shaped there; sources PRD F6/F7/F19, §5, R7, Q-6/Q-7 via DEC-24).
   answer appears above ✓ sources.
 - Test approach: T39 bearings ×6, T40 ask route ×5 incl. stub agent (85/85);
   6-step live smoke · Dependencies: [TASK-29] · Risk: low
-- Status: done (2026-06-11 · report: [gates/G5-TASK-30.md](gates/G5-TASK-30.md)) — **awaiting Kyle's confirm before the setup wizard (#2)**
+- Status: done (2026-06-11 · report: [gates/G5-TASK-30.md](gates/G5-TASK-30.md)) — confirmed by Kyle ("Go ahead on the set up wizard next")
+
+### [TASK-31] Pre-game setup wizard (DEC-37)
+
+- Source: Kyle 2026-06-11 ("a wizard that helps the user do the set up of
+  systems (like godot, the mcp, upload /connect their gdd files, and for
+  newbies, write a description of what game they want to make) via a set of a
+  few questions" → "Go ahead on the set up wizard next")
+- Description: a project with no plan boots into **Pre-game setup** instead of
+  a refusal (`npm run dev:new` serves a gitignored scratch project to try it).
+  Five short sections: the game's name · design doc (pick a discovered .md /
+  paste one / describe the game — describe-mode writes a starter gdd.md that
+  names Phase 0 as "expand this with the human") · engine (project.godot
+  auto-detected; honest doctor check) · agent command with a live test (cost
+  named in the UI) · a receipt of exactly what will be written vs kept. One
+  POST writes **courtside.config.json** (new durable config; agent-command
+  precedence override > env > config everywhere), gdd.md, CLAUDE.md starter,
+  a docs/framework-v2.md copy, and a contract-validated fresh plan/state.json
+  — never overwriting anything that exists. The watcher pushes the live board
+  over ws: wizard → board, no reload. Re-running setup: 409.
+- VISUAL CRITERION: `npm run dev:new` → the wizard; answer and submit → the
+  live board appears in place; the ticker carries the verified "project set
+  up" receipt; doctor shows config + engine lines; reboot lands on the board.
+- Test approach: T41 config ×3, T42/T43 setup ×6, engine check (95/95);
+  11-step live smoke incl. the ws wizard→board push · Dependencies: [TASK-30]
+  · Risk: low
+- Status: done (2026-06-11 · report: [gates/G5-TASK-31.md](gates/G5-TASK-31.md)) — awaiting Kyle's pass
