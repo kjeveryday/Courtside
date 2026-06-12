@@ -18,11 +18,11 @@ npm install            # Node >= 24 required (node:sqlite + native TS)
 npm run dev            # builds UI, resets the demo fixture, starts the real server
                        #   → open the printed http://127.0.0.1:4310/?token=… link
 npm run dev:self       # the dashboard pointed at THIS repo's real plan -
-                       #   all 31 tasks, the decided v0.1 review gate, real ledgers
-npm run dev:new        # the PRE-GAME SETUP WIZARD on a scratch project -
-                       #   a few answers stand up config, plan, gdd, and rules
+                       #   all 32 tasks, the decided v0.1 review gate, real ledgers
+npm run dev:new        # the PRE-GAME SETUP WIZARD - pick any folder for the
+                       #   project; a few answers stand up config, plan, gdd, rules
 npx courtside doctor   # the same checks the header badge runs (all green)
-npm run check          # codegen-drift + typecheck + lint + format + 95 tests
+npm run check          # codegen-drift + typecheck + lint + format + 101 tests
 ```
 
 The harness serves the **sample fixture project** (a Godot game mid-Phase-5,
@@ -60,8 +60,8 @@ only, live WebSocket updates, SQLite event log, HMAC-signed decisions. Every
 ## Plan state (the paper trail)
 
 [plan/00-inventory.md](plan/00-inventory.md) · [plan/01-system-map.md](plan/01-system-map.md) ·
-[plan/specs/](plan/specs/) (7 slice specs) · [plan/backlog.md](plan/backlog.md) (31 task cards) ·
+[plan/specs/](plan/specs/) (7 slice specs) · [plan/backlog.md](plan/backlog.md) (32 task cards) ·
 [plan/gates/](plan/gates/) (a completion report per task) · [plan/decisions.md](plan/decisions.md)
-(DEC-1…37) · [plan/open-questions.md](plan/open-questions.md) · [plan/tech-debt.md](plan/tech-debt.md) ·
+(DEC-1…38) · [plan/open-questions.md](plan/open-questions.md) · [plan/tech-debt.md](plan/tech-debt.md) ·
 [plan/adversarial-brief.md](plan/adversarial-brief.md) (standing reviewer brief) ·
 [plan/session-log.md](plan/session-log.md) (narration trail)

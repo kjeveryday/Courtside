@@ -2,12 +2,12 @@
   "schema": "courtside/v0",
   "phase": "5",
   "slice": "refinements",
-  "generatedAt": "2026-06-12T03:20:00.000Z",
+  "generatedAt": "2026-06-12T04:10:00.000Z",
   "agent": {
     "state": "idle",
-    "since": "2026-06-12T03:20:00.000Z",
-    "narration": "TASK-31 shipped: the setup wizard — npm run dev:new to try it on a scratch project. 95/95. Your #1 and #2 are both live.",
-    "currentTask": "TASK-31"
+    "since": "2026-06-12T04:10:00.000Z",
+    "narration": "TASK-32 shipped: the wizard now picks the project folder (the server follows it) and the design doc is one write/paste box. 101/101.",
+    "currentTask": "TASK-32"
   },
   "gates": [
     {
@@ -326,6 +326,16 @@
       "visualCriterion": "dev:new boots the wizard; answers → config + plan + starter docs written (nothing overwritten) → live board in place",
       "deps": ["TASK-30"],
       "commit": "77fe675"
+    },
+    {
+      "id": "TASK-32",
+      "title": "Wizard: pick the project folder; one design-doc box",
+      "status": "done",
+      "slice": "refinements",
+      "sourceRef": "plan/gates/G5-TASK-32.md",
+      "visualCriterion": "Type ~/a/new/folder in 'where' → board lives there; pasted docs land verbatim, descriptions get starter sections",
+      "deps": ["TASK-31"],
+      "commit": "b6d3419"
     }
   ],
   "debt": [
@@ -408,9 +418,27 @@
       "text": "Pre-game setup wizard (TASK-31): empty projects boot into setup; courtside.config.json becomes the durable per-project config",
       "decidedAt": "2026-06-12T03:05:00.000Z",
       "by": "human"
+    },
+    {
+      "id": "DEC-38",
+      "text": "Wizard picks the project folder (the server follows it in place); paste/describe merged into one box with a visible verbatim-vs-starter rule",
+      "decidedAt": "2026-06-12T03:45:00.000Z",
+      "by": "human"
     }
   ],
   "events": [
+    {
+      "ts": "2026-06-12T04:10:00.000Z",
+      "kind": "test_run",
+      "provenance": "verified",
+      "text": "vitest: 101/101 across 25 files (npm run check fully green)"
+    },
+    {
+      "ts": "2026-06-12T04:05:00.000Z",
+      "kind": "narration",
+      "provenance": "claimed",
+      "text": "Why: your wizard pass — pick the folder, and one box is enough for the doc. Next: the server follows whatever folder you choose."
+    },
     {
       "ts": "2026-06-12T03:20:00.000Z",
       "kind": "test_run",

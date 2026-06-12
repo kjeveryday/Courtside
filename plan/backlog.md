@@ -512,4 +512,27 @@ bullets (card-shaped there; sources PRD F6/F7/F19, §5, R7, Q-6/Q-7 via DEC-24).
 - Test approach: T41 config ×3, T42/T43 setup ×6, engine check (95/95);
   11-step live smoke incl. the ws wizard→board push · Dependencies: [TASK-30]
   · Risk: low
-- Status: done (2026-06-11 · report: [gates/G5-TASK-31.md](gates/G5-TASK-31.md)) — awaiting Kyle's pass
+- Status: done (2026-06-11 · report: [gates/G5-TASK-31.md](gates/G5-TASK-31.md)) — Kyle's pass landed two fixes → TASK-32
+
+### [TASK-32] Wizard: pick the folder; one design-doc box (DEC-38)
+
+- Source: Kyle 2026-06-11 ("In the wizard, you should also be able to pick a
+  folder where the files live. Also, Paste it and describe the game are the
+  same thing.")
+- Description: (1) the wizard's first field is **where** — any absolute or
+  `~` path; an onBlur preflight (`/api/setup/info?dir=`) validates it and
+  refreshes the name/found-files/engine detection for that folder; on submit
+  the server **follows the project**: watcher, runtime dir, db, and repo link
+  re-point in place (`ctx.repoint`) and the live board arrives over ws for
+  the chosen folder — same server, same token. Guards: parent must exist,
+  files/demo-fixture refused, already-set-up folders 409. (2) paste/describe
+  merged into one **write / paste it** box with one visible rule: text with
+  markdown headings lands verbatim; a plain description gets the starter
+  sections Phase 0 expands — the receipt names which before submitting.
+- VISUAL CRITERION: type `~/some/new/folder` in "where" → preflight ✓; submit
+  → the board lives there (files on disk in that folder); paste a full doc →
+  gdd.md is byte-identical; the design-doc section shows one text box.
+- Test approach: T44 resolveProjectDir + preflight + repoint-follow +
+  verbatim-paste (101/101); 9-step live ws smoke · Dependencies: [TASK-31] ·
+  Risk: low
+- Status: done (2026-06-11 · report: [gates/G5-TASK-32.md](gates/G5-TASK-32.md)) — awaiting Kyle's pass
