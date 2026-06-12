@@ -1,12 +1,15 @@
-// Pre-game setup (TASK-31, DEC-37): the screen an EMPTY project gets. A few
-// questions → the server writes config, plan, and starter docs (never touching
-// anything that exists) and the live board takes over on the next push.
+// Pre-game setup (TASK-31/32, DEC-37/38): the screen an EMPTY project gets.
+// Pick where the project lives (the server follows), answer a few questions,
+// and the live board takes over in place — nothing existing gets overwritten.
 import { useState } from 'react';
-import { postSetup, postTestAgent, type SetupInfo } from '../lib/api';
+import { fetchSetupInfo, postSetup, postTestAgent, type SetupInfo } from '../lib/api';
 
 const field = 'mt-1.5 w-full rounded border border-line bg-surface2 px-2.5 py-2 text-xs';
 const chipCls = (on: boolean) =>
   `rounded border px-2.5 py-1 font-mono text-[11px] ${on ? 'border-accent text-accent' : 'border-line text-muted'}`;
+// mirror of the server's rule: text with markdown headings lands verbatim,
+// a plain description gets starter sections for Phase 0 to expand
+const isDoc = (t: string) => /^#{1,6}\s/m.test(t);
 
 function Section({ n, title, children }: { n: number; title: string; children: React.ReactNode }) {
   return (
@@ -19,23 +22,45 @@ function Section({ n, title, children }: { n: number; title: string; children: R
   );
 }
 
-export function Wizard({ token, info }: { token: string; info: SetupInfo }) {
-  const [name, setName] = useState(info.projectName);
-  const [gddMode, setGddMode] = useState<'have' | 'paste' | 'describe'>(
-    info.mdFiles.length > 0 ? 'have' : 'describe',
-  );
-  const [gddPath, setGddPath] = useState(info.mdFiles[0] ?? '');
+export function Wizard({ token, info: boot }: { token: string; info: SetupInfo }) {
+  const [info, setInfo] = useState(boot);
+  const [dir, setDir] = useState(boot.root);
+  const [dirNote, setDirNote] = useState('');
+  const [name, setName] = useState(boot.projectName);
+  const [nameTouched, setNameTouched] = useState(false);
+  const [gddMode, setGddMode] = useState<'have' | 'text'>(boot.mdFiles.length ? 'have' : 'text');
+  const [gddPath, setGddPath] = useState(boot.mdFiles[0] ?? '');
   const [gddText, setGddText] = useState('');
   const [engine, setEngine] = useState<'godot' | 'unity' | 'none'>(
-    info.hasProjectGodot ? 'godot' : 'none',
+    boot.hasProjectGodot ? 'godot' : 'none',
   );
   const [agentCmd, setAgentCmd] = useState('');
   const [test, setTest] = useState<{ busy?: boolean; ok?: boolean; detail?: string }>({});
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
 
+  // "where" preflight: validate the folder, refresh what's found there
+  const checkDir = async () => {
+    if (dir.trim() === info.root) return;
+    const r = await fetchSetupInfo(token, dir);
+    if (!r.ok) return setDirNote(`✗ ${r.error}`);
+    setInfo(r.info);
+    setDir(r.info.root);
+    setDirNote('✓ this folder');
+    if (!nameTouched) setName(r.info.projectName);
+    setGddPath(r.info.mdFiles[0] ?? '');
+    if (r.info.mdFiles.length === 0) setGddMode('text');
+    setEngine(r.info.hasProjectGodot ? 'godot' : 'none');
+  };
+
+  const gddNote =
+    gddMode === 'have'
+      ? gddPath
+      : isDoc(gddText)
+        ? 'gdd.md (your text, verbatim)'
+        : 'gdd.md (your text + starter sections)';
   const willWrite = [
-    gddMode !== 'have' ? 'gdd.md' : null,
+    gddMode === 'text' ? gddNote : null,
     info.hasClaudeMd ? null : 'CLAUDE.md',
     info.hasFrameworkDoc ? null : 'docs/framework-v2.md',
     'courtside.config.json',
@@ -47,19 +72,15 @@ export function Wizard({ token, info }: { token: string; info: SetupInfo }) {
     info.hasFrameworkDoc ? 'docs/framework-v2.md' : null,
   ].filter(Boolean) as string[];
 
-  const runTest = async () => {
-    setTest({ busy: true });
-    setTest(await postTestAgent(token, agentCmd.trim()));
-  };
   const submit = async () => {
     setBusy(true);
     setError('');
     const r = await postSetup(token, {
+      dir,
       projectName: name.trim(),
       gddMode,
       gddPath: gddMode === 'have' ? gddPath : undefined,
-      gddText: gddMode === 'paste' ? gddText : undefined,
-      description: gddMode === 'describe' ? gddText : undefined,
+      gddText: gddMode === 'text' ? gddText : undefined,
       engine,
       agentCmd: agentCmd.trim() || undefined,
     });
@@ -67,7 +88,7 @@ export function Wizard({ token, info }: { token: string; info: SetupInfo }) {
       setError(r.error);
       setBusy(false);
     }
-    // success needs nothing here: state.json lands → watcher pushes → board
+    // success needs nothing here: the server follows the folder and pushes the board
   };
 
   const ready = name.trim() !== '' && (gddMode === 'have' ? gddPath !== '' : gddText.trim() !== '');
@@ -75,31 +96,48 @@ export function Wizard({ token, info }: { token: string; info: SetupInfo }) {
     <section className="mx-auto max-w-[640px] rounded-card border border-accent bg-surface p-6">
       <h2 className="font-display text-[22px] font-semibold">Pre-game setup</h2>
       <p className="mt-1 text-[12.5px] text-muted">
-        This project has no plan yet. A few answers and the board goes live — nothing that already
-        exists gets overwritten.
+        No plan here yet. A few answers and the board goes live — nothing that already exists gets
+        overwritten.
       </p>
 
-      <Section n={1} title="the game">
-        <input value={name} onChange={(e) => setName(e.target.value)} className={field} />
+      <Section n={1} title="where & what">
+        <input
+          value={dir}
+          onChange={(e) => setDir(e.target.value)}
+          onBlur={() => void checkDir()}
+          onKeyDown={(e) => e.key === 'Enter' && void checkDir()}
+          title="the folder the project lives in — absolute or ~ path; it's created if missing"
+          className={`${field} font-mono`}
+        />
+        {dirNote && (
+          <p
+            className={`mt-1 font-mono text-[10px] ${dirNote.startsWith('✗') ? 'text-risk' : 'text-ok'}`}
+          >
+            {dirNote}
+          </p>
+        )}
+        <input
+          value={name}
+          onChange={(e) => {
+            setName(e.target.value);
+            setNameTouched(true);
+          }}
+          placeholder="the game's name"
+          className={field}
+        />
       </Section>
 
       <Section n={2} title="design doc">
-        <div className="mt-1.5 flex flex-wrap gap-1.5">
-          {info.mdFiles.length > 0 && (
+        {info.mdFiles.length > 0 && (
+          <div className="mt-1.5 flex flex-wrap gap-1.5">
             <button onClick={() => setGddMode('have')} className={chipCls(gddMode === 'have')}>
-              I have one
+              use a file I have
             </button>
-          )}
-          <button onClick={() => setGddMode('paste')} className={chipCls(gddMode === 'paste')}>
-            paste it
-          </button>
-          <button
-            onClick={() => setGddMode('describe')}
-            className={chipCls(gddMode === 'describe')}
-          >
-            describe the game
-          </button>
-        </div>
+            <button onClick={() => setGddMode('text')} className={chipCls(gddMode === 'text')}>
+              write / paste it
+            </button>
+          </div>
+        )}
         {gddMode === 'have' ? (
           <select value={gddPath} onChange={(e) => setGddPath(e.target.value)} className={field}>
             {info.mdFiles.map((f) => (
@@ -110,12 +148,8 @@ export function Wizard({ token, info }: { token: string; info: SetupInfo }) {
           <textarea
             value={gddText}
             onChange={(e) => setGddText(e.target.value)}
-            rows={gddMode === 'paste' ? 6 : 4}
-            placeholder={
-              gddMode === 'paste'
-                ? 'paste your design doc — it becomes gdd.md'
-                : 'the game you want to make, in your words — your agent expands it with you (Phase 0)'
-            }
+            rows={5}
+            placeholder="paste your design doc, or just describe the game in your words — plain descriptions get starter sections your agent expands with you (Phase 0)"
             className={field}
           />
         )}
@@ -143,7 +177,10 @@ export function Wizard({ token, info }: { token: string; info: SetupInfo }) {
             className={field}
           />
           <button
-            onClick={() => void runTest()}
+            onClick={async () => {
+              setTest({ busy: true });
+              setTest(await postTestAgent(token, agentCmd.trim()));
+            }}
             disabled={test.busy || agentCmd.trim() === ''}
             className="mt-1.5 rounded border border-line px-2.5 font-mono text-[11px] text-muted disabled:opacity-35"
           >
@@ -159,7 +196,7 @@ export function Wizard({ token, info }: { token: string; info: SetupInfo }) {
 
       <Section n={5} title="what happens">
         <p className="mt-1 font-mono text-[11px] text-muted">
-          write: {willWrite.join(' · ')}
+          in {dir} — write: {willWrite.join(' · ')}
           {willKeep.length > 0 ? ` — keep: ${willKeep.join(' · ')}` : ''}
         </p>
       </Section>

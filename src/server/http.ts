@@ -21,7 +21,7 @@ import type { Db } from './db.ts';
 import { buildDirective } from './dispatch.ts';
 import { safeDocPath } from './docs.ts';
 import { decideGate, gateViews, type DecisionRequest } from './gates.ts';
-import { runSetup, setupInfo } from './setup.ts';
+import { resolveProjectDir, runSetup, setupInfo } from './setup.ts';
 import { readState } from './state.ts';
 import { handleStatic, MIME } from './static.ts';
 
@@ -54,6 +54,9 @@ export type HttpContext = {
   // push the current state to connected clients (wired by main once WS exists) —
   // agent exits must show up without waiting for an unrelated file change
   broadcast?: () => void;
+  // swap the watched project in place (wired by main) — setup uses this when
+  // the owner picks a different folder (TASK-32)
+  repoint?: (newPlanDir: string) => void;
   // extension point: TASK-16 mounts the harness-only agent-session route here
   extraRoutes?: (path: string, req: IncomingMessage, res: ServerResponse) => boolean;
 };
@@ -215,6 +218,13 @@ export async function handleApi(ctx: HttpContext, req: IncomingMessage, res: Ser
     }
     return json(res, 200, { ok: true, launched: Boolean(agentCmd) });
   }
+  if (req.method === 'GET' && path === '/api/setup/info') {
+    // candidate-folder preflight: validate the path, return what's found there
+    const dir = new URL(req.url ?? '', 'http://x').searchParams.get('dir') ?? '';
+    const ruling = resolveProjectDir(dir, dirname(ctx.planDir));
+    if (!ruling.ok) return json(res, 400, { error: ruling.error });
+    return json(res, 200, { info: setupInfo(join(ruling.root, 'plan')) });
+  }
   if (req.method === 'POST' && path === '/api/setup') {
     let body: Record<string, unknown>;
     try {
@@ -222,8 +232,14 @@ export async function handleApi(ctx: HttpContext, req: IncomingMessage, res: Ser
     } catch (err) {
       return json(res, 400, { error: `bad request body: ${(err as Error).message}` });
     }
-    const out = runSetup({ planDir: ctx.planDir, courtsideRoot: ctx.repoRoot, answers: body });
+    const ruling = resolveProjectDir(body.dir, dirname(ctx.planDir));
+    if (!ruling.ok) return json(res, 400, { error: ruling.error });
+    const targetPlan = join(ruling.root, 'plan');
+    const out = runSetup({ planDir: targetPlan, courtsideRoot: ctx.repoRoot, answers: body });
     if (out.status === 200) {
+      // a different folder = the server follows the project (watcher, runtime,
+      // db all swap); the receipt event lands in the NEW project's runtime
+      if (targetPlan !== ctx.planDir) ctx.repoint?.(targetPlan);
       const p = out.payload as { written: string[] };
       ctx.db.insertEvent({
         kind: 'setup',

@@ -81,12 +81,30 @@ export type ServerEvent = {
 };
 
 export type SetupInfo = {
+  root: string;
   projectName: string;
   mdFiles: string[];
   hasProjectGodot: boolean;
   hasClaudeMd: boolean;
   hasFrameworkDoc: boolean;
 };
+
+// candidate-folder preflight for the wizard's "where" field
+export async function fetchSetupInfo(
+  token: string,
+  dir: string,
+): Promise<{ ok: true; info: SetupInfo } | { ok: false; error: string }> {
+  try {
+    const res = await fetch(`/api/setup/info?dir=${encodeURIComponent(dir)}`, {
+      headers: { authorization: `Bearer ${token}` },
+    });
+    const data = (await res.json().catch(() => ({}))) as { info?: SetupInfo; error?: string };
+    if (!res.ok || !data.info) return { ok: false, error: data.error ?? `HTTP ${res.status}` };
+    return { ok: true, info: data.info };
+  } catch (err) {
+    return { ok: false, error: err instanceof Error ? err.message : String(err) };
+  }
+}
 
 export type StatePayload = {
   receivedAt: string;
@@ -106,11 +124,11 @@ export type StatePayload = {
 };
 
 export type SetupAnswers = {
+  dir?: string;
   projectName: string;
-  gddMode: 'have' | 'paste' | 'describe';
+  gddMode: 'have' | 'text';
   gddPath?: string;
   gddText?: string;
-  description?: string;
   engine?: 'godot' | 'unity' | 'none';
   agentCmd?: string;
 };

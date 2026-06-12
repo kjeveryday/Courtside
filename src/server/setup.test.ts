@@ -2,11 +2,11 @@
 // setup mode, one POST stands the whole board up, nothing existing is touched,
 // and the written config immediately powers agent features.
 import { existsSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
-import { tmpdir } from 'node:os';
+import { homedir, tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { afterAll, describe, expect, it } from 'vitest';
 import { startServer } from './main.ts';
-import { runSetup } from './setup.ts';
+import { resolveProjectDir, runSetup } from './setup.ts';
 
 const tmp = mkdtempSync(join(tmpdir(), 'courtside-setup-'));
 const planDir = join(tmp, 'plan'); // does NOT exist yet — that's the point
@@ -37,14 +37,14 @@ describe('setup mode + /api/setup (T43)', () => {
     expect(body.setupInfo?.mdFiles).toEqual([]);
   });
 
-  it('describe-mode setup writes the full starter set and the board goes live', async () => {
+  it('text-mode setup writes the full starter set and the board goes live', async () => {
     const res = await fetch(`${base}/api/setup`, {
       method: 'POST',
       headers: auth,
       body: JSON.stringify({
         projectName: 'Hoops',
-        gddMode: 'describe',
-        description: 'A tactics game about a basketball heist.',
+        gddMode: 'text',
+        gddText: 'A tactics game about a basketball heist.',
         engine: 'godot',
         agentCmd: `node ${stub}`,
       }),
@@ -54,7 +54,9 @@ describe('setup mode + /api/setup (T43)', () => {
     expect(out.written).toEqual(
       expect.arrayContaining(['gdd.md', 'CLAUDE.md', 'courtside.config.json', 'plan/state.json']),
     );
-    expect(readFileSync(join(tmp, 'gdd.md'), 'utf-8')).toContain('basketball heist');
+    const gdd = readFileSync(join(tmp, 'gdd.md'), 'utf-8');
+    expect(gdd).toContain('basketball heist');
+    expect(gdd).toContain('## Pillars'); // plain description → starter sections
     expect(readFileSync(join(tmp, 'CLAUDE.md'), 'utf-8')).toContain('plan/decisions-inbox/');
 
     const state = (await (await fetch(`${base}/api/state`, { headers: auth })).json()) as {
@@ -69,11 +71,11 @@ describe('setup mode + /api/setup (T43)', () => {
     expect(state.agentConfigured).toBe(true);
   });
 
-  it('running setup twice is refused', async () => {
+  it('running setup twice on the same folder is refused', async () => {
     const res = await fetch(`${base}/api/setup`, {
       method: 'POST',
       headers: auth,
-      body: JSON.stringify({ gddMode: 'describe', description: 'again' }),
+      body: JSON.stringify({ gddMode: 'text', gddText: 'again' }),
     });
     expect(res.status).toBe(409);
   });
@@ -87,6 +89,45 @@ describe('setup mode + /api/setup (T43)', () => {
     const body = (await res.json()) as { ok: boolean; detail: string };
     expect(body.ok).toBe(true);
     expect(body.detail).toContain('COURTSIDE OK');
+  });
+
+  it('/api/setup/info preflights a candidate folder; bad paths are named', async () => {
+    const other = mkdtempSync(join(tmpdir(), 'courtside-where-'));
+    writeFileSync(join(other, 'notes.md'), '# notes\n');
+    const ok = await fetch(`${base}/api/setup/info?dir=${encodeURIComponent(other)}`, {
+      headers: auth,
+    });
+    expect(ok.status).toBe(200);
+    const { info } = (await ok.json()) as { info: { root: string; mdFiles: string[] } };
+    expect(info.root).toBe(other);
+    expect(info.mdFiles).toContain('notes.md');
+    const bad = await fetch(`${base}/api/setup/info?dir=relative/path`, { headers: auth });
+    expect(bad.status).toBe(400);
+    rmSync(other, { recursive: true, force: true });
+  });
+
+  it('picking a different folder sets up THERE and the server follows (TASK-32)', async () => {
+    const dest = join(mkdtempSync(join(tmpdir(), 'courtside-dest-')), 'my-game');
+    const res = await fetch(`${base}/api/setup`, {
+      method: 'POST',
+      headers: auth,
+      body: JSON.stringify({
+        dir: dest,
+        projectName: 'Elsewhere',
+        gddMode: 'text',
+        gddText: 'A game set up in a chosen folder.',
+      }),
+    });
+    expect(res.status).toBe(200);
+    expect(existsSync(join(dest, 'plan', 'state.json'))).toBe(true);
+    // the same server now serves the new project
+    const state = (await (await fetch(`${base}/api/state`, { headers: auth })).json()) as {
+      setup?: boolean;
+      result: { ok: boolean; state?: { events: { text: string }[] } };
+    };
+    expect(state.setup).toBe(false);
+    expect(state.result.ok).toBe(true);
+    expect(state.result.state?.events[0]?.text).toContain('"Elsewhere"');
   });
 });
 
@@ -117,5 +158,41 @@ describe('runSetup honesty (T42)', () => {
     });
     expect(out.status).toBe(400);
     rmSync(proj, { recursive: true, force: true });
+  });
+
+  it('pasted text with headings lands verbatim — no starter scaffolding bolted on', () => {
+    const proj = mkdtempSync(join(tmpdir(), 'courtside-setup4-'));
+    const doc = '# My Full GDD\n\nEverything already written.\n## Combat\nDetails.';
+    const out = runSetup({
+      planDir: join(proj, 'plan'),
+      courtsideRoot: process.cwd(),
+      answers: { gddMode: 'text', gddText: doc },
+    });
+    expect(out.status).toBe(200);
+    expect(readFileSync(join(proj, 'gdd.md'), 'utf-8')).toBe(doc + '\n');
+    rmSync(proj, { recursive: true, force: true });
+  });
+});
+
+describe('resolveProjectDir (T44)', () => {
+  const fallback = '/fallback/project';
+  it('empty input means the folder the server already watches', () => {
+    expect(resolveProjectDir('', fallback)).toEqual({ ok: true, root: fallback });
+    expect(resolveProjectDir(undefined, fallback)).toEqual({ ok: true, root: fallback });
+  });
+  it('expands ~ against the home folder', () => {
+    const r = resolveProjectDir('~/somewhere-new', tmpdir());
+    expect(r.ok && r.root.startsWith(homedir())).toBe(true);
+  });
+  it('refuses relative paths, missing parents, files, and the demo fixture', () => {
+    expect(resolveProjectDir('relative/path', fallback).ok).toBe(false);
+    expect(resolveProjectDir('/no/such/parent/anywhere/x', fallback).ok).toBe(false);
+    const tmp = mkdtempSync(join(tmpdir(), 'courtside-rpd-'));
+    writeFileSync(join(tmp, 'afile'), 'x');
+    expect(resolveProjectDir(join(tmp, 'afile'), fallback).ok).toBe(false);
+    expect(resolveProjectDir(join(tmp, 'spec', 'fixtures', 'sample-project'), fallback).ok).toBe(
+      false,
+    );
+    rmSync(tmp, { recursive: true, force: true });
   });
 });

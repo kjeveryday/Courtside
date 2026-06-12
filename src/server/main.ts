@@ -60,12 +60,13 @@ export async function startServer(opts: StartOptions): Promise<RunningServer> {
     db,
   };
   if (harness) {
-    // Demo-only route (spec B4): lets the human drive the full async cycle from
-    // the browser. Mounted exclusively when serving the fixture project.
+    // Demo-only routes (spec B4), mounted exclusively when BOOTED on the
+    // fixture; inert if setup ever re-points this server elsewhere.
     ctx.extraRoutes = (path, req, res) => {
+      if (!ctx.harness) return false;
       if (req.method === 'POST' && path === '/api/dev/agent-session') {
-        const summary = simulateAgentSession(opts.planDir);
-        db.insertEvent({
+        const summary = simulateAgentSession(ctx.planDir);
+        ctx.db.insertEvent({
           kind: 'agent_session_sim',
           provenance: 'verified',
           text: summary.actions.join('; '),
@@ -75,8 +76,8 @@ export async function startServer(opts: StartOptions): Promise<RunningServer> {
       }
       if (req.method === 'POST' && path === '/api/dev/reset') {
         const seed = join(repoRoot, 'spec', 'fixtures', 'state.sample.json');
-        db.clearEvents(); // demo-scoped db — the reset story starts clean too
-        json(res, 200, resetFixture(opts.planDir, runtimeDir, seed));
+        ctx.db.clearEvents(); // demo-scoped db — the reset story starts clean too
+        json(res, 200, resetFixture(ctx.planDir, ctx.runtimeDir, seed));
         return true;
       }
       return false;
@@ -86,24 +87,40 @@ export async function startServer(opts: StartOptions): Promise<RunningServer> {
   const ws = attachWs(server, token);
   ctx.broadcast = () => ws.broadcast({ kind: 'state', ...statePayload(ctx) });
 
-  const watcher =
+  const onPlanChange = () => {
+    const result = readState(ctx.planDir);
+    ctx.db.insertEvent({
+      kind: result.ok ? 'state_change' : 'validation_failed',
+      provenance: 'verified',
+      text: result.ok
+        ? `state revalidated ok (${result.state.tasks.length} tasks)`
+        : `state invalid: ${result.errors[0] ?? 'unknown'}`,
+    });
+    ctx.broadcast?.();
+  };
+  let watcher =
     (opts.watch ?? true)
-      ? watchPlanDir(
-          opts.planDir,
-          () => {
-            const result = readState(opts.planDir);
-            db.insertEvent({
-              kind: result.ok ? 'state_change' : 'validation_failed',
-              provenance: 'verified',
-              text: result.ok
-                ? `state revalidated ok (${result.state.tasks.length} tasks)`
-                : `state invalid: ${result.errors[0] ?? 'unknown'}`,
-            });
-            ws.broadcast({ kind: 'state', ...statePayload(ctx) });
-          },
-          opts.watchDebounceMs ?? 150,
-        )
+      ? watchPlanDir(opts.planDir, onPlanChange, opts.watchDebounceMs ?? 150)
       : undefined;
+
+  // Setup may stand the project up in a DIFFERENT folder (TASK-32): swap the
+  // watched plan, runtime, db, and remote in place — same server, same token.
+  ctx.repoint = (newPlanDir: string) => {
+    const newRuntime = join(dirname(newPlanDir), '.courtside');
+    mkdirSync(newRuntime, { recursive: true });
+    mkdirSync(newPlanDir, { recursive: true });
+    const oldDb = ctx.db;
+    ctx.db = openDb(join(newRuntime, 'courtside.db'));
+    oldDb.close();
+    ctx.planDir = newPlanDir;
+    ctx.runtimeDir = newRuntime;
+    ctx.harness = newPlanDir.includes(join('spec', 'fixtures', 'sample-project'));
+    ctx.repoUrl = projectRepoUrl(dirname(newPlanDir));
+    watcher?.close();
+    if (opts.watch ?? true)
+      watcher = watchPlanDir(newPlanDir, onPlanChange, opts.watchDebounceMs ?? 150);
+    ctx.broadcast?.();
+  };
 
   const port = await new Promise<number>((resolve, reject) => {
     server.once('error', reject);
@@ -121,12 +138,14 @@ export async function startServer(opts: StartOptions): Promise<RunningServer> {
   return {
     port,
     token,
-    db,
+    get db() {
+      return ctx.db; // repoint swaps the db; callers always see the live one
+    },
     close: () =>
       new Promise<void>((resolve, reject) => {
         watcher?.close();
         ws.close();
-        db.close();
+        ctx.db.close();
         server.close((err) => (err ? reject(err) : resolve()));
       }),
   };

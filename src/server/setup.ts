@@ -3,19 +3,42 @@
 // overwrites an existing file (existing work is reported as kept, not
 // replaced); every write is confined to the project root; the fresh state is
 // contract-validated before it touches disk.
-import { copyFileSync, existsSync, mkdirSync, readdirSync, writeFileSync } from 'node:fs';
-import { basename, dirname, join } from 'node:path';
+import { copyFileSync, existsSync, mkdirSync, readdirSync, statSync, writeFileSync } from 'node:fs';
+import { homedir } from 'node:os';
+import { basename, dirname, isAbsolute, join, normalize } from 'node:path';
 import { validateState } from '../contract/validate.ts';
 import { writeProjectConfig } from '../core/projectConfig.ts';
 import { claudeMdStarter, freshState, gddFromDescription } from './templates.ts';
 
 export type SetupInfo = {
+  root: string; // absolute project folder the answers apply to
   projectName: string;
   mdFiles: string[]; // candidate design docs (project root + docs/, relative)
   hasProjectGodot: boolean;
   hasClaudeMd: boolean;
   hasFrameworkDoc: boolean;
 };
+
+// The owner may stand the project up anywhere on their machine (TASK-32):
+// absolute or ~ paths only, the parent must already exist (typo guard), and
+// never inside the demo fixture. Empty input = the folder the server watches.
+export function resolveProjectDir(
+  raw: unknown,
+  fallbackRoot: string,
+): { ok: true; root: string } | { ok: false; error: string } {
+  const t = typeof raw === 'string' ? raw.trim() : '';
+  if (!t) return { ok: true, root: fallbackRoot };
+  const expanded = t === '~' || t.startsWith('~/') ? join(homedir(), t.slice(1)) : t;
+  if (!isAbsolute(expanded)) return { ok: false, error: 'use an absolute folder path (or ~/…)' };
+  const root = normalize(expanded);
+  if (!existsSync(dirname(root)))
+    return { ok: false, error: `parent folder doesn't exist: ${dirname(root)}` };
+  if (existsSync(root) && !statSync(root).isDirectory())
+    return { ok: false, error: 'that path is a file, not a folder' };
+  if (root.includes(join('spec', 'fixtures', 'sample-project')))
+    return { ok: false, error: 'that is the demo fixture — pick a real folder' };
+  return { ok: true, root };
+}
 
 const listMd = (dir: string, prefix: string): string[] =>
   existsSync(dir)
@@ -27,6 +50,7 @@ const listMd = (dir: string, prefix: string): string[] =>
 export function setupInfo(planDir: string): SetupInfo {
   const root = dirname(planDir);
   return {
+    root,
     projectName: basename(root),
     mdFiles: [...listMd(root, ''), ...listMd(join(root, 'docs'), 'docs')],
     hasProjectGodot: existsSync(join(root, 'project.godot')),
@@ -46,7 +70,13 @@ export function runSetup(opts: {
   const root = dirname(planDir);
   const bad = (error: string): SetupOutcome => ({ status: 400, payload: { error } });
   if (existsSync(join(planDir, 'state.json')))
-    return { status: 409, payload: { error: 'already set up — this project has a plan' } };
+    return {
+      status: 409,
+      payload: {
+        error: 'that folder already has a Courtside plan — point the server at it instead',
+      },
+    };
+  mkdirSync(root, { recursive: true }); // the chosen folder may not exist yet
 
   const str = (k: string, max: number) =>
     typeof answers[k] === 'string' ? (answers[k] as string).trim().slice(0, max) : '';
@@ -54,8 +84,7 @@ export function runSetup(opts: {
   const gddMode = str('gddMode', 16);
   const engine = str('engine', 16);
   const agentCmd = str('agentCmd', 200);
-  if (!['have', 'paste', 'describe'].includes(gddMode))
-    return bad('gddMode must be have | paste | describe');
+  if (!['have', 'text'].includes(gddMode)) return bad('gddMode must be have | text');
   if (engine && !['godot', 'unity', 'none'].includes(engine))
     return bad('engine must be godot | unity | none');
 
@@ -71,12 +100,15 @@ export function runSetup(opts: {
     kept.push(gddRel);
   } else {
     if (existsSync(join(root, 'gdd.md')))
-      return bad('gdd.md already exists — choose "I have one" instead');
-    const text = gddMode === 'paste' ? str('gddText', 200_000) : str('description', 5_000);
-    if (!text) return bad(gddMode === 'paste' ? 'paste the doc text' : 'describe the game');
+      return bad('gdd.md already exists — choose "use a file I have" instead');
+    const text = str('gddText', 200_000);
+    if (!text) return bad('write or paste something about the game');
+    // one text box, one visible rule: a full doc (has headings) lands verbatim;
+    // a plain description gets the starter sections Phase 0 expands
+    const isDoc = /^#{1,6}\s/m.test(text);
     writeFileSync(
       join(root, 'gdd.md'),
-      gddMode === 'paste' ? text + '\n' : gddFromDescription(projectName, text),
+      isDoc ? text + '\n' : gddFromDescription(projectName, text),
     );
     written.push('gdd.md');
   }

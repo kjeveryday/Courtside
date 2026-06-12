@@ -84,6 +84,17 @@ git. No telemetry, no outbound calls. The demo project and your real project
 keep separate runtime state — the demo's reset button cannot touch your real
 decision chain.
 
+## Starting a project
+
+Point Courtside at a folder with no plan and you get Pre-game setup. Pick
+where the project lives — any folder on your machine; the server follows it —
+name the game, bring a design doc (pick a file it found there, or write/paste
+into the box: a full doc lands verbatim, a plain description gets starter
+sections your agent expands with you in Phase 0), choose the engine, and
+optionally connect your agent command. One click writes the config, plan, and
+starter docs without overwriting anything that exists, and the live board
+takes over in place.
+
 ## The demo
 
 `npm run dev` serves a sample project (a small Godot tactics game mid-build)
