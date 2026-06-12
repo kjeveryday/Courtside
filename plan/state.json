@@ -2,12 +2,12 @@
   "schema": "courtside/v0",
   "phase": "5",
   "slice": "refinements",
-  "generatedAt": "2026-06-11T13:28:00.000Z",
+  "generatedAt": "2026-06-12T02:27:05.000Z",
   "agent": {
     "state": "idle",
-    "since": "2026-06-11T13:28:00.000Z",
-    "narration": "TASK-28 shipped: 24 adversarial findings fixed, 71/71 tests. Idle — the next stage is your call (menu in the report).",
-    "currentTask": "TASK-28"
+    "since": "2026-06-12T02:27:05.000Z",
+    "narration": "TASK-29 shipped: backlog folds done work, cold returns open the Huddle, commits link out. 74/74. Idle — v0.2-size items parked for your pick.",
+    "currentTask": "TASK-29"
   },
   "gates": [
     {
@@ -296,6 +296,16 @@
       "visualCriterion": "Evidence links open; decided gates leave the Huddle; demo reset can't touch the real chain",
       "deps": ["TASK-27"],
       "commit": "35c94e2"
+    },
+    {
+      "id": "TASK-29",
+      "title": "Daily-driver pass: folded done tasks, huddle greeting, commit links",
+      "status": "done",
+      "slice": "refinements",
+      "sourceRef": "plan/gates/G5-TASK-29.md",
+      "visualCriterion": "Backlog leads with live work; a cold return opens the Huddle; commit hashes click through",
+      "deps": ["TASK-28"],
+      "commit": "db7a500"
     }
   ],
   "debt": [
@@ -360,9 +370,27 @@
       "text": "Adversarial review installed (standing brief); first run: 24 findings, all fixed in TASK-28",
       "decidedAt": "2026-06-11T13:00:00.000Z",
       "by": "human"
+    },
+    {
+      "id": "DEC-35",
+      "text": "Daily-driver pass (TASK-29): folded done tasks, huddle greeting, commit links — Kyle delegated the pick",
+      "decidedAt": "2026-06-12T01:30:00.000Z",
+      "by": "human"
     }
   ],
   "events": [
+    {
+      "ts": "2026-06-12T02:27:05.000Z",
+      "kind": "test_run",
+      "provenance": "verified",
+      "text": "vitest: 74/74 across 21 files (npm run check fully green)"
+    },
+    {
+      "ts": "2026-06-12T02:20:00.000Z",
+      "kind": "narration",
+      "provenance": "claimed",
+      "text": "Why: you delegated the pick — the smalls that improve every sitting. Next: TASK-29 shipped; v0.2-size items await your choice."
+    },
     {
       "ts": "2026-06-11T13:28:00.000Z",
       "kind": "test_run",

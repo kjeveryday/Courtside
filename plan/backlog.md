@@ -443,3 +443,22 @@ bullets (card-shaped there; sources PRD F6/F7/F19, §5, R7, Q-6/Q-7 via DEC-24).
 - Test approach: T36 anchors, T37 artifacts + 4 more (71/71); 18-step live
   smoke on both views · Dependencies: [TASK-27] · Risk: low
 - Status: done (2026-06-11 · report: [gates/G5-TASK-28.md](gates/G5-TASK-28.md)) — awaiting Kyle's pass
+
+### [TASK-29] Daily-driver pass: folded done tasks, huddle greeting, commit links (DEC-35)
+
+- Source: Kyle 2026-06-11 ("Do what you would recommend to do next") — the
+  recommended smalls from the TASK-28 report's menu.
+- Description: (1) the backlog folds finished tasks into one "✓ n done ▸"
+  line per slice so the board leads with live work (28 mostly-done tasks were
+  burying the actionable rows); (2) a cold return — opening the dashboard
+  after 30+ minutes away — auto-opens the Huddle (`coldReturn` rides the
+  /api/state response; reloads inside a sitting don't trigger it); (3) commit
+  hashes in the backlog drilldown and decisions ledger link to the watched
+  project's remote when it has one (T38 normalizes ssh/https origins; the
+  demo project has no remote, so its hashes stay plain text — no fake links).
+- VISUAL CRITERION: self view backlog shows mostly "✓ n done ▸" lines;
+  reopening after 30 min greets you with the Huddle; clicking a commit hash
+  opens it on GitHub; demo hashes don't pretend to be links.
+- Test approach: T38 repo-url ×2 + coldReturn assertions (74/74); 4-step live
+  probe · Dependencies: [TASK-28] · Risk: low
+- Status: done (2026-06-11 · report: [gates/G5-TASK-29.md](gates/G5-TASK-29.md)) — awaiting Kyle's pass
