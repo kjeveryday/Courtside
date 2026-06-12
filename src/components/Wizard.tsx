@@ -205,6 +205,9 @@ export function Wizard({ token, info: boot }: { token: string; info: SetupInfo }
           in {dir} — write: {willWrite.join(' · ')}
           {willKeep.length > 0 ? ` — keep: ${willKeep.join(' · ')}` : ''}
         </p>
+        <p className="mt-1 text-[11px] text-muted">
+          From then on, the Courtside icon on your Desktop opens this project.
+        </p>
       </Section>
 
       {error && <p className="mt-3 font-mono text-[11px] text-risk">{error}</p>}

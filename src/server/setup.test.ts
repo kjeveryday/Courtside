@@ -9,6 +9,8 @@ import { startServer } from './main.ts';
 import { resolveProjectDir, runSetup } from './setup.ts';
 
 const tmp = mkdtempSync(join(tmpdir(), 'courtside-setup-'));
+// keep the launcher-pointer write inside the sandbox, not the dev's real home
+process.env.COURTSIDE_HOME = tmp;
 const planDir = join(tmp, 'plan'); // does NOT exist yet — that's the point
 const stub = join(tmp, 'stub.mjs');
 writeFileSync(stub, "console.log('COURTSIDE OK');\n");
@@ -69,6 +71,8 @@ describe('setup mode + /api/setup (T43)', () => {
     expect(state.result.state?.phase).toBe('0');
     // the config the wizard just wrote powers agent features with no restart
     expect(state.agentConfigured).toBe(true);
+    // the desktop launcher's pointer now names this project (T46 route seam)
+    expect(readFileSync(join(tmp, '.courtside', 'last-project'), 'utf-8').trim()).toBe(tmp);
   });
 
   it('running setup twice on the same folder is refused', async () => {

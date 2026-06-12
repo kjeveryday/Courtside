@@ -13,6 +13,7 @@ import { buildDirective } from './dispatch.ts';
 import { safeDocPath } from './docs.ts';
 import { decideGate, type DecisionRequest } from './gates.ts';
 import { agentCmdOf, authorized, json, statePayload, type HttpContext } from './http.ts';
+import { writeLastProject } from './lastProject.ts';
 import { resolveProjectDir, runSetup, setupInfo } from './setup.ts';
 import { readState } from './state.ts';
 import { handleStatic, MIME } from './static.ts';
@@ -171,6 +172,12 @@ export async function handleApi(ctx: HttpContext, req: IncomingMessage, res: Ser
       // a different folder = the server follows the project (watcher, runtime,
       // db all swap); the receipt event lands in the NEW project's runtime
       if (targetPlan !== ctx.planDir) ctx.repoint?.(targetPlan);
+      try {
+        // the desktop launcher opens THIS project from now on
+        writeLastProject(ruling.root);
+      } catch {
+        // a failed pointer write must never fail the setup itself
+      }
       const p = out.payload as { written: string[] };
       ctx.db.insertEvent({
         kind: 'setup',

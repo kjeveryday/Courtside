@@ -7,10 +7,12 @@ Courtside is a local dashboard that shows everything your AI agent is doing on y
 ## Try it in 60 seconds
 
 ```
-npm install            # Node >= 24 required
-npm run dev            # starts the demo → open the printed link
-npm run dev:self       # the dashboard pointed at THIS repo's own plan
-npm run dev:new        # start fresh — pick any folder for your game project
+npm install                     # Node >= 24 required
+node scripts/make-launcher.mjs  # puts a Courtside icon on your Desktop —
+                                #   double-click it: wizard first, your board after
+npm run dev                     # the demo → open the printed link
+npm run dev:self                # the dashboard pointed at THIS repo's own plan
+npm run dev:new                 # the setup wizard, by hand
 ```
 
 > **Quick note:** `npm install` only needs to run once. After that, `npm run dev` starts

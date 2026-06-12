@@ -58,15 +58,17 @@ His design doc:
 - **A file** (.md or .txt)? Copy it into that folder now.
 - **In Google Docs / Word / Notes?** No file needed — he'll paste it in the next step.
 
-## Step 3 — Run the setup wizard
+## Step 3 — Make the Courtside icon, then run the setup wizard
 
-From the Courtside folder:
+Create the double-clickable launcher (once):
 
 ```bash
-npm run dev:new
+node scripts/make-launcher.mjs    # from the Courtside folder
 ```
 
-Open the printed link. Kyle fills the form, you explain each field:
+This puts a **Courtside** icon on the Desktop. It's the only start button Kyle ever needs: no project yet → it opens the setup wizard; project set up → it opens his board; already running → it just opens the browser.
+
+Tell Kyle: *"Double-click Courtside on your Desktop."* The wizard opens in the browser. He fills the form, you explain each field:
 
 | Field                            | What to enter                                                                                                                                                                                  |
 | -------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -76,15 +78,7 @@ Open the printed link. Kyle fills the form, you explain each field:
 | What engine                      | **godot** — even though no Godot project exists yet. (The green "detected ✓" only appears after Step 4; a health warning until then is normal.)                                                  |
 | Connect your AI                  | Type `claude`, then click **check if it works**. Uses a tiny sliver of Claude credit, once.                                                                                                      |
 
-Click **Set up the project ▸** — the board goes live in place.
-
-**Then make tomorrow easy.** Add one script to the Courtside folder's `package.json` (use Kyle's real path):
-
-```json
-"dev:game": "COURTSIDE_PLAN_DIR=/Users/kyle/Desktop/<game-name>/plan node scripts/dev.mjs"
-```
-
-Tell Kyle exactly this: *"From now on, to open your board: run `npm run dev:game` in the Courtside folder, then open your bookmark."*
+Click **Set up the project ▸** — the board goes live in place, and the Courtside icon now remembers this project. Tell Kyle exactly this: *"From now on, double-click Courtside on your Desktop and your board opens. Close its little window to stop it."*
 
 ## Step 4 — Make it a Godot project
 
@@ -105,15 +99,15 @@ claude mcp list    # run from the game folder
 
 If no godot entry is listed, find the right Godot MCP for his setup (search the MCP registry for "godot"), add it with `claude mcp add`, and verify it shows in the list. Tell Kyle in one sentence what it does.
 
-## Step 6 — The bookmark
+## Step 6 — The bookmark (optional)
 
-With the server running, have Kyle visit:
+The icon already opens the browser, but a bookmark is nice for when the board is already running. With the server up, have Kyle visit:
 
 ```
 http://127.0.0.1:4310/
 ```
 
-It forwards straight into the dashboard — no token to remember. Have him bookmark it (name it **My game board**). If the page ever refuses to connect, the server isn't running: `npm run dev:game` in the Courtside folder first.
+It forwards straight into the dashboard — no token to remember. Have him bookmark it (name it **My game board**). If it ever refuses to connect, double-click the Courtside icon first.
 
 ## Step 7 — Hand off
 
@@ -129,21 +123,21 @@ The plan work — reading the GDD, proposing phases and first tasks, posting the
 
 ## Quick reference (for Kyle, after setup)
 
-| What                      | How                                                  |
-| ------------------------- | ---------------------------------------------------- |
-| Open the board            | Bookmark → `http://127.0.0.1:4310/`                  |
-| Start the server          | `npm run dev:game` in the Courtside folder           |
-| Try the safe demo         | `npm run dev` in the Courtside folder                |
-| Set up another project    | `npm run dev:new` in the Courtside folder            |
-| Start the AI on the game  | `claude` in the game folder                          |
-| Catch up after a break    | **The Huddle ▸** in the header                       |
-| Ask anything              | **ask ▸** in the header                              |
-| Check project health      | The dot in the top-right corner                      |
+| What                      | How                                                   |
+| ------------------------- | ----------------------------------------------------- |
+| Open the board            | **Double-click Courtside on the Desktop**             |
+| Stop the board            | Close the little Courtside window                     |
+| Bookmark (when running)   | `http://127.0.0.1:4310/`                              |
+| Try the safe demo         | `npm run dev` in the Courtside folder                 |
+| Start the AI on the game  | `claude` in the game folder                           |
+| Catch up after a break    | **The Huddle ▸** in the header                        |
+| Ask anything              | **ask ▸** in the header                               |
+| Check project health      | The dot in the top-right corner                       |
 
 ## If something goes wrong
 
-- **Bookmark says "can't connect"** — the server isn't running. `npm run dev:game` in the Courtside folder.
-- **"Locked — token required"** — restart the server, then reopen the bookmark (it picks up the new key automatically).
+- **Bookmark says "can't connect"** — the board isn't running. Double-click the Courtside icon.
+- **"Locked — token required"** — close the Courtside window, double-click the icon again.
 - **`claude` not found** — `npm install -g @anthropic-ai/claude-code`, then retry.
-- **Wizard says the folder is already set up** — setup already happened; skip the wizard and just start the board with `npm run dev:game`.
+- **Wizard appears even though setup is done** — the icon's memory file (`~/.courtside/last-project`) is missing. Restore it: one line containing the game folder's full path. (Agent: do this for Kyle — `echo "/path/to/game" > ~/.courtside/last-project`.)
 - **The board shows a red error** — the plan file (`plan/state.json` in the **game** folder) is broken or missing. Fix or restore it; the board recovers on its own.

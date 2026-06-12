@@ -585,3 +585,4 @@ One-liners; full detail in the commit messages and DEC-40.
 - **TASK-37** (ef2b575) — gate → checkpoint everywhere on screen; demo footer CTA routes a net-new user to dev:new.
 - **TASK-38** (8b366d1) — bookmark redirect (/ auto-adds the token) + docs/getting-started.md v1.
 - **TASK-39** — guide v2 after the first live setup run tripped on the tool's own build history: fresh-agent orientation (ignore this repo's CLAUDE.md/plan/inbox), from-zero path (no Godot project required), do-then-report behavior rules, truthful relaunch command (dev:game); CLAUDE.md setup-mode preamble; G5-V0-2 consumed (DEC-40).
+- **TASK-40** — click-first startup (DEC-41): `scripts/make-launcher.mjs` writes a double-clickable Desktop icon (wizard when no project, the board when one is set up, browser-only when already running); setup success writes the durable pointer `~/.courtside/last-project` (D-5 minimally closed); wizard receipt names it; T46.
