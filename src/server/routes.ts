@@ -233,6 +233,13 @@ export async function handleApi(ctx: HttpContext, req: IncomingMessage, res: Ser
 
 export function createHandler(ctx: HttpContext) {
   return (req: IncomingMessage, res: ServerResponse) => {
+    // Bookmark-friendly redirect: navigating to / without a token auto-adds it.
+    // The server is 127.0.0.1-only, so exposing the token in a redirect is fine.
+    const url = new URL(req.url ?? '/', 'http://x');
+    if (req.method === 'GET' && url.pathname === '/' && !url.searchParams.get('token')) {
+      res.writeHead(302, { location: `/?token=${encodeURIComponent(ctx.token)}` });
+      return res.end();
+    }
     if ((req.url ?? '').startsWith('/api/')) {
       handleApi(ctx, req, res).catch((err: unknown) =>
         json(res, 500, { error: (err as Error).message }),
