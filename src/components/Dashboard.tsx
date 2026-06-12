@@ -10,6 +10,7 @@ import {
 } from '../lib/api';
 import { Backlog } from './Backlog';
 import { GateCard } from './Gate';
+import { HowTo } from './HowTo';
 import { Ledgers } from './Ledgers';
 import { NextUp } from './NextUp';
 import { Progress } from './Progress';
@@ -57,6 +58,7 @@ export function Dashboard({
   };
   return (
     <section>
+      <HowTo />
       <Scorebug state={state} />
       <div className="grid grid-cols-[1.6fr_1fr] gap-5 max-[860px]:grid-cols-1">
         <div>
