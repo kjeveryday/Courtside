@@ -39,13 +39,13 @@ export function SendToAgent({
   if (state === 'queued')
     return (
       <span className="rounded bg-accent/15 px-1.5 py-px font-mono text-[10px] text-accent">
-        in agent inbox ▸ next session
+        sent — AI picks this up next session ▸
       </span>
     );
   if (state === 'running')
     return (
       <span className="rounded bg-info/15 px-1.5 py-px font-mono text-[10px] text-info">
-        agent running…
+        AI is working…
       </span>
     );
   if (state === 'failed')
@@ -54,8 +54,8 @@ export function SendToAgent({
         title={run ? `log: ${run.logFile}` : undefined}
         className="rounded bg-risk/15 px-1.5 py-px font-mono text-[10px] text-risk"
       >
-        agent run failed{run?.exitCode !== undefined ? ` (exit ${run.exitCode})` : ''} — still in
-        inbox for next session
+        AI run failed{run?.exitCode !== undefined ? ` (exit ${run.exitCode})` : ''} — still queued
+        for next session
       </span>
     );
 
@@ -65,7 +65,7 @@ export function SendToAgent({
         onClick={() => setOpen(true)}
         className="rounded border border-accent/60 px-2 py-0.5 font-mono text-[10px] text-accent"
       >
-        send to agent ▸
+        ask the AI ▸
       </button>
     );
 
@@ -105,7 +105,7 @@ export function SendToAgent({
       <input
         value={context}
         onChange={(e) => setContext(e.target.value)}
-        placeholder="context for the agent (optional)"
+        placeholder="extra context (optional)"
         className="mt-1.5 w-full rounded border border-line bg-surface2 px-2 py-1 text-xs"
       />
       <span className="mt-1.5 flex items-center gap-2">

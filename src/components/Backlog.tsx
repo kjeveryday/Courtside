@@ -52,7 +52,7 @@ function TaskRow({
         <p className="text-muted">
           {task.logicOnly ? (
             <Chip tone="border border-line bg-surface2 text-muted">
-              {`LOGIC-ONLY${task.surfacesAt ? ` → surfaces at ${task.surfacesAt}` : ''}`}
+              {`Not visible yet${task.surfacesAt ? ` — shows up at ${task.surfacesAt}` : ''}`}
             </Chip>
           ) : (
             <>
@@ -117,9 +117,12 @@ export function Backlog({
   const slices = [...new Set(tasks.map((t) => t.slice ?? 'unsliced'))];
   return (
     <section className="mt-5 rounded-card border border-line bg-surface p-5">
-      <h2 className="mb-3 font-display text-[15px] font-semibold tracking-[0.12em] text-muted uppercase">
-        Backlog
+      <h2 className="mb-0 font-display text-[15px] font-semibold tracking-[0.12em] text-muted uppercase">
+        The Plan
       </h2>
+      <p className="mb-3 text-[11px] text-muted">
+        what&apos;s been built and what&apos;s coming next
+      </p>
       {slices.map((slice) => {
         const sliceTasks = tasks.filter((t) => (t.slice ?? 'unsliced') === slice);
         const depth = depsDepth(sliceTasks);

@@ -45,7 +45,7 @@ export function Ticker({
   return (
     <section className="rounded-card border border-line bg-surface p-5">
       <h2 className="mb-3 font-display text-[15px] font-semibold tracking-[0.12em] text-muted uppercase">
-        Ticker
+        What happened
       </h2>
       {rows.length === 0 ? (
         <p className="text-xs text-muted">no events yet</p>

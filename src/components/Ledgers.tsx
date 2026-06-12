@@ -68,9 +68,12 @@ export function Ledgers({
 
   return (
     <section className="mt-5 rounded-card border border-line bg-surface px-5 py-2.5">
-      <h2 className="mt-2 mb-1 font-display text-[15px] font-semibold tracking-[0.12em] text-muted uppercase">
-        Ledgers
+      <h2 className="mt-2 mb-0 font-display text-[15px] font-semibold tracking-[0.12em] text-muted uppercase">
+        Notes &amp; Decisions
       </h2>
+      <p className="mb-1 text-[11px] text-muted">
+        questions the AI is tracking · choices made · last update
+      </p>
       <Row
         label="Open questions"
         count={open.length}
@@ -98,7 +101,7 @@ export function Ledgers({
             {q.recommendation && <p className="mt-1 text-accent">rec: {q.recommendation}</p>}
             <p className="mt-1 font-mono text-[10.5px] text-muted">
               opened {formatAgo(q.openedAt)}
-              {q.blocking?.length ? ` · blocking ${q.blocking.join(', ')}` : ''}
+              {q.blocking?.length ? ` · needed for ${q.blocking.join(', ')}` : ''}
             </p>
             {dispatch && (
               <p className="mt-2">
@@ -115,7 +118,7 @@ export function Ledgers({
         ))}
       </Row>
       <Row
-        label="Tech debt"
+        label="Things to fix later"
         count={debt.length}
         note={newestDebt ? `newest ${formatAgo(newestDebt.incurredAt)}` : '—'}
         tone="muted"
@@ -163,7 +166,7 @@ export function Ledgers({
         ))}
       </Row>
       <Row
-        label="State freshness"
+        label="Last updated"
         count={null}
         note={
           state.generatedAt

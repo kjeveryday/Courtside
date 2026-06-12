@@ -11,12 +11,10 @@ const chipCls = (on: boolean) =>
 // a plain description gets starter sections for Phase 0 to expand
 const isDoc = (t: string) => /^#{1,6}\s/m.test(t);
 
-function Section({ n, title, children }: { n: number; title: string; children: React.ReactNode }) {
+function Section({ title, children }: { title: string; children: React.ReactNode }) {
   return (
     <div className="mt-4 border-t border-line pt-3 first:mt-0 first:border-t-0 first:pt-0">
-      <p className="font-mono text-[10px] tracking-[0.12em] text-muted uppercase">
-        {n} · {title}
-      </p>
+      <p className="mb-1 text-[13px] font-semibold">{title}</p>
       {children}
     </div>
   );
@@ -100,12 +98,16 @@ export function Wizard({ token, info: boot }: { token: string; info: SetupInfo }
         overwritten.
       </p>
 
-      <Section n={1} title="where & what">
+      <Section title="Where does your game project live?">
+        <p className="mb-1 text-[11px] text-muted">
+          Paste the folder path on your computer — absolute path or starting with ~/
+        </p>
         <input
           value={dir}
           onChange={(e) => setDir(e.target.value)}
           onBlur={() => void checkDir()}
           onKeyDown={(e) => e.key === 'Enter' && void checkDir()}
+          placeholder="e.g. ~/projects/my-game or /Users/you/projects/my-game"
           title="the folder the project lives in — absolute or ~ path; it's created if missing"
           className={`${field} font-mono`}
         />
@@ -122,19 +124,19 @@ export function Wizard({ token, info: boot }: { token: string; info: SetupInfo }
             setName(e.target.value);
             setNameTouched(true);
           }}
-          placeholder="the game's name"
+          placeholder="Your game's name"
           className={field}
         />
       </Section>
 
-      <Section n={2} title="design doc">
+      <Section title="Tell us about your game">
         {info.mdFiles.length > 0 && (
           <div className="mt-1.5 flex flex-wrap gap-1.5">
             <button onClick={() => setGddMode('have')} className={chipCls(gddMode === 'have')}>
-              use a file I have
+              I have a design doc
             </button>
             <button onClick={() => setGddMode('text')} className={chipCls(gddMode === 'text')}>
-              write / paste it
+              write / paste
             </button>
           </div>
         )}
@@ -155,7 +157,7 @@ export function Wizard({ token, info: boot }: { token: string; info: SetupInfo }
         )}
       </Section>
 
-      <Section n={3} title="engine">
+      <Section title="What engine are you building with?">
         <div className="mt-1.5 flex flex-wrap items-center gap-1.5">
           {(['godot', 'unity', 'none'] as const).map((e) => (
             <button key={e} onClick={() => setEngine(e)} className={chipCls(engine === e)}>
@@ -168,12 +170,16 @@ export function Wizard({ token, info: boot }: { token: string; info: SetupInfo }
         </div>
       </Section>
 
-      <Section n={4} title="agent (optional)">
+      <Section title="Connect your AI (optional)">
+        <p className="mb-1.5 text-[11px] text-muted">
+          If you&apos;re using Claude Code or another AI tool, type its start command here and
+          Courtside can launch it for you. You can always skip this and connect it later.
+        </p>
         <div className="flex gap-2">
           <input
             value={agentCmd}
             onChange={(e) => setAgentCmd(e.target.value)}
-            placeholder={'e.g. "claude" — powers send-to-agent and written ask answers'}
+            placeholder={'e.g. "claude" — the command you use to start your AI'}
             className={field}
           />
           <button
@@ -184,17 +190,17 @@ export function Wizard({ token, info: boot }: { token: string; info: SetupInfo }
             disabled={test.busy || agentCmd.trim() === ''}
             className="mt-1.5 rounded border border-line px-2.5 font-mono text-[11px] text-muted disabled:opacity-35"
           >
-            {test.busy ? 'testing…' : 'test ▸'}
+            {test.busy ? 'checking…' : 'check if it works'}
           </button>
         </div>
         <p className="mt-1 font-mono text-[10px] text-muted">
           {test.detail
             ? `${test.ok ? '✓' : '✗'} ${test.detail}`
-            : 'test runs one tiny prompt through your command (uses a sliver of agent credit) · skip to connect later'}
+            : 'checking runs one tiny prompt through your command (uses a sliver of AI credit)'}
         </p>
       </Section>
 
-      <Section n={5} title="what happens">
+      <Section title="What Courtside will set up">
         <p className="mt-1 font-mono text-[11px] text-muted">
           in {dir} — write: {willWrite.join(' · ')}
           {willKeep.length > 0 ? ` — keep: ${willKeep.join(' · ')}` : ''}

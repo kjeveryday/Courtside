@@ -36,10 +36,10 @@ describe('latestEventOfKind (T8)', () => {
 
 describe('humanizeAgentState (T9)', () => {
   it('maps all four enum values', () => {
-    expect(humanizeAgentState('working')).toBe('working');
-    expect(humanizeAgentState('parked_at_gate')).toBe('parked at gate');
-    expect(humanizeAgentState('blocked')).toBe('blocked');
-    expect(humanizeAgentState('idle')).toBe('idle');
+    expect(humanizeAgentState('working')).toBe('Working on your game');
+    expect(humanizeAgentState('parked_at_gate')).toBe('Waiting for your okay');
+    expect(humanizeAgentState('blocked')).toBe('Needs a conversation');
+    expect(humanizeAgentState('idle')).toBe('Ready');
   });
 });
 

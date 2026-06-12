@@ -59,7 +59,7 @@ export function PreflightPanel({ report, onRerun }: { report: DoctorReport; onRe
     <section className="mb-5 rounded-card border border-line bg-surface p-5">
       <div className="mb-2 flex items-center justify-between">
         <h2 className="font-display text-[15px] font-semibold tracking-[0.12em] text-muted uppercase">
-          Pre-game warmup · doctor
+          Project health
         </h2>
         <button
           onClick={onRerun}

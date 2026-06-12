@@ -39,18 +39,21 @@ export function Scorebug({ state }: { state: CourtsideState }) {
           {localTime(agent.since)} · {formatAgo(agent.since)}
         </div>
       </Cell>
-      <Cell label="Narration">
+      <Cell label="What the AI is saying">
         <div className="text-sm">
           {agent.narration ? <EventText provenance="claimed" text={agent.narration} /> : '—'}
         </div>
       </Cell>
-      <Cell label="Task">
-        <div className="font-display text-[20px] leading-tight font-semibold">
-          {agent.currentTask ?? '—'}
+      <Cell label="Working on">
+        <div className="font-display text-[18px] leading-tight font-semibold">
+          {currentTask?.title ?? agent.currentTask ?? '—'}
         </div>
-        <div className="mt-0.5 font-mono text-xs text-muted">{currentTask?.status ?? '—'}</div>
+        <div className="mt-0.5 font-mono text-xs text-muted">
+          {agent.currentTask ?? '—'}
+          {currentTask?.status ? ` · ${currentTask.status}` : ''}
+        </div>
       </Cell>
-      <Cell label="Tests">
+      <Cell label="Latest checks">
         <div className="max-w-56 text-sm">
           {lastRun ? <EventText provenance={lastRun.provenance} text={lastRun.text} /> : '—'}
         </div>

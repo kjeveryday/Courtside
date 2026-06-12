@@ -92,9 +92,14 @@ export function GateCard({
       )}
 
       {payload?.tldr && (
-        <div className="mt-3 rounded-r-md border-l-[3px] border-accent bg-surface2 px-3.5 py-2.5 text-[13.5px]">
-          <EventText provenance="claimed" text={payload.tldr} />
-        </div>
+        <>
+          <div className="mt-3 rounded-r-md border-l-[3px] border-accent bg-surface2 px-3.5 py-2.5 text-[13.5px]">
+            <EventText provenance="claimed" text={payload.tldr} />
+          </div>
+          <p className="mt-1 font-mono text-[10px] text-muted">
+            ◇ written by the AI — not independently verified · ✓ verified by Courtside
+          </p>
+        </>
       )}
 
       {payload?.meta && (

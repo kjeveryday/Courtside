@@ -17,7 +17,7 @@ describe('buildHuddle (T29)', () => {
     expect(text).toContain('G5-TASK-12');
     expect(text).toContain('Q-7');
     expect(text).toContain('TASK-15'); // what Q-7 blocks
-    expect(text).toContain('parked at gate');
+    expect(text).toContain('Waiting for your okay');
     expect(h.sinceLabel).toContain('d');
   });
 

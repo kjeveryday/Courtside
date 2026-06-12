@@ -23,23 +23,31 @@ export function HarnessBar({ token }: { token: string }) {
   };
 
   return (
-    <footer className="mt-8 flex flex-wrap items-center gap-3 border-t border-line pt-4 font-mono text-[11px] text-muted">
-      <span className="rounded border border-line bg-surface2 px-1.5 py-px text-[10px]">DEMO</span>
-      <button
-        onClick={() => post('/api/dev/agent-session')}
-        disabled={busy}
-        className="rounded border border-line bg-surface2 px-3 py-1.5 text-text disabled:opacity-40"
-      >
-        agent's next session ▸
-      </button>
-      <button
-        onClick={() => post('/api/dev/reset')}
-        disabled={busy}
-        className="rounded border border-line bg-surface2 px-3 py-1.5 text-text disabled:opacity-40"
-      >
-        reset ↺
-      </button>
-      {last && <span className="min-w-0">{last}</span>}
+    <footer className="mt-8 border-t border-line pt-4">
+      <p className="mb-3 text-[12px] text-muted">
+        <span className="mr-2 rounded border border-line bg-surface2 px-1.5 py-px font-mono text-[10px]">
+          DEMO
+        </span>
+        Approve the gate above, then click &ldquo;simulate AI session&rdquo; to see what the AI
+        would do next — the board updates live without a page reload.
+      </p>
+      <div className="flex flex-wrap items-center gap-3 font-mono text-[11px] text-muted">
+        <button
+          onClick={() => post('/api/dev/agent-session')}
+          disabled={busy}
+          className="rounded border border-line bg-surface2 px-3 py-1.5 text-text disabled:opacity-40"
+        >
+          simulate AI session ▸
+        </button>
+        <button
+          onClick={() => post('/api/dev/reset')}
+          disabled={busy}
+          className="rounded border border-line bg-surface2 px-3 py-1.5 text-text disabled:opacity-40"
+        >
+          reset ↺
+        </button>
+        {last && <span className="min-w-0">{last}</span>}
+      </div>
     </footer>
   );
 }

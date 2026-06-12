@@ -15,7 +15,13 @@ export function formatAgo(iso: string, nowMs: number = Date.now()): string {
 }
 
 export function humanizeAgentState(state: AgentState): string {
-  return state.replace(/_/g, ' ');
+  const labels: Record<AgentState, string> = {
+    working: 'Working on your game',
+    parked_at_gate: 'Waiting for your okay',
+    blocked: 'Needs a conversation',
+    idle: 'Ready',
+  };
+  return labels[state] ?? state.replace(/_/g, ' ');
 }
 
 // Exhaustive by type: adding a kind to the schema breaks this Record at compile
