@@ -16,3 +16,6 @@ spec/fixtures/sample-project/plan/decisions.md
 
 # OS noise
 .DS_Store
+
+# setup-wizard scratch project (npm run dev:new)
+.sandbox/

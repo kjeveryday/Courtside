@@ -40,6 +40,7 @@ const SERVER_KIND_COLORS: Record<string, string> = {
   validation_failed: 'bg-risk',
   dispatch: 'bg-accent',
   ask: 'bg-accent',
+  setup: 'bg-ok',
   agent_run: 'bg-info',
   agent_session_sim: 'bg-muted',
 };

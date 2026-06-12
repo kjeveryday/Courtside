@@ -2,7 +2,7 @@
 // carries no data; every byte of state sits behind the token (AD-6).
 import { existsSync, readFileSync } from 'node:fs';
 import type { IncomingMessage, ServerResponse } from 'node:http';
-import { extname, join } from 'node:path';
+import { dirname, extname, join } from 'node:path';
 import { safeTapePath } from './tape.ts';
 import {
   appendDirective,
@@ -12,14 +12,16 @@ import {
 } from '../core/decisions.ts';
 import { runDoctor } from '../core/doctor.ts';
 import { buildHuddle } from '../core/huddle.ts';
+import { readProjectConfig, resolveAgentCmd } from '../core/projectConfig.ts';
 import { allRuns, dispatchAgent } from './agentRunner.ts';
 import { safeArtifactPath } from './artifacts.ts';
-import { handleAsk } from './ask.ts';
+import { askAgent, handleAsk } from './ask.ts';
 import { extractToken, tokenEquals } from './auth.ts';
 import type { Db } from './db.ts';
 import { buildDirective } from './dispatch.ts';
 import { safeDocPath } from './docs.ts';
 import { decideGate, gateViews, type DecisionRequest } from './gates.ts';
+import { runSetup, setupInfo } from './setup.ts';
 import { readState } from './state.ts';
 import { handleStatic, MIME } from './static.ts';
 
@@ -42,7 +44,9 @@ export type HttpContext = {
   repoRoot: string;
   token: string;
   harness: boolean;
-  agentCmd?: string;
+  // explicit agent-command override (tests/flags); the live value comes from
+  // agentCmdOf — override > env > courtside.config.json (DEC-37)
+  agentCmdOverride?: string;
   db: Db;
   // browsable remote of the WATCHED project (not necessarily this repo) —
   // commit hashes link there; absent = hashes stay plain text
@@ -59,17 +63,29 @@ export function json(res: ServerResponse, status: number, body: unknown) {
   res.end(JSON.stringify(body));
 }
 
+export function agentCmdOf(ctx: Pick<HttpContext, 'planDir' | 'agentCmdOverride'>) {
+  return resolveAgentCmd(
+    ctx.agentCmdOverride,
+    process.env.COURTSIDE_AGENT_CMD,
+    readProjectConfig(dirname(ctx.planDir)),
+  );
+}
+
 export function authorized(ctx: HttpContext, req: IncomingMessage): boolean {
   return tokenEquals(ctx.token, extractToken(req.headers.authorization, req.url ?? ''));
 }
 
 export function statePayload(ctx: HttpContext) {
   const result = readState(ctx.planDir);
+  // no state.json at all = a fresh project → the wizard, not the refusal screen
+  const setup = !existsSync(join(ctx.planDir, 'state.json'));
   return {
     receivedAt: new Date().toISOString(),
     harness: ctx.harness,
-    agentConfigured: Boolean(ctx.agentCmd),
+    agentConfigured: Boolean(agentCmdOf(ctx)),
     repoUrl: ctx.repoUrl,
+    setup,
+    setupInfo: setup ? setupInfo(ctx.planDir) : undefined,
     result,
     gates: gateViews(ctx.planDir, result.ok ? result.state : undefined),
     dispatches: pendingDispatches(ctx.planDir),
@@ -118,7 +134,7 @@ export async function handleApi(ctx: HttpContext, req: IncomingMessage, res: Ser
         repoRoot: ctx.repoRoot,
         planDir: ctx.planDir,
         runtimeDir: ctx.runtimeDir,
-        agentCmd: ctx.agentCmd,
+        agentCmd: agentCmdOf(ctx),
       }),
     });
   }
@@ -130,7 +146,11 @@ export async function handleApi(ctx: HttpContext, req: IncomingMessage, res: Ser
       return json(res, 400, { error: `bad request body: ${(err as Error).message}` });
     }
     const result = readState(ctx.planDir);
-    const out = await handleAsk(ctx, body, result.ok ? result.state : undefined);
+    const out = await handleAsk(
+      { ...ctx, agentCmd: agentCmdOf(ctx) },
+      body,
+      result.ok ? result.state : undefined,
+    );
     if (out.status === 200)
       ctx.db.insertEvent({
         kind: 'ask',
@@ -167,15 +187,16 @@ export async function handleApi(ctx: HttpContext, req: IncomingMessage, res: Ser
     if (!result.ok) return json(res, 409, { error: 'state invalid — fix it before dispatching' });
     const ruling = buildDirective(result.state, body);
     if ('error' in ruling) return json(res, ruling.status, { error: ruling.error });
+    const agentCmd = agentCmdOf(ctx);
     appendDirective({ planDir: ctx.planDir, runtimeDir: ctx.runtimeDir, ...ruling.directive });
     ctx.db.insertEvent({
       kind: 'dispatch',
       provenance: 'verified',
-      text: `${ruling.directive.kind} ${ruling.directive.id} sent to agent${ctx.agentCmd ? ' (launching)' : ' (queued for next session)'}`,
+      text: `${ruling.directive.kind} ${ruling.directive.id} sent to agent${agentCmd ? ' (launching)' : ' (queued for next session)'}`,
     });
-    if (ctx.agentCmd) {
+    if (agentCmd) {
       dispatchAgent({
-        agentCmd: ctx.agentCmd,
+        agentCmd,
         cwd: ctx.repoRoot,
         runtimeDir: ctx.runtimeDir,
         kind: ruling.directive.kind,
@@ -192,7 +213,49 @@ export async function handleApi(ctx: HttpContext, req: IncomingMessage, res: Ser
         },
       });
     }
-    return json(res, 200, { ok: true, launched: Boolean(ctx.agentCmd) });
+    return json(res, 200, { ok: true, launched: Boolean(agentCmd) });
+  }
+  if (req.method === 'POST' && path === '/api/setup') {
+    let body: Record<string, unknown>;
+    try {
+      body = (await readBody(req)) as Record<string, unknown>;
+    } catch (err) {
+      return json(res, 400, { error: `bad request body: ${(err as Error).message}` });
+    }
+    const out = runSetup({ planDir: ctx.planDir, courtsideRoot: ctx.repoRoot, answers: body });
+    if (out.status === 200) {
+      const p = out.payload as { written: string[] };
+      ctx.db.insertEvent({
+        kind: 'setup',
+        provenance: 'verified',
+        text: `project set up — wrote ${p.written.join(', ')}`,
+      });
+    }
+    return json(res, out.status, out.payload);
+  }
+  if (req.method === 'POST' && path === '/api/setup/test-agent') {
+    let body: { agentCmd?: unknown };
+    try {
+      body = (await readBody(req)) as typeof body;
+    } catch (err) {
+      return json(res, 400, { error: `bad request body: ${(err as Error).message}` });
+    }
+    const cmd =
+      typeof body.agentCmd === 'string' && body.agentCmd.trim()
+        ? body.agentCmd.trim()
+        : agentCmdOf(ctx);
+    if (!cmd) return json(res, 400, { error: 'no agent command to test' });
+    const r = await askAgent({
+      agentCmd: cmd,
+      cwd: dirname(ctx.planDir),
+      prompt: 'Reply with exactly: COURTSIDE OK',
+      timeoutMs: 60_000,
+    });
+    return json(
+      res,
+      200,
+      r.ok ? { ok: true, detail: r.answer.slice(0, 120) } : { ok: false, detail: r.error },
+    );
   }
   if (req.method === 'GET' && path.startsWith('/api/tape/')) {
     const file = safeTapePath(ctx.planDir, path);

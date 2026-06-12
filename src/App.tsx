@@ -10,6 +10,7 @@ import { HealthBadge, PreflightPanel, type DoctorReport } from './components/Hea
 import { HuddleButton, HuddlePanel, type HuddleData } from './components/Huddle';
 import { Legend } from './components/Legend';
 import { LockedOut, RefusalState } from './components/Screens';
+import { Wizard } from './components/Wizard';
 import type { CourtsideState } from './contract/state.generated';
 import { validateState } from './contract/validate';
 import {
@@ -23,6 +24,7 @@ import {
   type GateView,
   type PendingDispatch,
   type ServerEvent,
+  type SetupInfo,
   type StatePayload,
   type WsStatus,
 } from './lib/api';
@@ -30,6 +32,7 @@ import {
 type LoadState =
   | { phase: 'loading' }
   | { phase: 'locked'; detail: string }
+  | { phase: 'setup'; token: string; info: SetupInfo }
   | {
       phase: 'ok';
       state: CourtsideState;
@@ -90,6 +93,9 @@ export default function App() {
     const applyPayload = (payload: StatePayload) => {
       const { result, gates, harness, dispatches, agentRuns, serverEvents, repoUrl } = payload;
       if (token) refreshDoctor(token); // health decays live (F0)
+      // an empty project is an invitation, not a refusal (TASK-31)
+      if (payload.setup && payload.setupInfo)
+        return apply({ phase: 'setup', token: token ?? '', info: payload.setupInfo });
       if (!result.ok) return apply({ phase: 'refused', errors: result.errors });
       const checked = validateState(result.state);
       if (checked.ok)
@@ -200,6 +206,7 @@ export default function App() {
       <div className="mt-5">
         {load.phase === 'loading' && <p className="text-sm text-muted">loading state…</p>}
         {load.phase === 'locked' && <LockedOut detail={load.detail} />}
+        {load.phase === 'setup' && <Wizard token={load.token} info={load.info} />}
         {load.phase === 'ok' && (
           <Dashboard
             state={load.state}

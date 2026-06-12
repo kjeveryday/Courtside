@@ -1,8 +1,9 @@
 // F0 doctor: one check engine, two surfaces (CLI + UI). Every check returns a
 // fix-it line; deferred capabilities surface as honest `skip`s, never silence.
 import { existsSync, readFileSync, readdirSync, statSync } from 'node:fs';
-import { join } from 'node:path';
+import { dirname, join } from 'node:path';
 import { lintPlan } from './lint.ts';
+import { readProjectConfig } from './projectConfig.ts';
 
 export type DoctorFinding = {
   id: string;
@@ -135,8 +136,41 @@ export function runDoctor(ctx: DoctorContext): DoctorFinding[] {
     f.push({ id: 'doc-size', category: 'project', status: 'skip', detail: 'no docs/ directory' });
   }
 
+  const projectRoot = dirname(ctx.planDir);
+  const config = readProjectConfig(projectRoot);
+  f.push({
+    id: 'config',
+    category: 'project',
+    status: config ? 'pass' : 'skip',
+    detail: config
+      ? `courtside.config.json — "${config.project ?? '?'}"${config.engine ? ` · engine ${config.engine}` : ''}`
+      : 'no courtside.config.json — the setup wizard writes one on an empty project',
+  });
+
   const plugins = ctx.enginePlugins ?? [];
-  if (plugins.length === 0) {
+  if (plugins.length > 0) {
+    for (const p of plugins) f.push(...p.check());
+  } else if (config?.engine === 'godot') {
+    const hasGodot = existsSync(join(projectRoot, 'project.godot'));
+    f.push({
+      id: 'engine',
+      category: 'engine',
+      status: hasGodot ? 'pass' : 'warn',
+      detail: hasGodot
+        ? 'Godot project detected (project.godot in the project root)'
+        : 'engine is godot but no project.godot in the project root',
+      fixit: hasGodot
+        ? undefined
+        : 'create the Godot project beside plan/, or fix engine in courtside.config.json',
+    });
+  } else if (config?.engine === 'unity') {
+    f.push({
+      id: 'engine',
+      category: 'engine',
+      status: 'skip',
+      detail: 'engine set to unity — adapter not built yet; noted, nothing checked',
+    });
+  } else {
     f.push({
       id: 'engine',
       category: 'engine',
@@ -144,8 +178,6 @@ export function runDoctor(ctx: DoctorContext): DoctorFinding[] {
       detail:
         'no engine plugin configured — interface ready (Godot/Unity adapters are per-project)',
     });
-  } else {
-    for (const p of plugins) f.push(...p.check());
   }
 
   f.push({

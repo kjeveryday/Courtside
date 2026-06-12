@@ -40,6 +40,9 @@ export async function startServer(opts: StartOptions): Promise<RunningServer> {
   // demo "reset" must not be able to touch real signed decisions.
   const runtimeDir = opts.runtimeDir ?? join(dirname(opts.planDir), '.courtside');
   mkdirSync(runtimeDir, { recursive: true });
+  // a missing plan dir is a FRESH project, not an error — the wizard takes it
+  // from here (TASK-31); the watcher needs the dir to exist to see setup land
+  mkdirSync(opts.planDir, { recursive: true });
   const db = openDb(join(runtimeDir, 'courtside.db'));
 
   const token = generateToken();
@@ -52,7 +55,7 @@ export async function startServer(opts: StartOptions): Promise<RunningServer> {
     repoRoot,
     token,
     harness,
-    agentCmd: opts.agentCmd ?? process.env.COURTSIDE_AGENT_CMD,
+    agentCmdOverride: opts.agentCmd,
     repoUrl: projectRepoUrl(dirname(opts.planDir)),
     db,
   };

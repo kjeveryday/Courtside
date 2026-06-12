@@ -80,6 +80,14 @@ export type ServerEvent = {
   text: string;
 };
 
+export type SetupInfo = {
+  projectName: string;
+  mdFiles: string[];
+  hasProjectGodot: boolean;
+  hasClaudeMd: boolean;
+  hasFrameworkDoc: boolean;
+};
+
 export type StatePayload = {
   receivedAt: string;
   harness?: boolean;
@@ -87,12 +95,69 @@ export type StatePayload = {
   repoUrl?: string;
   // true only on the HTTP fetch that reopened a sitting (>30 min away)
   coldReturn?: boolean;
+  // a project with no plan yet: render the setup wizard, not the refusal
+  setup?: boolean;
+  setupInfo?: SetupInfo;
   result: { ok: true; state: unknown } | { ok: false; errors: string[] };
   gates?: GateView[];
   dispatches?: PendingDispatch[];
   agentRuns?: AgentRun[];
   serverEvents?: ServerEvent[];
 };
+
+export type SetupAnswers = {
+  projectName: string;
+  gddMode: 'have' | 'paste' | 'describe';
+  gddPath?: string;
+  gddText?: string;
+  description?: string;
+  engine?: 'godot' | 'unity' | 'none';
+  agentCmd?: string;
+};
+
+export async function postSetup(
+  token: string,
+  answers: SetupAnswers,
+): Promise<{ ok: true; written: string[]; kept: string[] } | { ok: false; error: string }> {
+  try {
+    const res = await fetch('/api/setup', {
+      method: 'POST',
+      headers: { authorization: `Bearer ${token}`, 'content-type': 'application/json' },
+      body: JSON.stringify(answers),
+    });
+    const data = (await res.json().catch(() => ({}))) as {
+      written?: string[];
+      kept?: string[];
+      error?: string;
+    };
+    if (!res.ok) return { ok: false, error: data.error ?? `HTTP ${res.status}` };
+    return { ok: true, written: data.written ?? [], kept: data.kept ?? [] };
+  } catch (err) {
+    return { ok: false, error: err instanceof Error ? err.message : String(err) };
+  }
+}
+
+export async function postTestAgent(
+  token: string,
+  agentCmd: string,
+): Promise<{ ok: boolean; detail: string }> {
+  try {
+    const res = await fetch('/api/setup/test-agent', {
+      method: 'POST',
+      headers: { authorization: `Bearer ${token}`, 'content-type': 'application/json' },
+      body: JSON.stringify({ agentCmd }),
+    });
+    const data = (await res.json().catch(() => ({}))) as {
+      ok?: boolean;
+      detail?: string;
+      error?: string;
+    };
+    if (!res.ok) return { ok: false, detail: data.error ?? `HTTP ${res.status}` };
+    return { ok: data.ok ?? false, detail: data.detail ?? '' };
+  } catch (err) {
+    return { ok: false, detail: err instanceof Error ? err.message : String(err) };
+  }
+}
 
 export async function postDispatch(
   token: string,

@@ -5,6 +5,7 @@ import { dirname, join } from 'node:path';
 import { resolvePlanDir } from '../server/config.ts';
 import { lintPlan } from '../core/lint.ts';
 import { runDoctor } from '../core/doctor.ts';
+import { readProjectConfig, resolveAgentCmd } from '../core/projectConfig.ts';
 
 const ICONS = { pass: '✓', warn: '!', fail: '✗', skip: '–' } as const;
 
@@ -54,7 +55,11 @@ export async function cli(argv: string[]): Promise<number> {
       repoRoot,
       planDir,
       runtimeDir,
-      agentCmd: process.env.COURTSIDE_AGENT_CMD,
+      agentCmd: resolveAgentCmd(
+        undefined,
+        process.env.COURTSIDE_AGENT_CMD,
+        readProjectConfig(dirname(planDir)),
+      ),
     });
     let category = '';
     for (const f of findings) {
