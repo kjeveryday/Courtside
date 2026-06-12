@@ -2,18 +2,18 @@
   "schema": "courtside/v0",
   "phase": "5",
   "slice": "refinements",
-  "generatedAt": "2026-06-12T04:45:00.000Z",
+  "generatedAt": "2026-06-12T17:00:00.000Z",
   "agent": {
-    "state": "parked_at_gate",
-    "since": "2026-06-12T04:45:00.000Z",
-    "narration": "v0.2 finished — the build is done and the ledger is paid. 103/103. Parked for your end review at G5-V0-2.",
-    "currentTask": "TASK-34"
+    "state": "idle",
+    "since": "2026-06-12T17:00:00.000Z",
+    "narration": "v0.2 accepted (DEC-40) — thanks, coach. Post-accept polish shipped: plain language, onboarding, the from-zero guide. Board quiet; next stop is Ballhalla.",
+    "currentTask": "TASK-39"
   },
   "gates": [
     {
       "id": "G5-V0-2",
       "type": "task_review",
-      "status": "pending",
+      "status": "approved",
       "postedAt": "2026-06-12T04:45:00.000Z",
       "payloadRef": "plan/gates/G5-V0-2.json",
       "verifySteps": [
@@ -376,6 +376,55 @@
       "sourceRef": "plan/gates/G5-V0-2.json",
       "visualCriterion": "This very gate, decidable in the dashboard — the loop that closed v0.1 closes v0.2",
       "deps": ["TASK-33"]
+    },
+    {
+      "id": "TASK-35",
+      "title": "Alex UX pass: plain language across every surface",
+      "status": "done",
+      "slice": "post-v0.2",
+      "sourceRef": "plan/backlog.md",
+      "visualCriterion": "No developer jargon left on the board — states, sections, wizard, README",
+      "deps": ["TASK-34"],
+      "commit": "ab8d1b4"
+    },
+    {
+      "id": "TASK-36",
+      "title": "How-it-works strip: first-time orientation",
+      "status": "done",
+      "slice": "post-v0.2",
+      "sourceRef": "plan/backlog.md",
+      "visualCriterion": "5-step loop explainer atop the board; 'got it' hides it for good",
+      "deps": ["TASK-35"],
+      "commit": "23409f7"
+    },
+    {
+      "id": "TASK-37",
+      "title": "Checkpoint language + demo CTA for net-new users",
+      "status": "done",
+      "slice": "post-v0.2",
+      "sourceRef": "plan/backlog.md",
+      "visualCriterion": "Every 'gate' on screen reads 'checkpoint'; demo footer routes a new user to dev:new",
+      "deps": ["TASK-36"],
+      "commit": "ef2b575"
+    },
+    {
+      "id": "TASK-38",
+      "title": "Bookmark redirect + getting-started guide",
+      "status": "done",
+      "slice": "post-v0.2",
+      "sourceRef": "docs/getting-started.md",
+      "visualCriterion": "http://127.0.0.1:4310/ lands on the live board with no token in hand",
+      "deps": ["TASK-37"],
+      "commit": "8b366d1"
+    },
+    {
+      "id": "TASK-39",
+      "title": "Guide v2 after first live use: orientation, from-zero path, do-then-report",
+      "status": "done",
+      "slice": "post-v0.2",
+      "sourceRef": "docs/getting-started.md",
+      "visualCriterion": "A fresh agent in this repo ignores the tool's own build history and starts Kyle from zero",
+      "deps": ["TASK-38"]
     }
   ],
   "debt": [
@@ -470,9 +519,28 @@
       "text": "v0.2 close-out (Kyle: 'finish up the build'): debts paid or downgraded with facts, version 0.2.0, end review posted as gate G5-V0-2",
       "decidedAt": "2026-06-12T04:30:00.000Z",
       "by": "human"
+    },
+    {
+      "id": "DEC-40",
+      "text": "G5-V0-2 approved — v0.2 accepted (4/4 steps, signed seq 2). Next: Kyle's game, Ballhalla, set up from scratch via the getting-started guide",
+      "decidedAt": "2026-06-12T03:49:21.970Z",
+      "by": "human",
+      "gateId": "G5-V0-2"
     }
   ],
   "events": [
+    {
+      "ts": "2026-06-12T17:00:00.000Z",
+      "kind": "gate",
+      "provenance": "verified",
+      "text": "G5-V0-2 approved by human — inbox consumed (signed seq 2); v0.2 accepted"
+    },
+    {
+      "ts": "2026-06-12T16:50:00.000Z",
+      "kind": "narration",
+      "provenance": "claimed",
+      "text": "Why: the first live setup run tripped on the tool's own build history. Next: guide v2 — fresh-agent orientation, from-zero path, do-then-report."
+    },
     {
       "ts": "2026-06-12T04:45:00.000Z",
       "kind": "gate",
