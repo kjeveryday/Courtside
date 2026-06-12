@@ -554,3 +554,22 @@ bullets (card-shaped there; sources PRD F6/F7/F19, §5, R7, Q-6/Q-7 via DEC-24).
 - Test approach: T45 persistence ×2 incl. restart-survival (103/103) ·
   Dependencies: [TASK-32] · Risk: low
 - Status: done (2026-06-11 · report: [gates/G5-TASK-33.md](gates/G5-TASK-33.md)) — awaiting Kyle's pass
+
+### [TASK-34] v0.2 close-out: version, README, the G5-V0-2 end-review gate (DEC-39)
+
+- Source: Kyle 2026-06-11 ("Let's finish up the build… keep going and let's
+  finish")
+- Description: version bumped to **0.2.0**; README brought to its finished
+  state (three run modes, real counts, current status); and the ending the
+  tool was built for — the finished build's end review posted as **gate
+  G5-V0-2** in the self view, with a payload (TL;DR, per-item provenance
+  meta, close-out report) and four verify steps that walk the demo loop,
+  Ask, the wizard, and this view itself. Kyle decides it in the dashboard;
+  the decision lands signed in plan/decisions-inbox/ and is acted on next
+  session — the identical loop that closed v0.1.
+- VISUAL CRITERION: `npm run dev:self` → the G5-V0-2 card is live with its
+  checklist; the scorebug reads parked at gate.
+- Test approach: full suite (103/103) + T35 keeps this self-state honest +
+  final triple live smoke (demo loop · self · wizard) · Dependencies:
+  [TASK-33] · Risk: low
+- Status: done (2026-06-11) — **G5-V0-2 pending: Kyle's end review, in the tool**

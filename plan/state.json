@@ -2,14 +2,35 @@
   "schema": "courtside/v0",
   "phase": "5",
   "slice": "refinements",
-  "generatedAt": "2026-06-12T04:10:00.000Z",
+  "generatedAt": "2026-06-12T04:45:00.000Z",
   "agent": {
-    "state": "idle",
-    "since": "2026-06-12T04:10:00.000Z",
-    "narration": "TASK-32 shipped: the wizard now picks the project folder (the server follows it) and the design doc is one write/paste box. 101/101.",
-    "currentTask": "TASK-32"
+    "state": "parked_at_gate",
+    "since": "2026-06-12T04:45:00.000Z",
+    "narration": "v0.2 finished — the build is done and the ledger is paid. 103/103. Parked for your end review at G5-V0-2.",
+    "currentTask": "TASK-34"
   },
   "gates": [
+    {
+      "id": "G5-V0-2",
+      "type": "task_review",
+      "status": "pending",
+      "postedAt": "2026-06-12T04:45:00.000Z",
+      "payloadRef": "plan/gates/G5-V0-2.json",
+      "verifySteps": [
+        {
+          "text": "Demo loop (npm run dev): approve the gate, click \"agent's next session ▸\" — the board updates itself, no reload"
+        },
+        {
+          "text": "ask ▸ — \"what is waiting on me?\" answers from the live board; \"what does the diamond mean?\" opens the manual at the section"
+        },
+        {
+          "text": "Wizard (npm run dev:new): pick a real folder in \"where\" — after submit the files are in that folder and the board is live"
+        },
+        {
+          "text": "This view: commit hashes open GitHub; decide this gate here — it lands signed in plan/decisions-inbox/ and I act next session"
+        }
+      ]
+    },
     {
       "id": "G5-V0-1",
       "type": "task_review",
@@ -336,6 +357,25 @@
       "visualCriterion": "Type ~/a/new/folder in 'where' → board lives there; pasted docs land verbatim, descriptions get starter sections",
       "deps": ["TASK-31"],
       "commit": "b6d3419"
+    },
+    {
+      "id": "TASK-33",
+      "title": "Debt paydown: persisted agent runs; routes split; Linux note",
+      "status": "done",
+      "slice": "finish",
+      "sourceRef": "plan/gates/G5-TASK-33.md",
+      "visualCriterion": "A failed agent launch keeps its red chip across a server restart",
+      "deps": ["TASK-32"],
+      "commit": "0973af6"
+    },
+    {
+      "id": "TASK-34",
+      "title": "v0.2 close-out: version, README, the G5-V0-2 end-review gate",
+      "status": "done",
+      "slice": "finish",
+      "sourceRef": "plan/gates/G5-V0-2.json",
+      "visualCriterion": "This very gate, decidable in the dashboard — the loop that closed v0.1 closes v0.2",
+      "deps": ["TASK-33"]
     }
   ],
   "debt": [
@@ -424,9 +464,33 @@
       "text": "Wizard picks the project folder (the server follows it in place); paste/describe merged into one box with a visible verbatim-vs-starter rule",
       "decidedAt": "2026-06-12T03:45:00.000Z",
       "by": "human"
+    },
+    {
+      "id": "DEC-39",
+      "text": "v0.2 close-out (Kyle: 'finish up the build'): debts paid or downgraded with facts, version 0.2.0, end review posted as gate G5-V0-2",
+      "decidedAt": "2026-06-12T04:30:00.000Z",
+      "by": "human"
     }
   ],
   "events": [
+    {
+      "ts": "2026-06-12T04:45:00.000Z",
+      "kind": "gate",
+      "provenance": "verified",
+      "text": "G5-V0-2 posted — the finished v0.2 build parked for Kyle's end review"
+    },
+    {
+      "ts": "2026-06-12T04:40:00.000Z",
+      "kind": "test_run",
+      "provenance": "verified",
+      "text": "vitest: 103/103 across 26 files (npm run check fully green)"
+    },
+    {
+      "ts": "2026-06-12T04:35:00.000Z",
+      "kind": "narration",
+      "provenance": "claimed",
+      "text": "Why: finishing means the ledger is paid and the review happens in the tool. Next: your call at G5-V0-2."
+    },
     {
       "ts": "2026-06-12T04:10:00.000Z",
       "kind": "test_run",

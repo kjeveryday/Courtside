@@ -2,14 +2,15 @@
 
 A local-first dashboard for human + agent development: see everything your coding
 agent does, approve what matters, and feel the progress — without leaving your seat.
-This branch contains the **v0.1 "Courtside Lite"** cut ([PRD §12](docs/prd.md)), built
-end-to-end under [framework-v2](docs/framework-v2.md) in autonomous mode (DEC-20 —
-every gate artifact preserved in [/plan](plan/)).
+Built end-to-end under [framework-v2](docs/framework-v2.md) with every gate artifact
+preserved in [/plan](plan/); v0.1 ([PRD §12](docs/prd.md)) was **approved by Kyle
+inside the dashboard itself** (gate G5-V0-1, signed — DEC-33), then extended to
+**v0.2** by his directives: the adversarial-review fixes, Ask Courtside, and the
+pre-game setup wizard.
 
-> **Status:** v0.1 **approved by Kyle inside the dashboard itself** (gate G5-V0-1,
-> 5/5 verify steps, signed — DEC-33) · refinements continue on `courtside-lite-v0`
-> (latest: TASK-31 **pre-game setup wizard** + TASK-30 **Ask Courtside** live Q&A;
-> TASK-28 fixed all 24 adversarial findings).
+> **Status:** **v0.2 — the build is finished** (34 tasks, DEC-1…39, debts paid).
+> The end review is live as **gate G5-V0-2** in `npm run dev:self` — decided in
+> the dashboard, signed into the inbox, acted on next session.
 
 ## Run it (60 seconds)
 
@@ -18,11 +19,11 @@ npm install            # Node >= 24 required (node:sqlite + native TS)
 npm run dev            # builds UI, resets the demo fixture, starts the real server
                        #   → open the printed http://127.0.0.1:4310/?token=… link
 npm run dev:self       # the dashboard pointed at THIS repo's real plan -
-                       #   all 32 tasks, the decided v0.1 review gate, real ledgers
+                       #   all 34 tasks, real ledgers, the LIVE v0.2 review gate
 npm run dev:new        # the PRE-GAME SETUP WIZARD - pick any folder for the
                        #   project; a few answers stand up config, plan, gdd, rules
 npx courtside doctor   # the same checks the header badge runs (all green)
-npm run check          # codegen-drift + typecheck + lint + format + 101 tests
+npm run check          # codegen-drift + typecheck + lint + format + 103 tests
 ```
 
 The harness serves the **sample fixture project** (a Godot game mid-Phase-5,
@@ -60,8 +61,8 @@ only, live WebSocket updates, SQLite event log, HMAC-signed decisions. Every
 ## Plan state (the paper trail)
 
 [plan/00-inventory.md](plan/00-inventory.md) · [plan/01-system-map.md](plan/01-system-map.md) ·
-[plan/specs/](plan/specs/) (7 slice specs) · [plan/backlog.md](plan/backlog.md) (32 task cards) ·
+[plan/specs/](plan/specs/) (7 slice specs) · [plan/backlog.md](plan/backlog.md) (34 task cards) ·
 [plan/gates/](plan/gates/) (a completion report per task) · [plan/decisions.md](plan/decisions.md)
-(DEC-1…38) · [plan/open-questions.md](plan/open-questions.md) · [plan/tech-debt.md](plan/tech-debt.md) ·
+(DEC-1…39) · [plan/open-questions.md](plan/open-questions.md) · [plan/tech-debt.md](plan/tech-debt.md) ·
 [plan/adversarial-brief.md](plan/adversarial-brief.md) (standing reviewer brief) ·
 [plan/session-log.md](plan/session-log.md) (narration trail)
