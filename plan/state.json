@@ -2,12 +2,12 @@
   "schema": "courtside/v0",
   "phase": "5",
   "slice": "refinements",
-  "generatedAt": "2026-06-12T02:27:05.000Z",
+  "generatedAt": "2026-06-12T03:00:00.000Z",
   "agent": {
     "state": "idle",
-    "since": "2026-06-12T02:27:05.000Z",
-    "narration": "TASK-29 shipped: backlog folds done work, cold returns open the Huddle, commits link out. 74/74. Idle — v0.2-size items parked for your pick.",
-    "currentTask": "TASK-29"
+    "since": "2026-06-12T03:00:00.000Z",
+    "narration": "TASK-30 shipped: Ask Courtside is live — ask ▸ in the header. 85/85. Parked for your confirm before #2, the setup wizard.",
+    "currentTask": "TASK-30"
   },
   "gates": [
     {
@@ -306,6 +306,16 @@
       "visualCriterion": "Backlog leads with live work; a cold return opens the Huddle; commit hashes click through",
       "deps": ["TASK-28"],
       "commit": "db7a500"
+    },
+    {
+      "id": "TASK-30",
+      "title": "Ask Courtside: live Q&A over the board, plan, docs, and the tool",
+      "status": "done",
+      "slice": "refinements",
+      "sourceRef": "plan/gates/G5-TASK-30.md",
+      "visualCriterion": "ask ▸ answers from the live board; tool questions open the manual; prose only via your own agent, badged claimed",
+      "deps": ["TASK-29"],
+      "commit": "8b9710d"
     }
   ],
   "debt": [
@@ -376,9 +386,27 @@
       "text": "Daily-driver pass (TASK-29): folded done tasks, huddle greeting, commit links — Kyle delegated the pick",
       "decidedAt": "2026-06-12T01:30:00.000Z",
       "by": "human"
+    },
+    {
+      "id": "DEC-36",
+      "text": "Ask Courtside (TASK-30): live Q&A — deterministic bearings always, prose only via your own connected agent (claimed badge)",
+      "decidedAt": "2026-06-12T02:35:00.000Z",
+      "by": "human"
     }
   ],
   "events": [
+    {
+      "ts": "2026-06-12T03:00:00.000Z",
+      "kind": "test_run",
+      "provenance": "verified",
+      "text": "vitest: 85/85 across 23 files (npm run check fully green)"
+    },
+    {
+      "ts": "2026-06-12T02:55:00.000Z",
+      "kind": "narration",
+      "provenance": "claimed",
+      "text": "Why: you asked for a live place to gather bearings — there wasn't one. Next: Ask Courtside is in the header; the setup wizard (#2) waits on your confirm."
+    },
     {
       "ts": "2026-06-12T02:27:05.000Z",
       "kind": "test_run",

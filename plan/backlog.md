@@ -462,3 +462,28 @@ bullets (card-shaped there; sources PRD F6/F7/F19, §5, R7, Q-6/Q-7 via DEC-24).
 - Test approach: T38 repo-url ×2 + coldReturn assertions (74/74); 4-step live
   probe · Dependencies: [TASK-28] · Risk: low
 - Status: done (2026-06-11 · report: [gates/G5-TASK-29.md](gates/G5-TASK-29.md)) — awaiting Kyle's pass
+
+### [TASK-30] Ask Courtside: live Q&A panel (DEC-36)
+
+- Source: Kyle 2026-06-11 ("Is there a place where I can ask questions live to
+  gather my bearings? … It should be able to reference everything active in
+  the tool … and answer questions on the tool itself and the project files.")
+- Description: there wasn't one — now the header carries **ask ▸**. Two
+  layers: (1) _bearings_, always on and free — the question is matched
+  deterministically against the live board (tasks, gates, questions, debt,
+  decisions, agent), live facts (decided-but-pending gates, inbox directives,
+  agent runs, doctor complaints), all project markdown, and a new built-in
+  manual ([docs/courtside-guide.md](../docs/courtside-guide.md)) so questions
+  about Courtside itself get real answers in every project; every match names
+  its source and doc matches open at the section. (2) _prose_, opt-in — with
+  an agent command connected, the question + board snapshot + matched sources
+  go to the user's own local agent and the written answer renders ◇ claimed.
+  No agent connected → matches only; nothing launched, nothing leaves the
+  machine. Asks log to the ticker; the doctor gains an honest agent-cmd line.
+- VISUAL CRITERION: "ask ▸" in the header; "what is waiting on me?" answers
+  from the live board instantly; "what does the diamond badge mean?" opens
+  the manual at the right section; with COURTSIDE_AGENT_CMD set, a ◇ prose
+  answer appears above ✓ sources.
+- Test approach: T39 bearings ×6, T40 ask route ×5 incl. stub agent (85/85);
+  6-step live smoke · Dependencies: [TASK-29] · Risk: low
+- Status: done (2026-06-11 · report: [gates/G5-TASK-30.md](gates/G5-TASK-30.md)) — **awaiting Kyle's confirm before the setup wizard (#2)**
