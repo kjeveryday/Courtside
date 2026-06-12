@@ -84,6 +84,9 @@ export type StatePayload = {
   receivedAt: string;
   harness?: boolean;
   agentConfigured?: boolean;
+  repoUrl?: string;
+  // true only on the HTTP fetch that reopened a sitting (>30 min away)
+  coldReturn?: boolean;
   result: { ok: true; state: unknown } | { ok: false; errors: string[] };
   gates?: GateView[];
   dispatches?: PendingDispatch[];

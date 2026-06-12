@@ -22,14 +22,15 @@ import { decideGate, gateViews, type DecisionRequest } from './gates.ts';
 import { readState } from './state.ts';
 
 // Last-seen tracking for the Huddle (DEC-26): prev_seen rotates only after a
-// 30-minute gap, so reloads inside a sitting don't wipe the diff window.
-function touchLastSeen(ctx: HttpContext) {
+// 30-minute gap, so reloads inside a sitting don't wipe the diff window. A
+// rotation means a cold return — the UI greets it by opening the Huddle.
+function touchLastSeen(ctx: HttpContext): boolean {
   const now = new Date().toISOString();
   const last = ctx.db.getKv('last_seen');
-  if (!last || Date.now() - new Date(last).getTime() > 30 * 60_000) {
-    ctx.db.setKv('prev_seen', last ?? now);
-  }
+  const cold = !last || Date.now() - new Date(last).getTime() > 30 * 60_000;
+  if (cold) ctx.db.setKv('prev_seen', last ?? now);
   ctx.db.setKv('last_seen', now);
+  return cold;
 }
 
 const MIME: Record<string, string> = {
@@ -52,6 +53,9 @@ export type HttpContext = {
   harness: boolean;
   agentCmd?: string;
   db: Db;
+  // browsable remote of the WATCHED project (not necessarily this repo) —
+  // commit hashes link there; absent = hashes stay plain text
+  repoUrl?: string;
   // push the current state to connected clients (wired by main once WS exists) —
   // agent exits must show up without waiting for an unrelated file change
   broadcast?: () => void;
@@ -74,6 +78,7 @@ export function statePayload(ctx: HttpContext) {
     receivedAt: new Date().toISOString(),
     harness: ctx.harness,
     agentConfigured: Boolean(ctx.agentCmd),
+    repoUrl: ctx.repoUrl,
     result,
     gates: gateViews(ctx.planDir, result.ok ? result.state : undefined),
     dispatches: pendingDispatches(ctx.planDir),
@@ -100,8 +105,8 @@ export async function handleApi(ctx: HttpContext, req: IncomingMessage, res: Ser
   if (!authorized(ctx, req)) return json(res, 401, { error: 'missing or invalid token' });
   const path = (req.url ?? '').split('?')[0] ?? '';
   if (req.method === 'GET' && path === '/api/state') {
-    touchLastSeen(ctx);
-    return json(res, 200, statePayload(ctx));
+    const coldReturn = touchLastSeen(ctx);
+    return json(res, 200, { ...statePayload(ctx), coldReturn });
   }
   if (req.method === 'GET' && path === '/api/huddle') {
     const result = readState(ctx.planDir);

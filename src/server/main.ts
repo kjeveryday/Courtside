@@ -8,6 +8,7 @@ import { resetFixture, simulateAgentSession } from '../core/agentSession.ts';
 import { generateToken } from './auth.ts';
 import { openDb, type Db } from './db.ts';
 import { createHandler, json, statePayload, type HttpContext } from './http.ts';
+import { projectRepoUrl } from './repo.ts';
 import { readState } from './state.ts';
 import { watchPlanDir } from './watch.ts';
 import { attachWs } from './ws.ts';
@@ -52,6 +53,7 @@ export async function startServer(opts: StartOptions): Promise<RunningServer> {
     token,
     harness,
     agentCmd: opts.agentCmd ?? process.env.COURTSIDE_AGENT_CMD,
+    repoUrl: projectRepoUrl(dirname(opts.planDir)),
     db,
   };
   if (harness) {

@@ -38,6 +38,7 @@ type LoadState =
       dispatches: PendingDispatch[];
       agentRuns: AgentRun[];
       serverEvents: ServerEvent[];
+      repoUrl?: string;
     }
   | { phase: 'refused'; errors: string[] };
 
@@ -85,7 +86,7 @@ export default function App() {
     // One trust path for first fetch and every live push: validate locally,
     // render fully or refuse (PRD §5).
     const applyPayload = (payload: StatePayload) => {
-      const { result, gates, harness, dispatches, agentRuns, serverEvents } = payload;
+      const { result, gates, harness, dispatches, agentRuns, serverEvents, repoUrl } = payload;
       if (token) refreshDoctor(token); // health decays live (F0)
       if (!result.ok) return apply({ phase: 'refused', errors: result.errors });
       const checked = validateState(result.state);
@@ -99,6 +100,7 @@ export default function App() {
           dispatches: dispatches ?? [],
           agentRuns: agentRuns ?? [],
           serverEvents: serverEvents ?? [],
+          repoUrl,
         });
       else apply({ phase: 'refused', errors: checked.errors });
     };
@@ -115,6 +117,8 @@ export default function App() {
       if (outcome.kind === 'network')
         return apply({ phase: 'refused', errors: [`/api/state — ${outcome.detail}`] });
       applyPayload(outcome.payload);
+      // cold return (>30 min away): lead with "since you last looked"
+      if (outcome.payload.coldReturn && outcome.payload.result.ok) openHuddle();
       disconnect = connectWs(token, applyPayload, (s) => {
         if (!cancelled) setWs(s);
       });
@@ -191,6 +195,7 @@ export default function App() {
             dispatches={load.dispatches}
             agentRuns={load.agentRuns}
             serverEvents={load.serverEvents}
+            repoUrl={load.repoUrl}
             decisionError={decisionError}
             onDecisionError={setDecisionError}
             onOpenDoc={openDoc}

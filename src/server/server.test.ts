@@ -33,16 +33,26 @@ describe('server core (T17)', () => {
     expect(res.status).toBe(401);
   });
 
-  it('serves validated state with the token', async () => {
+  it('serves validated state with the token; first visit is a cold return', async () => {
     const res = await fetch(`${base}/api/state`, {
       headers: { authorization: `Bearer ${server.token}` },
     });
     expect(res.status).toBe(200);
     const body = (await res.json()) as {
       result: { ok: boolean; state?: { schema: string } };
+      coldReturn?: boolean;
     };
     expect(body.result.ok).toBe(true);
     expect(body.result.state?.schema).toBe('courtside/v0');
+    expect(body.coldReturn).toBe(true);
+  });
+
+  it('a fetch inside the same sitting is not a cold return (TASK-29)', async () => {
+    const res = await fetch(`${base}/api/state`, {
+      headers: { authorization: `Bearer ${server.token}` },
+    });
+    const body = (await res.json()) as { coldReturn?: boolean };
+    expect(body.coldReturn).toBe(false);
   });
 
   it('unknown api routes 404 (with auth)', async () => {

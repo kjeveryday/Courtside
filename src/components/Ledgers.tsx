@@ -48,7 +48,15 @@ function Row({
   );
 }
 
-export function Ledgers({ state, dispatch }: { state: CourtsideState; dispatch?: DispatchApi }) {
+export function Ledgers({
+  state,
+  dispatch,
+  repoUrl,
+}: {
+  state: CourtsideState;
+  dispatch?: DispatchApi;
+  repoUrl?: string;
+}) {
   const questions = state.questions ?? [];
   const debt = state.debt ?? [];
   const decisions = state.decisions ?? [];
@@ -132,7 +140,24 @@ export function Ledgers({ state, dispatch }: { state: CourtsideState; dispatch?:
               {' '}
               · by {d.by}
               {d.gateId ? ` · ${d.gateId}` : ''}
-              {d.commit ? ` · ${d.commit}` : ''}
+              {d.commit && (
+                <>
+                  {' · '}
+                  {repoUrl ? (
+                    <a
+                      href={`${repoUrl}/commit/${d.commit}`}
+                      target="_blank"
+                      rel="noreferrer"
+                      title="open the commit"
+                      className="underline"
+                    >
+                      {d.commit}
+                    </a>
+                  ) : (
+                    d.commit
+                  )}
+                </>
+              )}
             </span>
           </p>
         ))}

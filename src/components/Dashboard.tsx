@@ -24,6 +24,7 @@ export function Dashboard({
   dispatches,
   agentRuns,
   serverEvents,
+  repoUrl,
   decisionError,
   onDecisionError,
   onOpenDoc,
@@ -34,6 +35,7 @@ export function Dashboard({
   dispatches: PendingDispatch[];
   agentRuns: AgentRun[];
   serverEvents: ServerEvent[];
+  repoUrl?: string;
   decisionError: string;
   onDecisionError: (msg: string) => void;
   onOpenDoc: (ref: string) => void;
@@ -76,12 +78,17 @@ export function Dashboard({
           {pendingOrDecided.length > 0 && (
             <NextUp state={state} gateApproved={anyApproved} onOpenDoc={onOpenDoc} />
           )}
-          <Backlog tasks={state.tasks} dispatch={dispatch} onOpenDoc={onOpenDoc} />
+          <Backlog
+            tasks={state.tasks}
+            dispatch={dispatch}
+            onOpenDoc={onOpenDoc}
+            repoUrl={repoUrl}
+          />
         </div>
         <aside>
           <Progress state={state} />
           <Ticker events={state.events} serverEvents={serverEvents} token={token} />
-          <Ledgers state={state} dispatch={dispatch} />
+          <Ledgers state={state} dispatch={dispatch} repoUrl={repoUrl} />
         </aside>
       </div>
     </section>
