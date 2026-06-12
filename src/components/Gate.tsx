@@ -84,7 +84,7 @@ export function GateCard({
 
       {view.payloadMissing && (
         <p
-          title="the gate names a report file Courtside cannot read — unverifiable evidence"
+          title="the checkpoint report file Courtside cannot read — unverifiable evidence"
           className="mt-3 rounded border border-dashed border-risk/50 bg-risk/5 px-3 py-2.5 font-mono text-[11px] text-risk"
         >
           report {view.payloadNote ?? 'missing'} — {gate.payloadRef}
@@ -156,7 +156,7 @@ export function GateCard({
               onClick={() => decide('approve')}
               className="rounded-lg bg-accent px-4 py-2 text-[13px] font-semibold text-accent-ink disabled:cursor-not-allowed disabled:opacity-35"
             >
-              Approve gate
+              Approve checkpoint
             </button>
             <button
               disabled={comment.trim() === '' || busy}

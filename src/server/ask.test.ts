@@ -60,9 +60,9 @@ describe('/api/ask (T40)', () => {
   });
 
   it('tool questions hit the Courtside guide with an openable ref', async () => {
-    const { body } = await ask(server, 'how do I decide a gate, and is approving safe?');
+    const { body } = await ask(server, 'how do I decide a checkpoint, and is approving safe?');
     const refs = (body.bearings as { ref?: string }[]).map((b) => b.ref);
-    expect(refs).toContain('courtside-guide.md#deciding-a-gate');
+    expect(refs).toContain('courtside-guide.md#deciding-a-checkpoint');
   });
 
   it('with an agent command connected, a prose answer comes back', async () => {

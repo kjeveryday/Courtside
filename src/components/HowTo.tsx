@@ -12,8 +12,8 @@ const STEPS = [
   },
   {
     n: '2',
-    title: 'It stops at a gate',
-    body: 'A checkpoint where it needs your okay before going further.',
+    title: 'It stops at a checkpoint',
+    body: 'A review moment where it needs your okay before going further.',
   },
   {
     n: '3',

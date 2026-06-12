@@ -40,7 +40,7 @@ export function Legend({ onClose }: { onClose: () => void }) {
       />
       <Term
         chip={chip('bg-accent/15 text-accent', 'in-review')}
-        text="task status: todo → in-progress → in-review (gate posted, your call) → done; revise/blocked follow a rejection"
+        text="task status: todo → in-progress → in-review (checkpoint posted, your call) → done; revise/blocked follow a rejection"
       />
       <Term
         chip={chip('border border-line bg-surface2 text-muted', 'LOGIC-ONLY → TASK-16')}
@@ -48,13 +48,13 @@ export function Legend({ onClose }: { onClose: () => void }) {
       />
       <Term
         chip={chip('border border-accent text-accent', 'G5-TASK-12')}
-        text="a gate: checkpoint G0–G5 · the task under review. G5 = finished work awaiting your verify"
+        text="a checkpoint · G0–G5 = phase of the build · G5 = finished work awaiting your verify"
       />
       <Term chip={dot('bg-info', 'narration')} text="ticker dot: the agent explaining itself" />
       <Term chip={dot('bg-ok', 'test / lint')} text="ticker dot: tool output" />
       <Term
-        chip={dot('bg-accent', 'gate / dispatch / ask')}
-        text="ticker dot: a gate, send-to-agent, or ask event — usually you"
+        chip={dot('bg-accent', 'checkpoint / dispatch / ask')}
+        text="ticker dot: a checkpoint, send-to-agent, or ask event — usually you"
       />
       <Term
         chip={dot('bg-muted', 'push / audit / capture')}

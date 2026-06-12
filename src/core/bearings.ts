@@ -64,7 +64,7 @@ export function stateBearings(state: CourtsideState, question: string): Bearing[
     add(`board · ${t.id}`, text, ids.includes(t.id));
   }
   for (const g of state.gates) {
-    const text = `gate ${g.id} — ${g.status}${g.taskId ? ` (reviews ${g.taskId})` : ''}, posted ${g.postedAt}`;
+    const text = `checkpoint ${g.id} — ${g.status}${g.taskId ? ` (reviews ${g.taskId})` : ''}, posted ${g.postedAt}`;
     add(`board · ${g.id}`, text, ids.includes(g.id));
   }
   for (const q of state.questions ?? []) {

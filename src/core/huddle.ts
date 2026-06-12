@@ -56,7 +56,7 @@ export function buildHuddle(
     facts.push({
       kind: 'waiting',
       provenance: 'verified',
-      text: `1 gate waiting on you — ${gate.id}, posted ${formatAgo(gate.postedAt, nowMs)}`,
+      text: `1 checkpoint waiting on you — ${gate.id}, posted ${formatAgo(gate.postedAt, nowMs)}`,
     });
 
   for (const q of (state.questions ?? []).filter((q) => q.status === 'open'))

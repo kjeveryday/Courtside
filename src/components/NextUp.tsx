@@ -27,8 +27,8 @@ export function NextUp({
       </h2>
       <p className={`mb-2.5 font-mono text-[11px] ${gateApproved ? 'text-ok' : 'text-accent'}`}>
         {gateApproved
-          ? '▮ Gate cleared — agent picks this up next session'
-          : '▮ Locked behind the gate above — clears when you approve'}
+          ? '▮ Checkpoint cleared — agent picks this up next session'
+          : '▮ Locked behind this checkpoint — clears when you approve'}
       </p>
       {upcoming.map((t) => (
         <div

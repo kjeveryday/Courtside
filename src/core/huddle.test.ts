@@ -11,7 +11,7 @@ const seed = async (): Promise<CourtsideState> =>
 const NOW = new Date('2026-06-10T23:00:00-05:00').getTime();
 
 describe('buildHuddle (T29)', () => {
-  it('reports waiting gate, open question, agent state against an old last-seen', async () => {
+  it('reports waiting checkpoint, open question, agent state against an old last-seen', async () => {
     const h = buildHuddle(await seed(), [], '2026-06-05T00:00:00-05:00', NOW);
     const text = h.facts.map((f) => f.text).join('\n');
     expect(text).toContain('G5-TASK-12');

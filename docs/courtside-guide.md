@@ -19,7 +19,7 @@ Nothing runs in the cloud; the server binds to your machine only.
   (check each, or skip with a reason), then Approve, Reject, or Request
   changes. Reject and Request changes require a comment. Three rejections
   block a task until you discuss it.
-- **Next up** — what the agent picks up once the gate clears.
+- **Next up** — what the agent picks up once the checkpoint clears.
 - **Backlog** — every task, grouped by slice, finished work folded into a
   "done" line. Expand a task for its visual criterion, source link, commit,
   and the send-to-agent button.
@@ -27,7 +27,7 @@ Nothing runs in the cloud; the server binds to your machine only.
   feed (newest first); open questions, tech debt, recent decisions, and how
   fresh the state file is.
 - **The Huddle** — "since you last looked": tasks shipped, decisions that
-  landed, gates waiting, questions still open. It opens by itself when you
+  landed, checkpoints waiting, questions still open. It opens by itself when you
   return after 30+ minutes away.
 
 ## Verified vs claimed
@@ -38,7 +38,7 @@ tests, lint, git, the decision log. The diamond (◇, claimed) means it is the
 agent's own account (or an AI-written answer) and has not been checked. The
 styling never mixes: nothing claimed is allowed to dress as verified.
 
-## Deciding a gate
+## Deciding a checkpoint
 
 Your decision is written three ways at once: an append-only signed log (an
 HMAC chain — tampering breaks it), a structured inbox file the agent reads
@@ -98,6 +98,6 @@ takes over in place.
 ## The demo
 
 `npm run dev` serves a sample project (a small Godot tactics game mid-build)
-so you can try the full loop safely: approve its gate, run "agent's next
+so you can try the full loop safely: approve its checkpoint, run "agent's next
 session", watch the board update, reset and do it again. Your real project
 runs the same way — point Courtside at its plan directory.
