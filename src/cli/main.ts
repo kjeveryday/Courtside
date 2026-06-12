@@ -50,7 +50,12 @@ export async function cli(argv: string[]): Promise<number> {
   }
 
   if (cmd === 'doctor') {
-    const findings = runDoctor({ repoRoot, planDir, runtimeDir });
+    const findings = runDoctor({
+      repoRoot,
+      planDir,
+      runtimeDir,
+      agentCmd: process.env.COURTSIDE_AGENT_CMD,
+    });
     let category = '';
     for (const f of findings) {
       if (f.category !== category) {

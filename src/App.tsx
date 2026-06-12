@@ -1,6 +1,7 @@
 // App shell: token gate → /api/state → validated render or refusal (PRD §5).
 // Data arrives from the Courtside server (S4); live WS updates land in TASK-12.
 import { useEffect, useState } from 'react';
+import { AskButton, AskPanel } from './components/Ask';
 import { HarnessBar } from './components/HarnessBar';
 import { Header } from './components/Header';
 import { Dashboard } from './components/Dashboard';
@@ -50,6 +51,7 @@ export default function App() {
   const [showPreflight, setShowPreflight] = useState(false);
   const [huddle, setHuddle] = useState<HuddleData | null>(null);
   const [showLegend, setShowLegend] = useState(false);
+  const [showAsk, setShowAsk] = useState(false);
   const [docView, setDocView] = useState<{
     ref: string;
     text: string | null;
@@ -143,6 +145,7 @@ export default function App() {
               onToggle={() => setShowPreflight((v) => !v)}
             />
             {load.phase === 'ok' && <HuddleButton onOpen={openHuddle} />}
+            {load.phase === 'ok' && <AskButton onOpen={() => setShowAsk(true)} />}
             <button
               onClick={() => setShowLegend((v) => !v)}
               title="legend — what the chips, dots, and badges mean"
@@ -171,6 +174,16 @@ export default function App() {
       {huddle && (
         <div className="mt-5">
           <HuddlePanel data={huddle} onClose={() => setHuddle(null)} />
+        </div>
+      )}
+      {load.phase === 'ok' && (
+        <div className={showAsk ? 'mt-5' : ''}>
+          <AskPanel
+            token={load.token}
+            open={showAsk}
+            onClose={() => setShowAsk(false)}
+            onOpenDoc={openDoc}
+          />
         </div>
       )}
       {showPreflight && doctor && (

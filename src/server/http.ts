@@ -1,8 +1,8 @@
-// Request routing: gated /api/* + open static app shell from dist/ (AD-6 note:
-// the shell carries no data; every byte of state sits behind the token).
+// Request routing: gated /api/* + open static app shell (static.ts). The shell
+// carries no data; every byte of state sits behind the token (AD-6).
 import { existsSync, readFileSync } from 'node:fs';
 import type { IncomingMessage, ServerResponse } from 'node:http';
-import { extname, join, normalize } from 'node:path';
+import { extname, join } from 'node:path';
 import { safeTapePath } from './tape.ts';
 import {
   appendDirective,
@@ -14,12 +14,14 @@ import { runDoctor } from '../core/doctor.ts';
 import { buildHuddle } from '../core/huddle.ts';
 import { allRuns, dispatchAgent } from './agentRunner.ts';
 import { safeArtifactPath } from './artifacts.ts';
+import { handleAsk } from './ask.ts';
 import { extractToken, tokenEquals } from './auth.ts';
 import type { Db } from './db.ts';
 import { buildDirective } from './dispatch.ts';
 import { safeDocPath } from './docs.ts';
 import { decideGate, gateViews, type DecisionRequest } from './gates.ts';
 import { readState } from './state.ts';
+import { handleStatic, MIME } from './static.ts';
 
 // Last-seen tracking for the Huddle (DEC-26): prev_seen rotates only after a
 // 30-minute gap, so reloads inside a sitting don't wipe the diff window. A
@@ -32,17 +34,6 @@ function touchLastSeen(ctx: HttpContext): boolean {
   ctx.db.setKv('last_seen', now);
   return cold;
 }
-
-const MIME: Record<string, string> = {
-  '.html': 'text/html; charset=utf-8',
-  '.js': 'text/javascript',
-  '.css': 'text/css',
-  '.svg': 'image/svg+xml',
-  '.png': 'image/png',
-  '.json': 'application/json',
-  '.woff2': 'font/woff2',
-  '.map': 'application/json',
-};
 
 export type HttpContext = {
   distDir: string;
@@ -127,8 +118,26 @@ export async function handleApi(ctx: HttpContext, req: IncomingMessage, res: Ser
         repoRoot: ctx.repoRoot,
         planDir: ctx.planDir,
         runtimeDir: ctx.runtimeDir,
+        agentCmd: ctx.agentCmd,
       }),
     });
+  }
+  if (req.method === 'POST' && path === '/api/ask') {
+    let body: { question?: unknown; transcript?: unknown };
+    try {
+      body = (await readBody(req)) as typeof body;
+    } catch (err) {
+      return json(res, 400, { error: `bad request body: ${(err as Error).message}` });
+    }
+    const result = readState(ctx.planDir);
+    const out = await handleAsk(ctx, body, result.ok ? result.state : undefined);
+    if (out.status === 200)
+      ctx.db.insertEvent({
+        kind: 'ask',
+        provenance: 'verified',
+        text: `asked: ${String(body.question).slice(0, 80)}`,
+      });
+    return json(res, out.status, out.payload);
   }
   if (req.method === 'POST' && path === '/api/decisions') {
     let body: DecisionRequest;
@@ -192,7 +201,10 @@ export async function handleApi(ctx: HttpContext, req: IncomingMessage, res: Ser
     return res.end(readFileSync(file));
   }
   if (req.method === 'GET' && path.startsWith('/api/doc/')) {
-    const file = safeDocPath(ctx.planDir, path);
+    let file = safeDocPath(ctx.planDir, path);
+    // the tool's own manual opens in EVERY project — fixed literal, confined
+    if ((!file || !existsSync(file)) && path === '/api/doc/courtside-guide.md')
+      file = join(ctx.repoRoot, 'docs', 'courtside-guide.md');
     if (!file || !existsSync(file)) return json(res, 404, { error: 'no such doc' });
     res.writeHead(200, { 'content-type': 'text/plain; charset=utf-8' });
     return res.end(readFileSync(file));
@@ -207,27 +219,6 @@ export async function handleApi(ctx: HttpContext, req: IncomingMessage, res: Ser
   }
   if (ctx.extraRoutes?.(path, req, res)) return;
   return json(res, 404, { error: `no such route: ${req.method} ${path}` });
-}
-
-export function handleStatic(ctx: HttpContext, req: IncomingMessage, res: ServerResponse) {
-  const rawPath = (req.url ?? '/').split('?')[0] ?? '/';
-  const safe = normalize(rawPath).replace(/^(\.\.[/\\])+/, '');
-  const filePath = join(ctx.distDir, safe === '/' ? 'index.html' : safe);
-  if (!filePath.startsWith(ctx.distDir)) return json(res, 403, { error: 'forbidden' });
-  try {
-    const body = readFileSync(filePath);
-    res.writeHead(200, { 'content-type': MIME[extname(filePath)] ?? 'application/octet-stream' });
-    res.end(body);
-  } catch {
-    // SPA fallback: unknown paths get the shell (it locks itself without a token).
-    try {
-      const body = readFileSync(join(ctx.distDir, 'index.html'));
-      res.writeHead(200, { 'content-type': MIME['.html'] as string });
-      res.end(body);
-    } catch {
-      json(res, 404, { error: 'app shell missing — run the build (npm run dev rebuilds it)' });
-    }
-  }
 }
 
 export function createHandler(ctx: HttpContext) {

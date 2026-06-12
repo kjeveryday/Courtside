@@ -30,6 +30,7 @@ export type DoctorContext = {
   repoRoot: string;
   planDir: string;
   runtimeDir: string;
+  agentCmd?: string;
   enginePlugins?: EnginePlugin[];
 };
 
@@ -64,6 +65,15 @@ export function runDoctor(ctx: DoctorContext): DoctorFinding[] {
     status: hasMarker ? 'pass' : 'warn',
     detail: hasMarker ? 'CLAUDE.md present with framework rules' : 'CLAUDE.md missing or unmarked',
     fixit: hasMarker ? undefined : 'add the framework-v2 rules block to CLAUDE.md',
+  });
+  f.push({
+    id: 'agent-cmd',
+    category: 'agent',
+    status: ctx.agentCmd ? 'pass' : 'skip',
+    detail: ctx.agentCmd
+      ? 'agent command connected — dispatch launches it; ask writes answers'
+      : 'no agent command connected — dispatches queue for next session; ask shows matches only',
+    fixit: ctx.agentCmd ? undefined : 'set COURTSIDE_AGENT_CMD (e.g. "claude") to connect one',
   });
   f.push({
     id: 'mcp',

@@ -53,8 +53,8 @@ export function Legend({ onClose }: { onClose: () => void }) {
       <Term chip={dot('bg-info', 'narration')} text="ticker dot: the agent explaining itself" />
       <Term chip={dot('bg-ok', 'test / lint')} text="ticker dot: tool output" />
       <Term
-        chip={dot('bg-accent', 'gate / dispatch')}
-        text="ticker dot: a gate or send-to-agent event — usually you"
+        chip={dot('bg-accent', 'gate / dispatch / ask')}
+        text="ticker dot: a gate, send-to-agent, or ask event — usually you"
       />
       <Term
         chip={dot('bg-muted', 'push / audit / capture')}

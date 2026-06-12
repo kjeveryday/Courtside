@@ -112,6 +112,33 @@ export async function postDispatch(
   }
 }
 
+export type AskBearing = { source: string; text: string; ref?: string };
+export type AskResult = {
+  bearings: AskBearing[];
+  answer?: string;
+  answerError?: string;
+  agentConfigured: boolean;
+};
+
+export async function postAsk(
+  token: string,
+  question: string,
+  transcript: { q: string; a: string }[],
+): Promise<AskResult | { error: string }> {
+  try {
+    const res = await fetch('/api/ask', {
+      method: 'POST',
+      headers: { authorization: `Bearer ${token}`, 'content-type': 'application/json' },
+      body: JSON.stringify({ question, transcript }),
+    });
+    const data = (await res.json().catch(() => ({}))) as AskResult & { error?: string };
+    if (!res.ok) return { error: data.error ?? `HTTP ${res.status}` };
+    return data;
+  } catch (err) {
+    return { error: err instanceof Error ? err.message : String(err) };
+  }
+}
+
 export type DecisionPost = {
   gateId: string;
   decision: 'approve' | 'reject' | 'request_changes';
