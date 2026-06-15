@@ -5,6 +5,7 @@ export type StepState = {
   checked: boolean;
   skippedReason: string;
   skipping: boolean;
+  note: string; // annotation bundled into the decision payload
 };
 
 export function stepsComplete(steps: StepState[]): boolean {
@@ -55,6 +56,14 @@ export function VerifySteps({
               onChange={(e) => patch(i, { skippedReason: e.target.value })}
               placeholder="reason for skipping"
               className="mt-2 w-full rounded border border-line bg-surface2 px-2 py-1 text-xs"
+            />
+          )}
+          {(s.checked || s.skippedReason.trim()) && (
+            <input
+              value={s.note}
+              onChange={(e) => patch(i, { note: e.target.value })}
+              placeholder="note for the agent (optional)"
+              className="mt-2 w-full rounded border border-line bg-surface2 px-2 py-1 font-mono text-[11px] text-muted placeholder:text-muted/50"
             />
           )}
         </div>
