@@ -1,0 +1,20 @@
+GUT v9.3.0 — headless run 2026-06-10 19:41:02 -05:00
+Godot Engine v4.3.stable — res://tests/unit/GridRangeTests.gd
+
+* test_range_basic_spd3 .......... PASS
+* test_range_blocked_tiles ....... PASS
+* test_range_edge_of_board ....... PASS
+* test_range_zero_spd ............ PASS
+* test_range_diagonal_excluded ... PASS
+* test_range_occupied_friendly ... PASS
+* test_range_occupied_enemy ...... PASS
+* test_path_cost_uniform ......... PASS
+* test_path_prefers_shortest ..... PASS
+* test_overlay_tile_count ........ PASS
+* test_overlay_clears_on_cancel .. PASS
+* test_overlay_redraw_idempotent . PASS
+* test_spd_stat_source ........... PASS
+* test_range_recompute_on_move ... PASS
+
+Totals: 14 passed, 0 failed, 0 errored. Time: 1.84s
+(referenced by state.json events[0].artifactRef — verified-provenance backing file)

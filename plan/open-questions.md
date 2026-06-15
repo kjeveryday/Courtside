@@ -4,15 +4,15 @@ Logged per CLAUDE.md rule 4: when the spec is silent, options + a labeled
 recommendation, then stop — never invent. (PRD-internal numbering OQ1–OQ5 belongs to
 the PRD; this ledger uses Q-n.)
 
-| ID  | Question                                              | Status                                                                                  | Raised   | Resolution                                                     |
-| --- | ----------------------------------------------------- | --------------------------------------------------------------------------------------- | -------- | -------------------------------------------------------------- |
-| Q-1 | Normalize doc/spec paths?                             | **answered** → A                                                                        | Phase 0  | DEC-2 — moved 2026-06-10                                       |
-| Q-2 | When to `git init`?                                   | **answered** → A                                                                        | Phase 0  | DEC-3 — init'd 2026-06-10; remote URL still pending            |
-| Q-3 | Missing fixture companion files                       | **answered** → A                                                                        | Phase 0  | DEC-4 — placeholders + missing-state, lands with harness tasks |
-| Q-4 | "`npx courtside`" in v0.1 ship criteria               | **answered** → A                                                                        | Phase 0  | DEC-5 — local CLI bin; publishing stays M4                     |
-| Q-5 | Fixture timestamps drift                              | **answered** → A                                                                        | Phase 0  | DEC-6 — real clock, drift accepted                             |
-| Q-6 | (= PRD OQ1) Approval friction: PIN/keypress?          | **open** — leaning A per GATE-0 delegation; confirm at Phase 2 gate (gate slice spec)   | PRD v1.1 | —                                                              |
-| Q-7 | (= PRD OQ4) Completion report: structured vs freeform | **open** — leaning A per GATE-0 delegation; confirm at Phase 2 gate (verify slice spec) | PRD v1.1 | —                                                              |
+| ID  | Question                                              | Status           | Raised   | Resolution                                                                                            |
+| --- | ----------------------------------------------------- | ---------------- | -------- | ----------------------------------------------------------------------------------------------------- |
+| Q-1 | Normalize doc/spec paths?                             | **answered** → A | Phase 0  | DEC-2 — moved 2026-06-10                                                                              |
+| Q-2 | When to `git init`?                                   | **answered** → A | Phase 0  | DEC-3 — init'd 2026-06-10; remote URL still pending                                                   |
+| Q-3 | Missing fixture companion files                       | **answered** → A | Phase 0  | DEC-4 — placeholders + missing-state, lands with harness tasks                                        |
+| Q-4 | "`npx courtside`" in v0.1 ship criteria               | **answered** → A | Phase 0  | DEC-5 — local CLI bin; publishing stays M4                                                            |
+| Q-5 | Fixture timestamps drift                              | **answered** → A | Phase 0  | DEC-6 — real clock, drift accepted                                                                    |
+| Q-6 | (= PRD OQ1) Approval friction: PIN/keypress?          | **answered** → A | PRD v1.1 | DEC-24 (agent-decided, autonomous mode) — no extra friction; checklist gating is the mechanism        |
+| Q-7 | (= PRD OQ4) Completion report: structured vs freeform | **answered** → A | PRD v1.1 | DEC-24 (agent-decided, autonomous mode) — hybrid: structured verifySteps + payload tldr/meta/reportMd |
 
 ---
 

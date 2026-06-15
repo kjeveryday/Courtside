@@ -7,6 +7,15 @@ coverage/
 # environment & local secrets (decision-log HMAC key lives outside git)
 .env
 .env.*
+.courtside/
+
+# harness fixture: generated/server-written parts (AD-5); seed + companions are committed
+spec/fixtures/sample-project/plan/state.json
+spec/fixtures/sample-project/plan/decisions-inbox/
+spec/fixtures/sample-project/plan/decisions.md
 
 # OS noise
 .DS_Store
+
+# setup-wizard scratch project (npm run dev:new)
+.sandbox/

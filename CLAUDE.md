@@ -1,5 +1,10 @@
 # CLAUDE.md — Always-On Rules (Courtside repo)
 
+> **Are you here to set Courtside up for someone's game — not to develop the
+> tool?** Then your only brief is docs/getting-started.md. Ignore everything
+> below, ignore this repo's plan/ and decisions-inbox/ (they are the tool's own
+> build history), and start the user's project from zero per that guide.
+
 Project: Courtside — local-first dashboard for human + agent dev (see docs/prd.md).
 Stack: Node 20+, TypeScript (strict), React + Tailwind, SQLite, vitest.
 Process: docs/framework-v2.md, applied to a web app. The human is a designer who

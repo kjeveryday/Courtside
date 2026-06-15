@@ -1,0 +1,19 @@
+{
+  "schema": "courtside/gate-payload-v0",
+  "id": "G5-TASK-12",
+  "taskId": "TASK-12",
+  "title": "Task review · render movement range overlay",
+  "sourceRef": "gdd.md#movement-ranges",
+  "tldr": "Clicking a unit now highlights every tile it can reach this turn. Range comes from the unit's SPD stat via the pure GridRange class, so it's unit-tested and engine-free.",
+  "meta": [
+    {
+      "label": "14/14 GUT tests",
+      "provenance": "verified",
+      "artifactRef": "artifacts/gut-run-0610-1941.log"
+    },
+    { "label": "lint clean", "provenance": "verified" },
+    { "label": "self-audit: 0 findings", "provenance": "claimed" },
+    { "label": "commit 3f8a21c", "provenance": "verified" }
+  ],
+  "reportMd": "## TASK-12 — done, awaiting review\n\n**Why it was built this way:** GridRange is pure C# so the range math tests headlessly (14 GUT cases); the overlay is a thin renderer on top, wired into DebugBattle per the harness rule.\n\n**Tape:** frame 001 shows the range overlay on Guard #4; frame 002 should show blocked-tile exclusion.\n\n**Tech debt:** D-3 — overlay redraws the whole grid each frame; fine at 12x9.\n"
+}

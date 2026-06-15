@@ -1,0 +1,14 @@
+{
+  "schema": "courtside/gate-payload-v0",
+  "id": "G5-V0-1",
+  "title": "v0.1 Courtside Lite — your end review",
+  "sourceRef": "docs/prd.md#12-milestones--cut-line",
+  "tldr": "Everything your agent does, visible and decidable: live dashboard, signed async gate decisions, agent dispatch with context, doctor, tape, huddle. 25 tasks, 8 slices, both ship criteria proven. This gate is the review itself — work through the steps in the demo, then decide here.",
+  "meta": [
+    { "label": "59/59 vitest", "provenance": "verified" },
+    { "label": "doctor: all green", "provenance": "verified" },
+    { "label": "fresh clone → green in 14s", "provenance": "verified" },
+    { "label": "ship criteria met", "provenance": "claimed" }
+  ],
+  "reportMd": "Full record: plan/backlog.md (25 task cards) · plan/gates/ (a report per task) · plan/decisions.md (DEC-1..32) · plan/session-log.md (narration trail).\n\nKnown debt: D-2 (Linux file-watching) — pre-OSS fix.\n\nRejecting with a comment sends me the rework instructions through the same inbox the demo uses; I read it at the start of my next session."
+}

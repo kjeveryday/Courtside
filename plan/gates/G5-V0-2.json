@@ -1,0 +1,14 @@
+{
+  "schema": "courtside/gate-payload-v0",
+  "id": "G5-V0-2",
+  "title": "v0.2 — the finished build: your end review",
+  "sourceRef": "README.md",
+  "tldr": "Everything you asked for since v0.1 is in: all 24 adversarial fixes, the daily-driver pass, Ask Courtside, the setup wizard with folder choice, and the debt ledger paid. Decide here — I act on it next session, same loop that closed v0.1.",
+  "meta": [
+    { "label": "103/103 tests · 26 files", "provenance": "verified" },
+    { "label": "demo · self · wizard live smokes green", "provenance": "verified" },
+    { "label": "all five directives shipped", "provenance": "claimed" },
+    { "label": "v0.2.0", "provenance": "verified" }
+  ],
+  "reportMd": "## v0.2 close-out\n\nSince your v0.1 approval: TASK-28 fixed all 24 adversarial-review findings (runtime isolation — the demo reset can never touch your real decision chain again; payload resilience; honest huddle/doctor; evidence links). TASK-29 made the board a daily driver: folded done work, the Huddle greets a cold return, commit hashes open GitHub. TASK-30 added Ask Courtside — instant matches from the live board, your docs, and the built-in manual; written answers only through your own agent, badged claimed. TASK-31/32 added Pre-game setup: point at any folder, answer a few questions, the server follows the project and the board goes live. TASK-33 paid the debts: failed agent launches survive restarts (proven by test), the Linux watcher concern is moot on our Node 24 floor, the oversized files were split.\n\nStill parked, your call later: deriving this plan from git instead of hand-maintaining it; MCP live mode; a Linux smoke before any OSS release.\n"
+}
