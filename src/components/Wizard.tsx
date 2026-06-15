@@ -2,7 +2,15 @@
 // Pick where the project lives (the server follows), answer a few questions,
 // and the live board takes over in place — nothing existing gets overwritten.
 import { useState } from 'react';
-import { fetchSetupInfo, postSetup, postTestAgent, type SetupInfo } from '../lib/api';
+import {
+  fetchGddFolderInfo,
+  fetchSetupInfo,
+  pickWizardFile,
+  pickWizardFolder,
+  postSetup,
+  postTestAgent,
+  type SetupInfo,
+} from '../lib/api';
 
 const field = 'mt-1.5 w-full rounded border border-line bg-surface2 px-2.5 py-2 text-xs';
 const chipCls = (on: boolean) =>
@@ -26,7 +34,11 @@ export function Wizard({ token, info: boot }: { token: string; info: SetupInfo }
   const [dirNote, setDirNote] = useState('');
   const [name, setName] = useState(boot.projectName);
   const [nameTouched, setNameTouched] = useState(false);
-  const [gddMode, setGddMode] = useState<'have' | 'text'>(boot.mdFiles.length ? 'have' : 'text');
+  const [gddMode, setGddMode] = useState<'have' | 'text' | 'folder'>(
+    boot.mdFiles.length ? 'have' : 'text',
+  );
+  const [gddFolderPath, setGddFolderPath] = useState('');
+  const [gddFolderNote, setGddFolderNote] = useState('');
   const [gddPath, setGddPath] = useState(boot.mdFiles[0] ?? '');
   const [gddText, setGddText] = useState('');
   const [engine, setEngine] = useState<'godot' | 'unity' | 'none'>(
@@ -37,10 +49,12 @@ export function Wizard({ token, info: boot }: { token: string; info: SetupInfo }
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
 
-  // "where" preflight: validate the folder, refresh what's found there
-  const checkDir = async () => {
-    if (dir.trim() === info.root) return;
-    const r = await fetchSetupInfo(token, dir);
+  // "where" preflight: validate the folder, refresh what's found there.
+  // pass an explicit path to skip the no-op guard (used by the browse picker).
+  const checkDir = async (explicit?: string) => {
+    const d = (explicit ?? dir).trim();
+    if (!explicit && d === info.root) return;
+    const r = await fetchSetupInfo(token, d);
     if (!r.ok) return setDirNote(`✗ ${r.error}`);
     setInfo(r.info);
     setDir(r.info.root);
@@ -51,12 +65,46 @@ export function Wizard({ token, info: boot }: { token: string; info: SetupInfo }
     setEngine(r.info.hasProjectGodot ? 'godot' : 'none');
   };
 
+  const browseFolder = async () => {
+    const picked = await pickWizardFolder(token);
+    if (picked) {
+      setDir(picked);
+      await checkDir(picked);
+    }
+  };
+
+  const browseFile = async () => {
+    const picked = await pickWizardFile(token);
+    if (picked) {
+      setGddMode('text');
+      setGddText(picked.content);
+    }
+  };
+
+  const checkGddFolder = async (explicit?: string) => {
+    const d = (explicit ?? gddFolderPath).trim();
+    if (!d) return;
+    const r = await fetchGddFolderInfo(token, d);
+    if (!r.ok) return setGddFolderNote(`✗ ${r.error}`);
+    setGddFolderNote(`✓ ${r.count} .md / .txt file${r.count === 1 ? '' : 's'} found`);
+  };
+
+  const browseGddFolder = async () => {
+    const picked = await pickWizardFolder(token);
+    if (picked) {
+      setGddFolderPath(picked);
+      await checkGddFolder(picked);
+    }
+  };
+
   const gddNote =
     gddMode === 'have'
       ? gddPath
-      : isDoc(gddText)
-        ? 'gdd.md (your text, verbatim)'
-        : 'gdd.md (your text + starter sections)';
+      : gddMode === 'folder'
+        ? gddFolderPath
+        : isDoc(gddText)
+          ? 'gdd.md (your text, verbatim)'
+          : 'gdd.md (your text + starter sections)';
   const willWrite = [
     gddMode === 'text' ? gddNote : null,
     info.hasClaudeMd ? null : 'CLAUDE.md',
@@ -79,6 +127,7 @@ export function Wizard({ token, info: boot }: { token: string; info: SetupInfo }
       gddMode,
       gddPath: gddMode === 'have' ? gddPath : undefined,
       gddText: gddMode === 'text' ? gddText : undefined,
+      gddDir: gddMode === 'folder' ? gddFolderPath : undefined,
       engine,
       agentCmd: agentCmd.trim() || undefined,
     });
@@ -89,7 +138,13 @@ export function Wizard({ token, info: boot }: { token: string; info: SetupInfo }
     // success needs nothing here: the server follows the folder and pushes the board
   };
 
-  const ready = name.trim() !== '' && (gddMode === 'have' ? gddPath !== '' : gddText.trim() !== '');
+  const ready =
+    name.trim() !== '' &&
+    (gddMode === 'have'
+      ? gddPath !== ''
+      : gddMode === 'folder'
+        ? gddFolderNote.startsWith('✓')
+        : gddText.trim() !== '');
   return (
     <section className="mx-auto max-w-[640px] rounded-card border border-accent bg-surface p-6">
       <h2 className="font-display text-[22px] font-semibold">Pre-game setup</h2>
@@ -102,15 +157,23 @@ export function Wizard({ token, info: boot }: { token: string; info: SetupInfo }
         <p className="mb-1 text-[11px] text-muted">
           Paste the folder path on your computer — absolute path or starting with ~/
         </p>
-        <input
-          value={dir}
-          onChange={(e) => setDir(e.target.value)}
-          onBlur={() => void checkDir()}
-          onKeyDown={(e) => e.key === 'Enter' && void checkDir()}
-          placeholder="e.g. ~/projects/my-game or /Users/you/projects/my-game"
-          title="the folder the project lives in — absolute or ~ path; it's created if missing"
-          className={`${field} font-mono`}
-        />
+        <div className="flex items-start gap-2">
+          <input
+            value={dir}
+            onChange={(e) => setDir(e.target.value)}
+            onBlur={() => void checkDir()}
+            onKeyDown={(e) => e.key === 'Enter' && void checkDir()}
+            placeholder="e.g. ~/projects/my-game or /Users/you/projects/my-game"
+            title="the folder the project lives in — absolute or ~ path; it's created if missing"
+            className={`${field} flex-1 font-mono`}
+          />
+          <button
+            onClick={() => void browseFolder()}
+            className="mt-1.5 whitespace-nowrap rounded border border-line px-2.5 py-[7px] font-mono text-[11px] text-muted hover:border-accent hover:text-accent"
+          >
+            Browse…
+          </button>
+        </div>
         {dirNote && (
           <p
             className={`mt-1 font-mono text-[10px] ${dirNote.startsWith('✗') ? 'text-risk' : 'text-ok'}`}
@@ -130,30 +193,70 @@ export function Wizard({ token, info: boot }: { token: string; info: SetupInfo }
       </Section>
 
       <Section title="Tell us about your game">
-        {info.mdFiles.length > 0 && (
-          <div className="mt-1.5 flex flex-wrap gap-1.5">
+        <div className="mt-1.5 flex flex-wrap gap-1.5">
+          {info.mdFiles.length > 0 && (
             <button onClick={() => setGddMode('have')} className={chipCls(gddMode === 'have')}>
               I have a design doc
             </button>
-            <button onClick={() => setGddMode('text')} className={chipCls(gddMode === 'text')}>
-              write / paste
-            </button>
-          </div>
-        )}
+          )}
+          <button onClick={() => setGddMode('text')} className={chipCls(gddMode === 'text')}>
+            write / paste
+          </button>
+          <button onClick={() => setGddMode('folder')} className={chipCls(gddMode === 'folder')}>
+            folder of docs
+          </button>
+        </div>
         {gddMode === 'have' ? (
           <select value={gddPath} onChange={(e) => setGddPath(e.target.value)} className={field}>
             {info.mdFiles.map((f) => (
               <option key={f}>{f}</option>
             ))}
           </select>
+        ) : gddMode === 'folder' ? (
+          <div className="mt-1.5">
+            <div className="flex items-start gap-2">
+              <input
+                value={gddFolderPath}
+                onChange={(e) => {
+                  setGddFolderPath(e.target.value);
+                  setGddFolderNote('');
+                }}
+                onBlur={() => void checkGddFolder()}
+                onKeyDown={(e) => e.key === 'Enter' && void checkGddFolder()}
+                placeholder="/path/to/gdd-folder or ~/…"
+                className={`${field} flex-1 font-mono`}
+              />
+              <button
+                onClick={() => void browseGddFolder()}
+                className="mt-1.5 whitespace-nowrap rounded border border-line px-2.5 py-[7px] font-mono text-[11px] text-muted hover:border-accent hover:text-accent"
+              >
+                Browse…
+              </button>
+            </div>
+            {gddFolderNote && (
+              <p
+                className={`mt-1 font-mono text-[10px] ${gddFolderNote.startsWith('✗') ? 'text-risk' : 'text-ok'}`}
+              >
+                {gddFolderNote}
+              </p>
+            )}
+          </div>
         ) : (
-          <textarea
-            value={gddText}
-            onChange={(e) => setGddText(e.target.value)}
-            rows={5}
-            placeholder="paste your design doc, or just describe the game in your words — plain descriptions get starter sections your agent expands with you (Phase 0)"
-            className={field}
-          />
+          <div className="mt-1.5">
+            <button
+              onClick={() => void browseFile()}
+              className="mb-1.5 rounded border border-line px-2.5 py-1 font-mono text-[11px] text-muted hover:border-accent hover:text-accent"
+            >
+              Load from file…
+            </button>
+            <textarea
+              value={gddText}
+              onChange={(e) => setGddText(e.target.value)}
+              rows={5}
+              placeholder="paste your design doc, or just describe the game in your words — plain descriptions get starter sections your agent expands with you (Phase 0)"
+              className={field}
+            />
+          </div>
         )}
       </Section>
 

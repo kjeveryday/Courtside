@@ -1,9 +1,12 @@
 // The gated /api/* surface (split from http.ts per rule 12 — D-4). Every
 // route reads ctx live, so a setup re-point swaps the whole tool's target.
-import { existsSync, readFileSync } from 'node:fs';
+import { execFile } from 'node:child_process';
+import { existsSync, readdirSync, readFileSync, statSync } from 'node:fs';
 import type { IncomingMessage, ServerResponse } from 'node:http';
-import { dirname, extname, join } from 'node:path';
+import { homedir } from 'node:os';
+import { basename, dirname, extname, isAbsolute, join } from 'node:path';
 import { appendDirective, decisionFor, readDecisionLog } from '../core/decisions.ts';
+import { readProjectConfig } from '../core/projectConfig.ts';
 import { runDoctor } from '../core/doctor.ts';
 import { buildHuddle } from '../core/huddle.ts';
 import { dispatchAgent, persistRun } from './agentRunner.ts';
@@ -211,6 +214,46 @@ export async function handleApi(ctx: HttpContext, req: IncomingMessage, res: Ser
       r.ok ? { ok: true, detail: r.answer.slice(0, 120) } : { ok: false, detail: r.error },
     );
   }
+  if (req.method === 'GET' && path === '/api/wizard/gdd-folder-info') {
+    const raw = new URL(req.url ?? '', 'http://x').searchParams.get('dir') ?? '';
+    const expanded = raw === '~' || raw.startsWith('~/') ? join(homedir(), raw.slice(1)) : raw;
+    if (!expanded || !isAbsolute(expanded))
+      return json(res, 400, { error: 'absolute path required' });
+    if (!existsSync(expanded) || !statSync(expanded).isDirectory())
+      return json(res, 400, { error: 'folder not found' });
+    const files = readdirSync(expanded).filter(
+      (f) => (f.endsWith('.md') || f.endsWith('.txt')) && !f.startsWith('.'),
+    );
+    return json(res, 200, { count: files.length, files });
+  }
+  if (req.method === 'GET' && path === '/api/wizard/pick-folder') {
+    const picked = await new Promise<string | null>((resolve) => {
+      execFile(
+        'osascript',
+        ['-e', 'POSIX path of (choose folder with prompt "Where does your game live?")'],
+        (err, stdout) => resolve(err ? null : stdout.trim()),
+      );
+    });
+    return json(res, 200, { path: picked });
+  }
+  if (req.method === 'GET' && path === '/api/wizard/pick-file') {
+    const picked = await new Promise<string | null>((resolve) => {
+      execFile(
+        'osascript',
+        ['-e', 'POSIX path of (choose file with prompt "Pick your design doc — any text file")'],
+        (err, stdout) => resolve(err ? null : stdout.trim()),
+      );
+    });
+    if (!picked) return json(res, 200, { path: null, content: null });
+    try {
+      const stat = statSync(picked);
+      if (stat.size > 1_000_000) return json(res, 400, { error: 'file too large (max 1 MB)' });
+      const content = readFileSync(picked, 'utf-8');
+      return json(res, 200, { path: picked, content });
+    } catch (err) {
+      return json(res, 500, { error: (err as Error).message });
+    }
+  }
   if (req.method === 'GET' && path.startsWith('/api/tape/')) {
     const file = safeTapePath(ctx.planDir, path);
     if (!file || !existsSync(file)) return json(res, 404, { error: 'no such tape frame' });
@@ -222,9 +265,44 @@ export async function handleApi(ctx: HttpContext, req: IncomingMessage, res: Ser
     // the tool's own manual opens in EVERY project — fixed literal, confined
     if ((!file || !existsSync(file)) && path === '/api/doc/courtside-guide.md')
       file = join(ctx.repoRoot, 'docs', 'courtside-guide.md');
+    // gddDir fallback: design docs that live outside the project folder
+    if (!file || !existsSync(file)) {
+      const cfg = readProjectConfig(dirname(ctx.planDir));
+      if (cfg?.gddDir) {
+        const name = basename(decodeURIComponent(path.replace('/api/doc/', '')));
+        if (name && !name.startsWith('.')) {
+          const candidate = join(cfg.gddDir, name);
+          if (existsSync(candidate) && statSync(candidate).isFile()) file = candidate;
+        }
+      }
+    }
     if (!file || !existsSync(file)) return json(res, 404, { error: 'no such doc' });
     res.writeHead(200, { 'content-type': 'text/plain; charset=utf-8' });
     return res.end(readFileSync(file));
+  }
+  if (req.method === 'GET' && path === '/api/open-file') {
+    const ref = decodeURIComponent(
+      new URL(req.url ?? '', 'http://x').searchParams.get('ref') ?? '',
+    );
+    if (!ref) return json(res, 400, { error: 'ref required' });
+    // resolve same way as /api/doc/ — project root first, then gddDir
+    let target = safeDocPath(ctx.planDir, `/api/doc/${ref}`);
+    if (!target || !existsSync(target)) {
+      const cfg = readProjectConfig(dirname(ctx.planDir));
+      if (cfg?.gddDir) {
+        const name = basename(ref);
+        if (name && !name.startsWith('.')) {
+          const candidate = join(cfg.gddDir, name);
+          if (existsSync(candidate) && statSync(candidate).isFile()) target = candidate;
+        }
+      }
+    }
+    if (!target || !existsSync(target)) return json(res, 404, { error: 'file not found' });
+    execFile('open', [target], (err) => {
+      if (err) json(res, 500, { error: err.message });
+      else json(res, 200, { ok: true });
+    });
+    return;
   }
   if (req.method === 'GET' && path.startsWith('/api/artifact/')) {
     const file = safeArtifactPath(ctx.planDir, path);

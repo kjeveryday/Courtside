@@ -59,11 +59,12 @@ export default function App() {
     ref: string;
     text: string | null;
     error: string | null;
+    token?: string;
   } | null>(null);
 
   const openDoc = (ref: string) => {
-    setDocView({ ref, text: null, error: null });
     const token = ensureToken();
+    setDocView({ ref, text: null, error: null, token: token ?? undefined });
     if (!token) return;
     void fetchDoc(token, ref).then((r) =>
       setDocView((cur) =>
@@ -174,6 +175,7 @@ export default function App() {
             text={docView.text}
             error={docView.error}
             onClose={() => setDocView(null)}
+            token={docView.token}
           />
         </div>
       )}

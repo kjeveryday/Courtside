@@ -126,9 +126,10 @@ export type StatePayload = {
 export type SetupAnswers = {
   dir?: string;
   projectName: string;
-  gddMode: 'have' | 'text';
+  gddMode: 'have' | 'text' | 'folder';
   gddPath?: string;
   gddText?: string;
+  gddDir?: string;
   engine?: 'godot' | 'unity' | 'none';
   agentCmd?: string;
 };
@@ -174,6 +175,58 @@ export async function postTestAgent(
     return { ok: data.ok ?? false, detail: data.detail ?? '' };
   } catch (err) {
     return { ok: false, detail: err instanceof Error ? err.message : String(err) };
+  }
+}
+
+export async function fetchGddFolderInfo(
+  token: string,
+  dir: string,
+): Promise<{ ok: true; count: number; files: string[] } | { ok: false; error: string }> {
+  try {
+    const res = await fetch(`/api/wizard/gdd-folder-info?dir=${encodeURIComponent(dir)}`, {
+      headers: { authorization: `Bearer ${token}` },
+    });
+    const data = (await res.json().catch(() => ({}))) as {
+      count?: number;
+      files?: string[];
+      error?: string;
+    };
+    if (!res.ok || data.count === undefined)
+      return { ok: false, error: data.error ?? `HTTP ${res.status}` };
+    return { ok: true, count: data.count, files: data.files ?? [] };
+  } catch (err) {
+    return { ok: false, error: err instanceof Error ? err.message : String(err) };
+  }
+}
+
+export async function pickWizardFolder(token: string): Promise<string | null> {
+  try {
+    const res = await fetch('/api/wizard/pick-folder', {
+      headers: { authorization: `Bearer ${token}` },
+    });
+    const data = (await res.json().catch(() => ({}))) as { path?: string | null };
+    return typeof data.path === 'string' ? data.path : null;
+  } catch {
+    return null;
+  }
+}
+
+export async function pickWizardFile(
+  token: string,
+): Promise<{ path: string; content: string } | null> {
+  try {
+    const res = await fetch('/api/wizard/pick-file', {
+      headers: { authorization: `Bearer ${token}` },
+    });
+    const data = (await res.json().catch(() => ({}))) as {
+      path?: string | null;
+      content?: string | null;
+      error?: string;
+    };
+    if (!data.path || !data.content) return null;
+    return { path: data.path, content: data.content };
+  } catch {
+    return null;
   }
 }
 
@@ -269,6 +322,17 @@ export async function fetchDoctor(token: string): Promise<unknown | null> {
     return res.ok ? await res.json() : null;
   } catch {
     return null;
+  }
+}
+
+// open the resolved file in the user's default app (macOS open) — best-effort
+export async function openFileLocally(token: string, ref: string): Promise<void> {
+  try {
+    await fetch(`/api/open-file?ref=${encodeURIComponent(ref.split('#')[0] ?? ref)}`, {
+      headers: { authorization: `Bearer ${token}` },
+    });
+  } catch {
+    // silent: this is a convenience shortcut, not a data operation
   }
 }
 

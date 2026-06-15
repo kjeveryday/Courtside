@@ -84,7 +84,8 @@ export function runSetup(opts: {
   const gddMode = str('gddMode', 16);
   const engine = str('engine', 16);
   const agentCmd = str('agentCmd', 200);
-  if (!['have', 'text'].includes(gddMode)) return bad('gddMode must be have | text');
+  if (!['have', 'text', 'folder'].includes(gddMode))
+    return bad('gddMode must be have | text | folder');
   if (engine && !['godot', 'unity', 'none'].includes(engine))
     return bad('engine must be godot | unity | none');
 
@@ -92,13 +93,16 @@ export function runSetup(opts: {
   const kept: string[] = [];
 
   // design doc — three honest paths, no overwrites
-  let gddRel = 'gdd.md';
+  let gddRel: string | undefined;
+  let gddDir: string | undefined;
+
   if (gddMode === 'have') {
     gddRel = str('gddPath', 200);
     if (!setupInfo(planDir).mdFiles.includes(gddRel))
       return bad('gddPath must be one of the markdown files found in the project');
     kept.push(gddRel);
-  } else {
+  } else if (gddMode === 'text') {
+    gddRel = 'gdd.md';
     if (existsSync(join(root, 'gdd.md')))
       return bad('gdd.md already exists — choose "use a file I have" instead');
     const text = str('gddText', 200_000);
@@ -111,12 +115,26 @@ export function runSetup(opts: {
       isDoc ? text + '\n' : gddFromDescription(projectName, text),
     );
     written.push('gdd.md');
+  } else {
+    // folder mode: an external docs folder the agent reads directly
+    const rawDir = str('gddDir', 500);
+    if (!rawDir) return bad('pick a folder containing your design docs');
+    const expanded =
+      rawDir === '~' || rawDir.startsWith('~/') ? join(homedir(), rawDir.slice(1)) : rawDir;
+    if (!isAbsolute(expanded)) return bad('gddDir must be an absolute path (or ~/…)');
+    if (!existsSync(expanded) || !statSync(expanded).isDirectory())
+      return bad('gddDir: folder not found');
+    const docCount = readdirSync(expanded).filter(
+      (f) => (f.endsWith('.md') || f.endsWith('.txt')) && !f.startsWith('.'),
+    ).length;
+    if (docCount === 0) return bad('no .md or .txt files found in that folder');
+    gddDir = expanded;
   }
 
   // starter rules + process doc — only where absent
   if (existsSync(join(root, 'CLAUDE.md'))) kept.push('CLAUDE.md');
   else {
-    writeFileSync(join(root, 'CLAUDE.md'), claudeMdStarter(projectName));
+    writeFileSync(join(root, 'CLAUDE.md'), claudeMdStarter(projectName, gddDir));
     written.push('CLAUDE.md');
   }
   const fwSrc = join(courtsideRoot, 'docs', 'framework-v2.md');
@@ -133,12 +151,17 @@ export function runSetup(opts: {
       project: projectName,
       engine: engine ? (engine as 'godot' | 'unity' | 'none') : undefined,
       gdd: gddRel,
+      gddDir,
       agentCmd: agentCmd || undefined,
     }),
   );
 
   // the board itself — contract-validated before it touches disk
-  const state = freshState(projectName, `wrote ${[...written, 'plan/state.json'].join(', ')}`);
+  const state = freshState(
+    projectName,
+    `wrote ${[...written, 'plan/state.json'].join(', ')}`,
+    gddDir,
+  );
   const checked = validateState(state);
   if (!checked.ok)
     return {

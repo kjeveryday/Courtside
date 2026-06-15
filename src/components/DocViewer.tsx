@@ -2,6 +2,7 @@
 // section the ref's anchor names, highlighting it. Plain rendering on purpose —
 // the doc is the artifact; the dashboard just gets you to the right paragraph.
 import { useEffect, useRef } from 'react';
+import { openFileLocally } from '../lib/api';
 import { locateSection } from '../lib/anchors';
 
 export function DocViewer({
@@ -9,11 +10,13 @@ export function DocViewer({
   text,
   error,
   onClose,
+  token,
 }: {
   docRef: string; // e.g. "gdd.md#movement-ranges"
   text: string | null;
   error: string | null;
   onClose: () => void;
+  token?: string;
 }) {
   const anchor = docRef.split('#')[1];
   const target = useRef<HTMLDivElement>(null);
@@ -30,9 +33,20 @@ export function DocViewer({
     <section className="mb-5 rounded-card border border-info/50 bg-surface p-5">
       <div className="mb-2 flex items-baseline justify-between">
         <h2 className="font-mono text-[12px] text-info">{docRef}</h2>
-        <button onClick={onClose} className="font-mono text-[11px] text-muted underline">
-          close
-        </button>
+        <span className="flex items-center gap-3">
+          {token && text !== null && (
+            <button
+              onClick={() => void openFileLocally(token, docRef)}
+              className="font-mono text-[11px] text-muted underline"
+              title="open in default app"
+            >
+              open file ▸
+            </button>
+          )}
+          <button onClick={onClose} className="font-mono text-[11px] text-muted underline">
+            close
+          </button>
+        </span>
       </div>
       {error && <p className="font-mono text-xs text-risk">{error}</p>}
       {text !== null && match.kind === 'missing' && (

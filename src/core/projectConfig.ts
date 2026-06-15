@@ -9,6 +9,7 @@ export type ProjectConfig = {
   project?: string;
   engine?: 'godot' | 'unity' | 'none';
   gdd?: string; // project-root-relative path to the design doc
+  gddDir?: string; // absolute path to an external folder of design docs
   agentCmd?: string;
 };
 

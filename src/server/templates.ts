@@ -2,8 +2,15 @@
 // Pure builders — setup.ts decides what to write, these decide what's in it.
 import type { CourtsideState } from '../contract/state.generated.ts';
 
-export function freshState(projectName: string, writtenNote: string): CourtsideState {
+export function freshState(
+  projectName: string,
+  writtenNote: string,
+  gddDir?: string,
+): CourtsideState {
   const now = new Date().toISOString();
+  const narration = gddDir
+    ? `Set up complete. Kick off your agent with: "Read CLAUDE.md, begin Phase 0, and read the design docs in ${gddDir} with the human first."`
+    : 'Set up complete. Kick off your agent with: "Read CLAUDE.md, begin Phase 0, and expand gdd.md with the human first."';
   return {
     schema: 'courtside/v0',
     phase: '0',
@@ -11,8 +18,7 @@ export function freshState(projectName: string, writtenNote: string): CourtsideS
     agent: {
       state: 'idle',
       since: now,
-      narration:
-        'Set up complete. Kick off your agent with: "Read CLAUDE.md, begin Phase 0, and expand gdd.md with the human first."',
+      narration,
     },
     gates: [],
     tasks: [],
@@ -54,7 +60,10 @@ TODO — what v0.1 deliberately leaves out.
 `;
 }
 
-export function claudeMdStarter(projectName: string): string {
+export function claudeMdStarter(projectName: string, gddDir?: string): string {
+  const gddRef = gddDir
+    ? `All design docs live in ${gddDir} — read every .md file there before starting any task. Spec silent? Log the question in plan/open-questions.md with options + a recommendation. Stop.`
+    : `The design doc (gdd.md) wins on features and behavior. Spec silent? Log the question in plan/open-questions.md with options + a recommendation. Stop.`;
   return `# CLAUDE.md — Always-On Rules (${projectName})
 
 Project: ${projectName}, supervised through the Courtside dashboard. The human
@@ -67,8 +76,7 @@ VERIFY everything in the browser and the game harness.
    the dashboard; never auto-advance past one.
 2. FIRST ACTION every session: read plan/decisions-inbox/ and act on what the
    human decided (answers-as-data). Archive consumed files to consumed/.
-3. The design doc (gdd.md) wins on features and behavior. Spec silent? Log the
-   question in plan/open-questions.md with options + a recommendation. Stop.
+3. ${gddRef}
 4. Narrate: before each step, one line on WHY and WHAT'S NEXT into
    plan/state.json events (provenance "claimed").
 5. Plan state lives in plan/ (state.json, backlog.md, decisions.md,
